@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Anketo;
+use App\Models\User;
 
 class UserController extends Controller
 {
-    //
     public function signup(Request $request) {
         $psychological_test_1 = '';
         switch ($request->psychological_test_1) {
@@ -48,6 +48,50 @@ class UserController extends Controller
         $anketo->user_id = rand(1, 1000);
         $anketo->save();
 
-        return response()->json(['message' => 'Data saved successfully!', 'anketo' => $anketo], 201);
+        return response()->json(['message' => 'データが正常に保存されました！', 'anketo' => $anketo], 201);
+    }
+
+    public function storeFaceID(Request $request) {
+        $request->validate([
+            'deviceId' => 'required|string',
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+        
+        // デバイスIDが既にデータベースに存在するか確認
+        $existingUser = User::where('device_id', $request->deviceId)->first();
+        if ($existingUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'このユーザーは既に登録されています。',
+            ], 400);  // 重複するデバイスIDの場合、400エラー（不正なリクエスト）を返す
+        }
+
+        // 写真をstorage/app/public/face_id_photosに保存
+        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+
+        // device IDと写真のパスをデータベースに保存
+        $user = new User();
+        $user->device_id = $request->deviceId;
+        $user->face_photo = $photoPath;
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'Face IDが正常に有効化されました！']);
+    }
+
+    public function loginWithFaceId(Request $request)
+    {
+        $request->validate([
+            'deviceId' => 'required|string',
+        ]);
+
+        // // deviceIdがusersテーブルに存在することを検証
+        $user = User::where('device_id', $request->deviceId)->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'デバイスIDが見つからないか、認証に失敗しました。']);
+        }
+
+        // 認証が成功した場合
+        return response()->json(['success' => true, 'message' => 'Face IDで正常に認証されました。']);
     }
 }

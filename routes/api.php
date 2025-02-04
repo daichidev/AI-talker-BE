@@ -22,4 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/sign-up', [UserController::class, 'signup']);
 
+Route::post('/store-face-id', [UserController::class, 'storeFaceID']);
+Route::post('/login-with-face-id', [UserController::class, 'loginWithFaceID']);
+
 Route::post('/chat', [ChatbotController::class, 'chat']);
