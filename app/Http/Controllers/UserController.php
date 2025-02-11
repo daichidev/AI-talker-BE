@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Anketo;
 use App\Models\User;
+use App\Http\Controllers\DeepImageController;
 
 class UserController extends Controller
 {
@@ -55,6 +56,7 @@ class UserController extends Controller
         $request->validate([
             'deviceId' => 'required|string',
             'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'avatarType' => 'required|integer'
         ]);
         
         // デバイスIDが既にデータベースに存在するか確認
@@ -69,13 +71,28 @@ class UserController extends Controller
         // 写真をstorage/app/public/face_id_photosに保存
         $photoPath = $request->file('photo')->store('face_id_photos', 'public');
 
+        $deepImageController = new DeepImageController();
+        $modifiedRequest = new Request([
+            'photoPath' => $photoPath,
+            'avatar_type' => $request->avatarType,
+        ]);
+        $avatarPath = $deepImageController->processImage($modifiedRequest);
+
         // device IDと写真のパスをデータベースに保存
         $user = new User();
         $user->device_id = $request->deviceId;
         $user->face_photo = $photoPath;
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'Face IDが正常に有効化されました！']);
+        $avatar = new Avatar();
+        $avatar->avatar_link = $avatarPath;
+        $avatar->user_id = $user->id;
+        $avatar->save();
+        
+        return response()->json([
+            'userId' => $user->id,
+            'avatarPath' => $avatarPath  
+        ]);
     }
 
     public function loginWithFaceId(Request $request)
