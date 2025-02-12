@@ -17,8 +17,7 @@ class CreateAvatarsTable extends Migration
             $table->id();
             $table->string('avatar_link', 255);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamp('created_at');
-            $table->timestamp('updated_at');
+            $table->timestamps();
         });
     }
 
