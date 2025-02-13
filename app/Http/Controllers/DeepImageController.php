@@ -50,7 +50,7 @@ class DeepImageController extends Controller
     {
         $photoPath = $request->input('photoPath');
         $avatarType = $request->input('avatar_type');
-        $fullPhotoPath = storage_path("app/public/{$photoPath}");
+        $fullPhotoPath = storage_path("app/public/face_id_photos/{$photoPath}");
 
         // $fullPhotoTestPath = storage_path("app/public/face_id_photos/test.jpg");
 
