@@ -4,6 +4,7 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Config;
 
 class OpenAIService
 {
@@ -13,7 +14,7 @@ class OpenAIService
     public function __construct()
     {
         $this->client = new Client();
-        $this->apiKey = env('OPENAI_API_KEY');
+        $this->apiKey = Config::get('app.open_api_key');
     }
 
     public function chat($message)

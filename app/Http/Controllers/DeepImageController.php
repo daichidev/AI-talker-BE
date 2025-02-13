@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 
 class DeepImageController extends Controller
 {
@@ -43,7 +44,7 @@ class DeepImageController extends Controller
     
     public function __construct()
     {
-        $this->apiKey = env('DEEP_IMAGE_API_KEY');
+        $this->apiKey = Config::get('app.deep_image_api_key');
     }
 
     public function processImage(Request $request)
