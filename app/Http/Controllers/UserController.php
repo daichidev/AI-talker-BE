@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Anketo;
 use App\Models\User;
+use App\Models\Avatar;
 use App\Http\Controllers\DeepImageController;
 
 class UserController extends Controller
