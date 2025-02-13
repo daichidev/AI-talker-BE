@@ -51,7 +51,9 @@ class DeepImageController extends Controller
         $photoPath = $request->input('photoPath');
         $avatarType = $request->input('avatar_type');
         $fullPhotoPath = storage_path("app/public/{$photoPath}");
-        
+
+        // $fullPhotoTestPath = storage_path("app/public/face_id_photos/test.jpg");
+
         $descriptions = self::DESCRIPTIONS[$avatarType] ?? self::DESCRIPTIONS[3];
         $randomDescription = $descriptions[array_rand($descriptions)];
     
@@ -80,8 +82,9 @@ class DeepImageController extends Controller
     
             if ($responseData['status'] == 'complete') {
                 $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
+
                 return response()->json([
-                    'image_url' => "$processedImageUrl",
+                    'image_url' => $processedImageUrl,
                 ]);
             }
     
@@ -94,6 +97,7 @@ class DeepImageController extends Controller
                     $responseData = $statusResponse->json();
                     if ($responseData['status'] == 'complete') {
                         $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
+
                         return response()->json([
                             'image_url' => $processedImageUrl,
                         ]);

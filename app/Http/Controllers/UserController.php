@@ -71,29 +71,40 @@ class UserController extends Controller
 
         // 写真をstorage/app/public/face_id_photosに保存
         $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+        
+        // ファイル名のみを取得
+        $filename = basename($photoPath);
 
         $deepImageController = new DeepImageController();
         $modifiedRequest = new Request([
-            'photoPath' => $photoPath,
+            'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
         ]);
-        $avatarPath = $deepImageController->processImage($modifiedRequest);
+        $response = $deepImageController->processImage($modifiedRequest);
+        $responseData = $response->getData(true);
 
-        // device IDと写真のパスをデータベースに保存
-        $user = new User();
-        $user->device_id = $request->deviceId;
-        $user->face_photo = $photoPath;
-        $user->save();
+        if (isset($responseData['image_url'])) {
+            $avatarPath = $responseData['image_url'];
 
-        $avatar = new Avatar();
-        $avatar->avatar_link = $avatarPath;
-        $avatar->user_id = $user->id;
-        $avatar->save();
-        
-        return response()->json([
-            'userId' => $user->id,
-            'avatarPath' => $avatarPath  
-        ]);
+             // device IDと写真のパスをデータベースに保存
+            $user = new User();
+            $user->device_id = $request->deviceId;
+            $user->face_photo = $photoPath;
+            $user->save();
+    
+            $avatar = new Avatar();
+            $avatar->avatar_link = $avatarPath;
+            $avatar->user_id = $user->id;
+            $avatar->save();
+    
+            return response()->json([
+                'success' => true, 
+                'userId' => $user->id,
+                'avatarPath' => $avatarPath  
+            ]);
+        } else {
+            return response()->json(['success' => false, 'message' => '画像の処理に失敗しました。'], 500);
+        }
     }
 
     public function loginWithFaceId(Request $request)
