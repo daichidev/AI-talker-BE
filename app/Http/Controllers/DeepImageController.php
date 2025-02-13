@@ -50,7 +50,7 @@ class DeepImageController extends Controller
     {
         $photoPath = $request->input('photoPath');
         $avatarType = $request->input('avatar_type');
-        $fullPhotoPath = storage_path("app/public/face_id_photos/{$photoPath}");
+        $fullPhotoPath = storage_path("app/public/{$photoPath}");
         
         $descriptions = self::DESCRIPTIONS[$avatarType] ?? self::DESCRIPTIONS[3];
         $randomDescription = $descriptions[array_rand($descriptions)];
