@@ -17,6 +17,7 @@ class ChatbotController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
+            'user_id' => 'required|string',
             'message' => 'required|string',
         ]);
 

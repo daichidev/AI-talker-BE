@@ -16,7 +16,8 @@ class CreateAnketoTable extends Migration
         Schema::create('anketos', function (Blueprint $table) {
             $table->id();
             $table->text('content');
-            $table->string('user_id', 255);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('question_key');
             $table->timestamps();
         });
     }

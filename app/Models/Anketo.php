@@ -9,5 +9,5 @@ class Anketo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'user_id'];
+    protected $fillable = ['content', 'user_id', 'question_key'];
 }
