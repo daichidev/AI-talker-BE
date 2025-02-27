@@ -5,11 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Anketo extends Model
+class ChatLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'user_id', 'question_key'];
+    protected $table = 'chat_logs';
+
+    protected $fillable = [
+        'user_id',
+        'question',
+        'answer',
+    ];
 
     public function user()
     {

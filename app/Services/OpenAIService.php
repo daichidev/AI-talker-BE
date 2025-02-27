@@ -5,6 +5,8 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Config;
+use App\Models\User;
+use App\Models\ChatLog;
 
 class OpenAIService
 {
@@ -17,11 +19,24 @@ class OpenAIService
         $this->apiKey = Config::get('app.open_api_key');
     }
 
-    public function chat($message)
+    public function chat($userId, $message)
     {
         try {
-            $userInfo = "ユーザー情報: 名前: fujimura, 性別: 男性, 生年月日: 2000年6月29日, 出身地: ニューヨーク, 住所: 大阪, 日本, 血液型: B型, 学歴: 大阪大学, 趣味: バスケットボール。";
-            $systemMessage = "あなたは藤村という名前のAIアシスタントです。 あなたの目的は、ユーザー（藤村）と楽しく会話し、彼を笑顔にすることです。あなたは彼の性格や過去の会話を理解し、リアルな藤村のように振る舞います。これまでの会話の中で藤村は次のことを話していました：私は花子という処女が好きですが、彼の目はとても大きく、髪はとても黒いです。藤村の基本情報：$userInfo ユーザーの話に共感し、面白い話やユーモアを交えて会話してください。";
+            $user = User::with('anketos')->find($userId);
+            $anketoData = $user->anketos->pluck('content', 'question_key')->toArray();
+ 
+            $userInfo = "ユーザー情報: 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 学歴: ".$anketoData['education'].", 趣味: ".$anketoData['hobby']."";
+
+            $chatLogs = ChatLog::where('user_id', $userId)
+                ->orderBy('created_at', 'asc')
+                ->get(['question', 'answer']);
+        
+            $conversationHistory = '';
+            foreach ($chatLogs as $chatLog) {
+                $conversationHistory .= "質問: " . $chatLog->question . " 回答: " . $chatLog->answer . " ";
+            }
+
+            $systemMessage = "あなたは".$anketoData['name']."さんとしてユーザーと会話を楽しむキャラクターです。ユーザーがどんな質問をしても、あなたは".$anketoData['name']."さんとして答えます。これまでの会話の中で".$anketoData['name']."さんは次のことを話していました：".$conversationHistory." ".$anketoData['name']."さんの基本情報：".$userInfo."。ユーザーの話に共感し、面白い話やユーモアを交えて会話してください。";
             
             $fullMessage = [
                 ['role' => 'system', 'content' => $systemMessage],

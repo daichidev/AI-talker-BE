@@ -16,7 +16,7 @@ use App\Http\Controllers\ChatbotController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -26,5 +26,7 @@ Route::post('/login-with-face-id', [UserController::class, 'loginWithFaceID']);
 
 Route::post('/anketo', [UserController::class, 'storeAnketo']);
 Route::post('/anketo/question', [UserController::class, 'getQuestion']);
+
+Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/chat', [ChatbotController::class, 'chat']);

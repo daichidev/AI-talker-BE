@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     protected $questions = [
-        'name', 'gender', 'birthdate', 'hometown', 'address',
+        'name', 'user_nickname', 'bot_nickname', 'gender', 'birthdate', 'hometown', 'address',
         'blood_type', 'education', 'hobby', 'email', 'password'
     ];
 
@@ -89,22 +89,24 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'Face IDで正常に認証されました。']);
     }
 
-    public function storeAnketo(Request $request) {
+    public function storeAnketo(Request $request) {       
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'question_key' => 'required|in:' . implode(',', $this->questions),
+            'question_key' => 'required',
             'content' => 'required|string'
         ]);
 
+        $questionKey = $this->questions[$request->question_key];
+
         $user = User::find($request->user_id);
 
-        if ($request->question_key == 'email') {
+        if ($questionKey == 'email') {
             $existingUser = User::where('email', $request->content)->first();
             
             if ($existingUser && $existingUser->id != $user->id) {
                 return response()->json([
                     'success' => true,
-                    'next_question_key' => 'email',
+                    'anketo_status' => $user->anketo_status,
                     'next_question_text' => 'すでに同じメールが存在しています。 別のメールを入力してください。'
                 ]);
             }
@@ -112,40 +114,40 @@ class UserController extends Controller
             $user->email = $request->content;
         }
 
-        if ($request->question_key == 'password') {
+        if ($questionKey == 'password') {
             $user->password = Hash::make($request->content);
         }
 
-        $user->save();
+        $user->anketo_status += 1;
 
-        if ($request->question_key !== 'email' && $request->question_key !== 'password') {
+        $user->save();
+        
+        if ($questionKey == 'password') {
+            return response()->json([
+                'success' => true,
+                'anketo_status' => $user->anketo_status,
+                'next_question_text' => 'おめでとうございます。ユーザー登録が成功しました。'
+            ]);
+        }
+
+        if ($questionKey !== 'email' && $questionKey !== 'password') {
             Anketo::updateOrCreate(
-                ['user_id' => $request->user_id, 'question_key' => $request->question_key],
+                ['user_id' => $request->user_id, 'question_key' => $questionKey],
                 ['content' => $request->content]
             );
         }
 
-        $nextQuestionKey = $this->getNextQuestion($request->user_id, $request->question_key);
+        $questionRequest = new Request(['question_key' => $user->anketo_status]);
+        $questionResponse = $this->getQuestion($questionRequest);
+        $questionData = json_decode($questionResponse->getContent(), true);
 
-        if ($nextQuestionKey) {
-            $questionRequest = new Request(['question_key' => $nextQuestionKey]);
-            $questionResponse = $this->getQuestion($questionRequest);
-            $questionData = json_decode($questionResponse->getContent(), true);
-
-            if ($questionData['success']) {
-                return response()->json([
-                    'success' => true,
-                    'next_question_key' => $nextQuestionKey,
-                    'next_question_text' => $questionData['question_text']
-                ]);
-            }
+        if ($questionData['success']) {
+            return response()->json([
+                'success' => true,
+                'anketo_status' => $user->anketo_status,
+                'next_question_text' => $questionData['question_text']
+            ]);
         }
-    
-        return response()->json([
-            'success' => true,
-            'next_question_key' => null,
-            'next_question_text' => null
-        ]);
     }
 
     private function getNextQuestion($userId, $currentQuestion) {
@@ -159,19 +161,43 @@ class UserController extends Controller
     public function getQuestion(Request $request)
     {
         $request->validate([
-            'question_key' => 'required|string',
+            'question_key' => 'required',
         ]);
+
+        $questionKey = $this->questions[$request->question_key];
 
         $questions = config('anketo_question');
 
-        if (!array_key_exists($request->question_key, $questions)) {
+        if (!array_key_exists($questionKey, $questions)) {
             return response()->json(['success' => false, 'message' => '質問が見つかりません。'], 404);
         }
 
         return response()->json([
             'success' => true,
             'question_key' => $request->question_key,
-            'question_text' => $questions[$request->question_key],
+            'question_text' => $questions[$questionKey],
+        ]);
+    }
+
+    public function login(Request $request) 
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+    
+        $user = User::with('latestAvatar')->where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'user' => $user,
         ]);
     }
 }
