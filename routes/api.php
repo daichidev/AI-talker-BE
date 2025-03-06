@@ -20,6 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/test', function() {
+    return response()->json("test success");
+});
+
 Route::post('/store-face-id', [UserController::class, 'storeFaceID']);
 
 Route::post('/login-with-face-id', [UserController::class, 'loginWithFaceID']);
