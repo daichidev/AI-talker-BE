@@ -24,11 +24,11 @@ class ChatbotController extends Controller
 
         $responseData = $this->openAIService->chat($request->user_id, $request->message);
 
-        // ChatLog::create([
-        //     'user_id' => $request->user_id,
-        //     'question' => $request->message,
-        //     'answer' => $responseData['choices'][0]['message']['content'],
-        // ]);
+        ChatLog::create([
+            'user_id' => $request->user_id,
+            'question' => $request->message,
+            'answer' => $responseData['choices'][0]['message']['content'],
+        ]);
 
         return response()->json([
             'success' => true,

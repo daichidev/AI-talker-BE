@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Models\Anketo;
 use App\Models\User;
 use App\Models\Avatar;
+use App\Models\ChatLog;
+
 use App\Http\Controllers\DeepImageController;
 
 use Illuminate\Support\Facades\Http;
@@ -233,11 +236,22 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-    
+        
+        $chatLogs = ChatLog::where('user_id', $user->id)
+                    ->get();
+
+        $formattedMessages = $chatLogs->flatMap(function ($chatLog) {
+            return [
+                ['text' => $chatLog->question, 'sender' => 'user'],
+                ['text' => $chatLog->answer, 'sender' => 'bot'],
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'token' => $token,
             'user' => $user,
+            'messages' => $formattedMessages,
         ]);
     }
 }

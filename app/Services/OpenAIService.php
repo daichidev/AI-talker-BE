@@ -25,7 +25,7 @@ class OpenAIService
             $user = User::with('anketos')->find($userId);
             $anketoData = $user->anketos->pluck('content', 'question_key')->toArray();
  
-            $userInfo = "ユーザー情報: 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 学歴: ".$anketoData['education'].", 趣味: ".$anketoData['hobby']."";
+            $userInfo = "ユーザー情報: 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 職業: ".$anketoData['job'].", 趣味: ".$anketoData['hobby']."";
 
             $chatLogs = ChatLog::where('user_id', $userId)
                 ->orderBy('created_at', 'asc')
@@ -36,7 +36,7 @@ class OpenAIService
                 $conversationHistory .= "質問: " . $chatLog->question . " 回答: " . $chatLog->answer . " ";
             }
 
-            $systemMessage = "あなたは".$anketoData['name']."さんとしてユーザーと会話を楽しむキャラクターです。ユーザーがどんな質問をしても、あなたは".$anketoData['name']."さんとして答えます。これまでの会話の中で".$anketoData['name']."さんは次のことを話していました：".$conversationHistory." ".$anketoData['name']."さんの基本情報：".$userInfo."。ユーザーの話に共感し、面白い話やユーモアを交えて会話してください。";
+            $systemMessage = "あなたは".$anketoData['bot_nickname']."さんとして".$anketoData['user_nickname']."と会話を楽しむキャラクターです。".$anketoData['user_nickname']."がどんな質問をしても、あなたは".$anketoData['name']."さんとして答えます。あなたの回答にはできるだけ多くの絵文字を含めてください！ これまでの会話の中で".$anketoData['name']."さんは次のことを話していました：".$conversationHistory." ".$anketoData['name']."さんの基本情報：".$userInfo."。".$anketoData['user_nickname']."の話に共感し、面白い話やユーモアを交えて会話してください。";
             
             $fullMessage = [
                 ['role' => 'system', 'content' => $systemMessage],
