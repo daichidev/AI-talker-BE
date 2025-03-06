@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     protected $questions = [
         'name', 'user_nickname', 'bot_nickname', 'gender', 'birthdate', 'hometown', 'address',
-        'blood_type', 'education', 'hobby', 'email', 'password'
+        'blood_type', 'job', 'hobby', 'email', 'password'
     ];
 
     public function storeFaceID(Request $request) {
@@ -100,6 +100,46 @@ class UserController extends Controller
 
         $user = User::find($request->user_id);
 
+        // Handle job selection logic
+        if ($questionKey === 'job') {
+            $jobCategories = [
+                '学生' => ['中学生', '高校生', '大学生', '大学院生', '浪人生', "その他"],
+                '会社員' => ['正社員', '契約社員', '派遣社員', '会社役員', '短時間社員', '準社員', '臨時社員', '業務委託', "その他"],
+                '経営者' => ['会長', '社長', '取締役', '店長', '個人事業主', "その他"],
+                '公務員' => ['国家公務員', '地方公務員', '自衛隊', '警察', '消防', "その他"],
+                '主婦' => ['主婦', '主夫', "その他"]
+            ];
+
+            $selectedJob = $request->content;
+
+            if (array_key_exists($selectedJob, $jobCategories)) {
+                return response()->json([
+                    'success' => true,
+                    'anketo_status' => $user->anketo_status,
+                    'next_question_text' => implode(", ", $jobCategories[$selectedJob])
+                ]);
+            } else if ($selectedJob === 'その他') {
+                return response()->json([
+                    'success' => true,
+                    'anketo_status' => $user->anketo_status,
+                    'next_question_text' => "職業を教えてください！"
+                ]);
+            }
+        }
+
+        // Handle email separately
+        if ($questionKey == 'email') {
+            $existingUser = User::where('email', $request->content)->first();
+            if ($existingUser && $existingUser->id != $user->id) {
+                return response()->json([
+                    'success' => true,
+                    'anketo_status' => $user->anketo_status,
+                    'next_question_text' => 'すでに同じメールが存在しています。 別のメールを入力してください。'
+                ]);
+            }
+            $user->email = $request->content;
+        }
+
         if ($questionKey == 'email') {
             $existingUser = User::where('email', $request->content)->first();
             
@@ -126,7 +166,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'next_question_text' => 'おめでとうございます。ユーザー登録が成功しました。'
+                'next_question_text' => "色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
             ]);
         }
 
