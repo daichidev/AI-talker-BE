@@ -81,15 +81,55 @@ class UserController extends Controller
             'deviceId' => 'required|string',
         ]);
 
-        // // deviceIdがusersテーブルに存在することを検証
-        $user = User::where('device_id', $request->deviceId)->first();
+        return $this->authenticateUser(['device_id' => $request->deviceId]);
+    }
 
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'デバイスIDが見つからないか、認証に失敗しました。']);
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        return $this->authenticateUser(['email' => $request->email, 'password' => $request->password]);
+    }
+
+    private function authenticateUser(array $credentials)
+    {
+        if (isset($credentials['device_id'])) {
+            $user = User::where('device_id', $credentials['device_id'])->first();
+        } elseif (isset($credentials['email'])) {
+            $user = User::with('latestAvatar')->where('email', $credentials['email'])->first();
+            
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
+                return response()->json(['success' => false, 'message' => '登録されたユーザーがいません。']);
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => '無効な認証情報です。']);
         }
 
-        // 認証が成功した場合
-        return response()->json(['success' => true, 'message' => 'Face IDで正常に認証されました。']);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => '登録されたユーザーがいません。']);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'user' => $user,
+            'messages' => $this->getChatLogs($user->id),
+        ]);
+    }
+
+    private function getChatLogs($userId)
+    {
+        return ChatLog::where('user_id', $userId)
+            ->get()
+            ->flatMap(fn($chatLog) => [
+                ['text' => $chatLog->question, 'sender' => 'user'],
+                ['text' => $chatLog->answer, 'sender' => 'bot'],
+            ]);
     }
 
     public function storeAnketo(Request $request) {       
@@ -219,39 +259,6 @@ class UserController extends Controller
             'success' => true,
             'question_key' => $request->question_key,
             'question_text' => $questions[$questionKey],
-        ]);
-    }
-
-    public function login(Request $request) 
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-    
-        $user = User::with('latestAvatar')->where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-        
-        $chatLogs = ChatLog::where('user_id', $user->id)
-                    ->get();
-
-        $formattedMessages = $chatLogs->flatMap(function ($chatLog) {
-            return [
-                ['text' => $chatLog->question, 'sender' => 'user'],
-                ['text' => $chatLog->answer, 'sender' => 'bot'],
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'user' => $user,
-            'messages' => $formattedMessages,
         ]);
     }
 }
