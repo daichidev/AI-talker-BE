@@ -22,12 +22,13 @@ class UserController extends Controller
     ];
 
     public function storeFaceID(Request $request) {
+        \Log::info("before_validate");
         $request->validate([
             'deviceId' => 'required|string',
-            // 'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'avatarType' => 'required|integer'
         ]);
-        
+        \Log::info("after_validate");
         // デバイスIDが既にデータベースに存在するか確認
         $existingUser = User::where('device_id', $request->deviceId)->first();
         if ($existingUser) {
@@ -36,16 +37,16 @@ class UserController extends Controller
                 'message' => 'このユーザーは既に登録されています。',
             ], 400);  // 重複するデバイスIDの場合、400エラー（不正なリクエスト）を返す
         }
-
+        \Log::info("before_save_photo");
         // 写真をstorage/app/public/face_id_photosに保存
-        // $photoPath = $request->file('photo')->store('face_id_photos', 'public');
-        
+        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+        \Log::info("middle_save_photo");
         // ファイル名のみを取得
-        // $filename = basename($photoPath);
-
+        $filename = basename($photoPath);
+        \Log::info("after_save_photo");
         $deepImageController = new DeepImageController();
         $modifiedRequest = new Request([
-            // 'photoPath' => $filename,
+            'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
         ]);
         $response = $deepImageController->processImage($modifiedRequest);
@@ -57,7 +58,7 @@ class UserController extends Controller
              // device IDと写真のパスをデータベースに保存
             $user = new User();
             $user->device_id = $request->deviceId;
-            // $user->face_photo = $photoPath;
+            $user->face_photo = $photoPath;
             $user->face_photo = 'test.jpg';
             $user->save();
     
