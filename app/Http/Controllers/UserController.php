@@ -98,7 +98,7 @@ class UserController extends Controller
     private function authenticateUser(array $credentials)
     {
         if (isset($credentials['device_id'])) {
-            $user = User::where('device_id', $credentials['device_id'])->first();
+            $user = User::with('latestAvatar')->where('device_id', $credentials['device_id'])->first();
         } elseif (isset($credentials['email'])) {
             $user = User::with('latestAvatar')->where('email', $credentials['email'])->first();
             
