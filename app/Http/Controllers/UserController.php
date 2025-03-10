@@ -24,7 +24,7 @@ class UserController extends Controller
     public function storeFaceID(Request $request) {
         $request->validate([
             'deviceId' => 'required|string',
-            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            // 'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'avatarType' => 'required|integer'
         ]);
         
@@ -38,14 +38,14 @@ class UserController extends Controller
         }
 
         // 写真をstorage/app/public/face_id_photosに保存
-        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+        // $photoPath = $request->file('photo')->store('face_id_photos', 'public');
         
         // ファイル名のみを取得
-        $filename = basename($photoPath);
+        // $filename = basename($photoPath);
 
         $deepImageController = new DeepImageController();
         $modifiedRequest = new Request([
-            'photoPath' => $filename,
+            // 'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
         ]);
         $response = $deepImageController->processImage($modifiedRequest);
@@ -57,7 +57,8 @@ class UserController extends Controller
              // device IDと写真のパスをデータベースに保存
             $user = new User();
             $user->device_id = $request->deviceId;
-            $user->face_photo = $photoPath;
+            // $user->face_photo = $photoPath;
+            $user->face_photo = 'test.jpg';
             $user->save();
     
             $avatar = new Avatar();
