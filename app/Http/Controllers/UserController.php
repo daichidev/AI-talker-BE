@@ -17,18 +17,18 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     protected $questions = [
-        'name', 'user_nickname', 'bot_nickname', 'gender', 'birthdate', 'hometown', 'address',
+        'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
         'blood_type', 'job', 'hobby', 'email', 'password'
     ];
 
     public function storeFaceID(Request $request) {
-        \Log::info("before_validate");
         $request->validate([
             'deviceId' => 'required|string',
-            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'avatarType' => 'required|integer'
+            // 'photo' => 'required|image|mimes:jpeg,png,jpg',
+            'avatarType' => 'required|integer',
+            'avatarGenderType' => 'required|integer'
         ]);
-        \Log::info("after_validate");
+
         // デバイスIDが既にデータベースに存在するか確認
         $existingUser = User::where('device_id', $request->deviceId)->first();
         if ($existingUser) {
@@ -37,16 +37,16 @@ class UserController extends Controller
                 'message' => 'このユーザーは既に登録されています。',
             ], 400);  // 重複するデバイスIDの場合、400エラー（不正なリクエスト）を返す
         }
-        \Log::info("before_save_photo");
+
         // 写真をstorage/app/public/face_id_photosに保存
-        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
-        \Log::info("middle_save_photo");
+        // $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+
         // ファイル名のみを取得
-        $filename = basename($photoPath);
-        \Log::info("after_save_photo");
+        // $filename = basename($photoPath);
+
         $deepImageController = new DeepImageController();
         $modifiedRequest = new Request([
-            'photoPath' => $filename,
+            // 'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
         ]);
         $response = $deepImageController->processImage($modifiedRequest);
@@ -58,7 +58,7 @@ class UserController extends Controller
              // device IDと写真のパスをデータベースに保存
             $user = new User();
             $user->device_id = $request->deviceId;
-            $user->face_photo = $photoPath;
+            // $user->face_photo = $photoPath;
             $user->face_photo = 'test.jpg';
             $user->save();
     
@@ -122,16 +122,6 @@ class UserController extends Controller
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
         ]);
-    }
-
-    private function getChatLogs($userId)
-    {
-        return ChatLog::where('user_id', $userId)
-            ->get()
-            ->flatMap(fn($chatLog) => [
-                ['text' => $chatLog->question, 'sender' => 'user'],
-                ['text' => $chatLog->answer, 'sender' => 'bot'],
-            ]);
     }
 
     public function storeAnketo(Request $request) {       
@@ -199,6 +189,18 @@ class UserController extends Controller
             $user->email = $request->content;
         }
 
+        if ($questionKey == 'birthdate') {          
+            if (!preg_match('/^\d{4}\.\d{1,2}\.\d{1,2}$/', $request->content)) {
+                return response()->json([
+                    'success' => true,
+                    'anketo_status' => $user->anketo_status,
+                    'next_question_text' => '正確な生年月日形式を入力してください。'
+                ]);
+            }
+
+            $birthdate_data = $this->getAnimalSign($request->content);
+        }
+
         if ($questionKey == 'password') {
             $user->password = Hash::make($request->content);
         }
@@ -215,6 +217,17 @@ class UserController extends Controller
             ]);
         }
 
+        if ($questionKey == 'birthdate') {
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id, 'question_key' => "animal_fortune_telling"],
+                ['content' => $birthdate_data['animal_fortune_telling_result']]
+            );
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id, 'question_key' => "animal_fortune_telling_characteristics"],
+                ['content' => $birthdate_data['animal_fortune_telling_characteristics']]
+            );
+        }
+        
         if ($questionKey !== 'email' && $questionKey !== 'password') {
             Anketo::updateOrCreate(
                 ['user_id' => $request->user_id, 'question_key' => $questionKey],
@@ -226,21 +239,19 @@ class UserController extends Controller
         $questionResponse = $this->getQuestion($questionRequest);
         $questionData = json_decode($questionResponse->getContent(), true);
 
+        if ($questionKey == 'birthdate') {
+            $next_question_text = $birthdate_data['animal_fortune_telling_result']."/".$birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
+        } else {
+            $next_question_text = $questionData['question_text'];
+        }
+        
         if ($questionData['success']) {
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'next_question_text' => $questionData['question_text']
+                'next_question_text' => $next_question_text
             ]);
         }
-    }
-
-    private function getNextQuestion($userId, $currentQuestion) {
-        $currentIndex = array_search($currentQuestion, $this->questions);
-        if ($currentIndex !== false && isset($this->questions[$currentIndex + 1])) {
-            return $this->questions[$currentIndex + 1];
-        }
-        return null;
     }
 
     public function getQuestion(Request $request)
@@ -262,5 +273,70 @@ class UserController extends Controller
             'question_key' => $request->question_key,
             'question_text' => $questions[$questionKey],
         ]);
+    }
+
+    private function getChatLogs($userId)
+    {
+        return ChatLog::where('user_id', $userId)
+            ->get()
+            ->flatMap(fn($chatLog) => [
+                ['text' => $chatLog->question, 'sender' => 'user'],
+                ['text' => $chatLog->answer, 'sender' => 'bot'],
+            ]);
+    }
+
+    private function getAnimalSign($birthdate)
+    {
+        // 入力を分割して取得
+        list($year, $month, $day) = explode('.', $birthdate);
+
+        // 動物リスト
+        $animals = [
+            "チーター", "ペガサス", "虎", "狼", "黒ひょう", "猿",
+            "ライオン", "象", "ひつじ", "こじか", "たぬき", "鳳凰"
+        ];
+
+        // 陰陽の決定（偶数年＝プラス、奇数年＝マイナス）
+        $yinYang = ["プラス", "マイナス"];
+        $yinYangType = $yinYang[$year % 2];
+
+        // 十二運星リスト
+        $twelveFortunes = [
+            "胎", "養", "長生", "沐浴", "冠帯", "建禄",
+            "帝旺", "衰", "病", "死", "墓", "絶"
+        ];
+
+        // 動物の決定
+        $baseNumber = ($year + $month + $day) % 12;
+        $animal = $animals[$baseNumber];
+
+        // 十二運星の決定
+        $fortuneIndex = (($year * 37) + ($month * 13) + ($day * 17)) % 12;
+        $fortune = $twelveFortunes[$fortuneIndex];
+
+        // 十二運星に対応する性格特徴
+        $twelveFortuneCharacteristics = [
+            "胎" => "好奇心旺盛で冒険好き",
+            "養" => "優しく育てるタイプ",
+            "長生" => "健康的で努力家",
+            "沐浴" => "感受性が豊か",
+            "冠帯" => "責任感が強いリーダー",
+            "建禄" => "冷静沈着で実務能力が高い",
+            "帝旺" => "権力志向で成功しやすい",
+            "衰" => "落ち着きがあり堅実",
+            "病" => "芸術的才能がある",
+            "死" => "哲学的でミステリアス",
+            "墓" => "慎重で堅実",
+            "絶" => "変化を好むタイプ"
+        ];
+
+        // 十二運星の特徴取得
+        $fortuneCharacteristic = $twelveFortuneCharacteristics[$fortune];
+
+        return [
+            // 'animal_fortune_telling_result' => "{$yinYangType}の{$animal} - 十二運星: {$fortune}",
+            'animal_fortune_telling_result' => "{$animal}",
+            'animal_fortune_telling_characteristics' => $fortuneCharacteristic
+        ];
     }
 }

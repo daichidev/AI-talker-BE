@@ -48,68 +48,68 @@ class DeepImageController extends Controller
 
     public function processImage(Request $request)
     {
-        // return response()->json([
-        //     'image_url' => "test.jpg",
-        // ]);
-        $photoPath = $request->input('photoPath');
-        $avatarType = $request->input('avatar_type');
-        $fullPhotoPath = storage_path("app/public/face_id_photos/{$photoPath}");
+        return response()->json([
+            'image_url' => "test.jpg",
+        ]);
+        // $photoPath = $request->input('photoPath');
+        // $avatarType = $request->input('avatar_type');
+        // $fullPhotoPath = storage_path("app/public/face_id_photos/{$photoPath}");
 
-        $descriptions = self::DESCRIPTIONS[$avatarType] ?? self::DESCRIPTIONS[3];
-        $randomDescription = $descriptions[array_rand($descriptions)];
+        // $descriptions = self::DESCRIPTIONS[$avatarType] ?? self::DESCRIPTIONS[3];
+        // $randomDescription = $descriptions[array_rand($descriptions)];
     
-        $data = [
-            "width" => 850,
-            "height" => 1400,
-            "background" => [
-                "generate" => [
-                    "description" => $randomDescription,
-                    "adapter_type" => "face",
-                    "face_id" => True
-                ]
-            ]
-        ];
+        // $data = [
+        //     "width" => 850,
+        //     "height" => 1400,
+        //     "background" => [
+        //         "generate" => [
+        //             "description" => $randomDescription,
+        //             "adapter_type" => "face",
+        //             "face_id" => True
+        //         ]
+        //     ]
+        // ];
     
-        $headers = [
-            'x-api-key' => $this->apiKey,
-        ];
+        // $headers = [
+        //     'x-api-key' => $this->apiKey,
+        // ];
     
-        $response = Http::withHeaders($headers)
-            ->attach('image', fopen($fullPhotoPath, 'r'), basename($fullPhotoPath))
-            ->post($this->apiUrl, ['parameters' => json_encode($data)]);
+        // $response = Http::withHeaders($headers)
+        //     ->attach('image', fopen($fullPhotoPath, 'r'), basename($fullPhotoPath))
+        //     ->post($this->apiUrl, ['parameters' => json_encode($data)]);
     
-        if ($response->successful()) {
-            $responseData = $response->json();
+        // if ($response->successful()) {
+        //     $responseData = $response->json();
     
-            if ($responseData['status'] == 'complete') {
-                $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
+        //     if ($responseData['status'] == 'complete') {
+        //         $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
 
-                return response()->json([
-                    'image_url' => $processedImageUrl,
-                ]);
-            }
+        //         return response()->json([
+        //             'image_url' => $processedImageUrl,
+        //         ]);
+        //     }
     
-            while ($responseData['status'] == 'in_progress') {
-                sleep(1);
-                $statusResponse = Http::withHeaders($headers)
-                    ->get($this->statusUrl . $responseData['job']);
+        //     while ($responseData['status'] == 'in_progress') {
+        //         sleep(1);
+        //         $statusResponse = Http::withHeaders($headers)
+        //             ->get($this->statusUrl . $responseData['job']);
     
-                if ($statusResponse->successful()) {
-                    $responseData = $statusResponse->json();
-                    if ($responseData['status'] == 'complete') {
-                        $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
+        //         if ($statusResponse->successful()) {
+        //             $responseData = $statusResponse->json();
+        //             if ($responseData['status'] == 'complete') {
+        //                 $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
 
-                        return response()->json([
-                            'image_url' => $processedImageUrl,
-                        ]);
-                    }
-                }
-            }
-            \Log::info("画像処理ジョブが正常に完了しませんでした。");
-            return response()->json(['error' => '画像処理ジョブが正常に完了しませんでした。'], 500);
-        }
-        \Log::info("画像処理ジョブの開始に失敗しました。");
-        return response()->json(['error' => '画像処理ジョブの開始に失敗しました。'], 500);
+        //                 return response()->json([
+        //                     'image_url' => $processedImageUrl,
+        //                 ]);
+        //             }
+        //         }
+        //     }
+
+        //     return response()->json(['error' => '画像処理ジョブが正常に完了しませんでした。'], 500);
+        // }
+
+        // return response()->json(['error' => '画像処理ジョブの開始に失敗しました。'], 500);
     }
     
     private function downloadAndSaveImage($url)
