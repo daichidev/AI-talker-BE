@@ -24,7 +24,7 @@ class UserController extends Controller
     public function storeFaceID(Request $request) {
         $request->validate([
             'deviceId' => 'required|string',
-            // 'photo' => 'required|image|mimes:jpeg,png,jpg',
+            'photo' => 'required|image|mimes:jpeg,png,jpg',
             'avatarType' => 'required|integer',
             'avatarGenderType' => 'required|integer'
         ]);
@@ -39,15 +39,16 @@ class UserController extends Controller
         }
 
         // 写真をstorage/app/public/face_id_photosに保存
-        // $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
 
         // ファイル名のみを取得
-        // $filename = basename($photoPath);
+        $filename = basename($photoPath);
 
         $deepImageController = new DeepImageController();
         $modifiedRequest = new Request([
-            // 'photoPath' => $filename,
+            'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
+            'avatar_gender_type' => $request->avatarGenderType
         ]);
         $response = $deepImageController->processImage($modifiedRequest);
         $responseData = $response->getData(true);
@@ -58,8 +59,8 @@ class UserController extends Controller
              // device IDと写真のパスをデータベースに保存
             $user = new User();
             $user->device_id = $request->deviceId;
-            // $user->face_photo = $photoPath;
-            $user->face_photo = 'test.jpg';
+            $user->face_photo = $photoPath;
+            // $user->face_photo = 'test.jpg';
             $user->save();
     
             $avatar = new Avatar();
@@ -240,7 +241,7 @@ class UserController extends Controller
         $questionData = json_decode($questionResponse->getContent(), true);
 
         if ($questionKey == 'birthdate') {
-            $next_question_text = $birthdate_data['animal_fortune_telling_result']."/".$birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
+            $next_question_text = $birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
         } else {
             $next_question_text = $questionData['question_text'];
         }
@@ -334,7 +335,6 @@ class UserController extends Controller
         $fortuneCharacteristic = $twelveFortuneCharacteristics[$fortune];
 
         return [
-            // 'animal_fortune_telling_result' => "{$yinYangType}の{$animal} - 十二運星: {$fortune}",
             'animal_fortune_telling_result' => "{$animal}",
             'animal_fortune_telling_characteristics' => $fortuneCharacteristic
         ];
