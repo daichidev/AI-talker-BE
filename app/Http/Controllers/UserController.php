@@ -210,7 +210,7 @@ class UserController extends Controller
 
         $user->save();
         
-        if ($questionKey == 'password') {
+        if ($questionKey == 'hobby') {
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
