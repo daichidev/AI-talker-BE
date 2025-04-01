@@ -34,3 +34,7 @@ Route::post('/anketo/question', [UserController::class, 'getQuestion']);
 Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/chat', [ChatbotController::class, 'chat']);
+
+Route::post('/login', [UserController::class, 'login']);
+
+Route::post('/delete-account', [UserController::class, 'deleteAccount']);

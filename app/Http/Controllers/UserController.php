@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     protected $questions = [
-        'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
-        'blood_type', 'job', 'hobby', 'email', 'password'
+        'email', 'password', 'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
+        'blood_type', 'job', 'hobby'
     ];
 
     public function storeFaceID(Request $request) {
@@ -338,5 +338,22 @@ class UserController extends Controller
             'animal_fortune_telling_result' => "{$animal}",
             'animal_fortune_telling_characteristics' => $fortuneCharacteristic
         ];
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted successfully']);
     }
 }
