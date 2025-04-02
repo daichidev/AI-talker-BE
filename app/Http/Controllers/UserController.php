@@ -35,7 +35,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'このユーザーは既に登録されています。',
-            ], 400);  // 重複するデバイスIDの場合、400エラー（不正なリクエスト）を返す
+            ]);  // 重複するデバイスIDの場合、400エラー（不正なリクエスト）を返す
         }
 
         // 写真をstorage/app/public/face_id_photosに保存
