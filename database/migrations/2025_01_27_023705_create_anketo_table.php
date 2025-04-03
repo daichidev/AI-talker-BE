@@ -15,9 +15,19 @@ class CreateAnketoTable extends Migration
     {
         Schema::create('anketos', function (Blueprint $table) {
             $table->id();
-            $table->text('content');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('question_key');
+            $table->string('name')->nullable();
+            $table->string('animal_fortune_telling')->nullable();
+            $table->string('animal_fortune_telling_characteristics')->nullable();
+            $table->string('birthdate')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('user_nickname')->nullable();
+            $table->string('bot_nickname')->nullable();
+            $table->string('hometown')->nullable();
+            $table->string('address')->nullable();
+            $table->string('blood_type')->nullable();
+            $table->string('job')->nullable();
+            $table->string('hobby')->nullable();
             $table->timestamps();
         });
     }

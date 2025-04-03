@@ -9,7 +9,9 @@ class Anketo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'user_id', 'question_key'];
+    protected $fillable = ['user_id', 'name', 'animal_fortune_telling', 'animal_fortune_telling_characteristics',
+        'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown',
+        'address', 'blood_type', 'job', 'hobby'];
 
     public function user()
     {

@@ -209,7 +209,26 @@ class UserController extends Controller
         $user->anketo_status += 1;
 
         $user->save();
-        
+
+        if ($questionKey == 'birthdate') {
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['animal_fortune_telling' => $birthdate_data['animal_fortune_telling_result']]
+            );
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['animal_fortune_telling_characteristics' => $birthdate_data['animal_fortune_telling_characteristics']]
+            );
+        }
+
+        if ($questionKey !== 'email' && $questionKey !== 'password') {
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id],
+                [$questionKey => $request->content]
+            );
+        }
+
+                
         if ($questionKey == 'hobby') {
             return response()->json([
                 'success' => true,
@@ -217,25 +236,7 @@ class UserController extends Controller
                 'next_question_text' => "色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
             ]);
         }
-
-        if ($questionKey == 'birthdate') {
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id, 'question_key' => "animal_fortune_telling"],
-                ['content' => $birthdate_data['animal_fortune_telling_result']]
-            );
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id, 'question_key' => "animal_fortune_telling_characteristics"],
-                ['content' => $birthdate_data['animal_fortune_telling_characteristics']]
-            );
-        }
         
-        if ($questionKey !== 'email' && $questionKey !== 'password') {
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id, 'question_key' => $questionKey],
-                ['content' => $request->content]
-            );
-        }
-
         $questionRequest = new Request(['question_key' => $user->anketo_status]);
         $questionResponse = $this->getQuestion($questionRequest);
         $questionData = json_decode($questionResponse->getContent(), true);

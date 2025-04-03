@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function anketos()
     {
-        return $this->hasMany(Anketo::class);
+        return $this->hasOne(Anketo::class);
     }
 
     public function chat_logs()

@@ -23,10 +23,10 @@ class OpenAIService
     {
         try {
             $user = User::with('anketos')->find($userId);
-            $anketoData = $user->anketos->pluck('content', 'question_key')->toArray();
+            $anketoData = $user->anketos;
  
             $userInfo = "動物占い名：".$anketoData['animal_fortune_telling'].", 動物占い名に従う性格：".$anketoData['animal_fortune_telling_characteristics'].", 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 職業: ".$anketoData['job'].", 趣味: ".$anketoData['hobby']."";
-
+ 
             $chatLogs = ChatLog::where('user_id', $userId)
                 ->orderBy('created_at', 'asc')
                 ->get(['question', 'answer']);
