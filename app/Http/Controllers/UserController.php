@@ -7,17 +7,19 @@ use Illuminate\Http\Request;
 use App\Models\Anketo;
 use App\Models\User;
 use App\Models\Avatar;
-use App\Models\ChatLog;
 
 use App\Http\Controllers\DeepImageController;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ChatLogService;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; 
 
 class UserController extends Controller
 {
     protected $questions = [
-        'email', 'password', 'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
+        'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
         'blood_type', 'job', 'hobby'
     ];
 
@@ -279,12 +281,23 @@ class UserController extends Controller
 
     private function getChatLogs($userId)
     {
-        return ChatLog::where('user_id', $userId)
-            ->get()
-            ->flatMap(fn($chatLog) => [
+        $tableName = app(ChatLogService::class)->getTableName($userId);
+    
+        // Check if table exists first
+        if (!Schema::hasTable($tableName)) {
+            return collect(); // Return empty collection if no table exists
+        }
+
+        $chatLogs = DB::table($tableName)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return $chatLogs->flatMap(function ($chatLog) {
+            return [
                 ['text' => $chatLog->question, 'sender' => 'user'],
                 ['text' => $chatLog->answer, 'sender' => 'bot'],
-            ]);
+            ];
+        });
     }
 
     private function getAnimalSign($birthdate)
@@ -351,6 +364,12 @@ class UserController extends Controller
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Delete the user's chat log table
+        $tableName = app(ChatLogService::class)->getTableName($user->id);
+        if (Schema::hasTable($tableName)) {
+            Schema::drop($tableName);
         }
 
         $user->delete();

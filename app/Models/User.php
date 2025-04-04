@@ -47,11 +47,6 @@ class User extends Authenticatable
         return $this->hasOne(Anketo::class);
     }
 
-    public function chat_logs()
-    {
-        return $this->hasMany(ChatLog::class);
-    }
-
     public function avatars()
     {
         return $this->hasMany(Avatar::class);

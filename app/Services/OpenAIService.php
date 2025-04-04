@@ -4,9 +4,14 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Config;
+
 use App\Models\User;
 use App\Models\ChatLog;
+
+use Illuminate\Support\Facades\Config;
+use App\Services\ChatLogService;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; 
 
 class OpenAIService
 {
@@ -27,9 +32,16 @@ class OpenAIService
  
             $userInfo = "動物占い名：".$anketoData['animal_fortune_telling'].", 動物占い名に従う性格：".$anketoData['animal_fortune_telling_characteristics'].", 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 職業: ".$anketoData['job'].", 趣味: ".$anketoData['hobby']."";
  
-            $chatLogs = ChatLog::where('user_id', $userId)
-                ->orderBy('created_at', 'asc')
-                ->get(['question', 'answer']);
+            $tableName = app(ChatLogService::class)->getTableName($userId);
+    
+            // Check if table exists first
+            if (!Schema::hasTable($tableName)) {
+                return collect(); // Return empty collection if no table exists
+            }
+    
+            $chatLogs = DB::table($tableName)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
         
             $conversationHistory = '';
             foreach ($chatLogs as $chatLog) {

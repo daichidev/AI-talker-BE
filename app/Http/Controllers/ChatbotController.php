@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; 
 use App\Services\OpenAIService;
-use App\Models\ChatLog;
+use App\Services\ChatLogService;
 
 class ChatbotController extends Controller
 {
@@ -22,10 +23,11 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
+        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+
         $responseData = $this->openAIService->chat($request->user_id, $request->message);
 
-        ChatLog::create([
-            'user_id' => $request->user_id,
+         DB::table($tableName)->insert([
             'question' => $request->message,
             'answer' => $responseData['choices'][0]['message']['content'],
         ]);
