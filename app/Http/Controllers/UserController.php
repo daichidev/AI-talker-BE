@@ -28,9 +28,20 @@ class UserController extends Controller
             'deviceId' => 'required|string',
             'photo' => 'required|image|mimes:jpeg,png,jpg',
             'avatarType' => 'required|integer',
-            'avatarGenderType' => 'required|integer'
+            'avatarGenderType' => 'required|integer',
+            'userEmail' => 'required|string',
+            'userPassword' => 'required|string'
         ]);
 
+        // Check if email already exists
+        $existingEmailUser = User::where('email', $request->userEmail)->first();
+        if ($existingEmailUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'このメールアドレスは既に使用されています。', // This email is already in use
+            ]);
+        }
+        
         // デバイスIDが既にデータベースに存在するか確認
         $existingUser = User::where('device_id', $request->deviceId)->first();
         if ($existingUser) {
@@ -63,6 +74,8 @@ class UserController extends Controller
             $user->device_id = $request->deviceId;
             $user->face_photo = $photoPath;
             // $user->face_photo = 'test.jpg';
+            $user->email = $request->userEmail;
+            $user->password = bcrypt($request->userPassword); // Hash the password
             $user->save();
     
             $avatar = new Avatar();
@@ -165,33 +178,6 @@ class UserController extends Controller
             }
         }
 
-        // Handle email separately
-        if ($questionKey == 'email') {
-            $existingUser = User::where('email', $request->content)->first();
-            if ($existingUser && $existingUser->id != $user->id) {
-                return response()->json([
-                    'success' => true,
-                    'anketo_status' => $user->anketo_status,
-                    'next_question_text' => 'すでに同じメールが存在しています。 別のメールを入力してください。'
-                ]);
-            }
-            $user->email = $request->content;
-        }
-
-        if ($questionKey == 'email') {
-            $existingUser = User::where('email', $request->content)->first();
-            
-            if ($existingUser && $existingUser->id != $user->id) {
-                return response()->json([
-                    'success' => true,
-                    'anketo_status' => $user->anketo_status,
-                    'next_question_text' => 'すでに同じメールが存在しています。 別のメールを入力してください。'
-                ]);
-            }
-
-            $user->email = $request->content;
-        }
-
         if ($questionKey == 'birthdate') {          
             if (!preg_match('/^\d{4}\.\d{1,2}\.\d{1,2}$/', $request->content)) {
                 return response()->json([
@@ -202,10 +188,6 @@ class UserController extends Controller
             }
 
             $birthdate_data = $this->getAnimalSign($request->content);
-        }
-
-        if ($questionKey == 'password') {
-            $user->password = Hash::make($request->content);
         }
 
         $user->anketo_status += 1;
@@ -223,14 +205,11 @@ class UserController extends Controller
             );
         }
 
-        if ($questionKey !== 'email' && $questionKey !== 'password') {
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id],
-                [$questionKey => $request->content]
-            );
-        }
-
-                
+        Anketo::updateOrCreate(
+            ['user_id' => $request->user_id],
+            [$questionKey => $request->content]
+        );
+   
         if ($questionKey == 'hobby') {
             return response()->json([
                 'success' => true,
