@@ -223,7 +223,7 @@ class UserController extends Controller
         $questionData = json_decode($questionResponse->getContent(), true);
 
         if ($questionKey == 'birthdate') {
-            $next_question_text = $birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
+            $next_question_text = $birthdate_data['animal_fortune_telling_result']."/".$birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
         } else {
             $next_question_text = $questionData['question_text'];
         }
