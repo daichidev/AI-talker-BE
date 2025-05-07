@@ -52,3 +52,18 @@ $ sudo chown -R www-data:www-data /var/www/html/storage
 $ sudo chown -R www-data:www-data /var/www/html/bootstrap/cache
 $ sudo chmod -R 775 /var/www/html/storage
 $ sudo chmod -R 775 /var/www/html/bootstrap/cache
+
+8. Install Sql
+
+$ sudo apt update
+$ sudo apt install php8.3-mysql
+
+$ sudo systemctl restart php8.3-fpm
+$ sudo systemctl restart nginx
+
+$ sudo mysql
+CREATE DATABASE my_ai;
+CREATE USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'My@italker';
+GRANT ALL ON my_ai.* TO 'root'@'localhost';
+php artisan config:clear
+php artisan migrate
