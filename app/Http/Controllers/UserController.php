@@ -334,7 +334,7 @@ class UserController extends Controller
             $fortuneCharacteristic = $fortuneCharacteristics[$baseNumber % 60];
 
             return [
-                'animal_fortune_telling_result' => "{$animal}",
+                'animal_fortune_telling_result' => $animal,
                 'animal_fortune_telling_characteristics' => $fortuneCharacteristic
             ];
         }
