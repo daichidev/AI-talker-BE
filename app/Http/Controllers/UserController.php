@@ -151,7 +151,6 @@ class UserController extends Controller
         ]);
 
         $questionKey = $this->questions[$request->question_key];
-
         $user = User::find($request->user_id);
 
         // Handle job selection logic
@@ -224,10 +223,10 @@ class UserController extends Controller
 
             $mappedValue = $traitToNumber[$request->content] ?? 1;
 
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id],
-                [$questionKey => $mappedValue]
-            );
+            Anketo::where('user_id', $request->user_id)
+            ->update([
+                $questionKey => $mappedValue
+            ]);
         }
 
    
