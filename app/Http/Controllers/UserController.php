@@ -324,15 +324,15 @@ class UserController extends Controller
             
             // 2. テーブルから該当の数値を取得
             $baseNumber = $unmeisuTable[$year][$month] ?? null;
-
+            \Log::info($baseNumber % 60);
             // 動物リスト
             $animals = config('fortune_telling.animals');
             $animal = $animals[$baseNumber % 60];
-
+            \Log::info($animal);
             // 動物リスト
             $fortuneCharacteristics = config('fortune_telling.fortune_characteristics');
             $fortuneCharacteristic = $fortuneCharacteristics[$baseNumber % 60];
-
+            \Log::info($fortuneCharacteristic);
             return [
                 'animal_fortune_telling_result' => $animal,
                 'animal_fortune_telling_characteristics' => $fortuneCharacteristic
