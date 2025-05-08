@@ -208,10 +208,28 @@ class UserController extends Controller
             );
         }
 
-        Anketo::updateOrCreate(
-            ['user_id' => $request->user_id],
-            [$questionKey => $request->content]
-        );
+        if ($request->question_key < 10) {
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id],
+                [$questionKey => $request->content]
+            );
+        } else {
+            $traitToNumber = [
+                '外向性'     => 1,
+                '協調性'     => 2,
+                '誠実性'     => 3,
+                '神経症傾向' => 4,
+                '開放性'     => 5,
+            ];
+
+            $mappedValue = $traitToNumber[$request->content] ?? 1;
+
+            Anketo::updateOrCreate(
+                ['user_id' => $request->user_id],
+                [$questionKey => $mappedValue]
+            );
+        }
+
    
         // if ($questionKey == 'hobby') {
         //     return response()->json([
