@@ -382,7 +382,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => '性格診断の結果が見つかりません。'
-            ], 404);
+            ]);
         }
 
         return response()->json([
