@@ -28,33 +28,7 @@ class CreateAnketoTable extends Migration
             $table->string('blood_type')->nullable();
             $table->string('job')->nullable();
             $table->string('hobby')->nullable();
-            
-            // Personality traits
-            $table->integer('is_sociable')->nullable();
-            $table->integer('likes_group_activities')->nullable();
-            $table->integer('energetic_at_parties')->nullable();
-            $table->integer('comfortable_public_speaking')->nullable();
 
-            $table->integer('helpful_to_others')->nullable();
-            $table->integer('respects_others_opinions')->nullable();
-            $table->integer('avoids_conflicts')->nullable();
-            $table->integer('tries_to_be_kind')->nullable();
-
-            $table->integer('meets_deadlines')->nullable();
-            $table->integer('plans_ahead')->nullable();
-            $table->integer('rarely_forgets_things')->nullable();
-            $table->integer('takes_responsibility')->nullable();
-
-            $table->integer('easily_anxious')->nullable();
-            $table->integer('tends_to_feel_down')->nullable();
-            $table->integer('dwells_on_mistakes')->nullable();
-            $table->integer('sensitive_to_pressure')->nullable();
-            
-            $table->integer('likes_new_experiences')->nullable();
-            $table->integer('interested_in_arts')->nullable();
-            $table->integer('open_to_new_ideas')->nullable();
-            $table->integer('enjoys_change')->nullable();
-            
             $table->timestamps();
         });
     }

@@ -28,14 +28,15 @@ Route::post('/store-face-id', [UserController::class, 'storeFaceID']);
 
 Route::post('/login-with-face-id', [UserController::class, 'loginWithFaceID']);
 
-Route::post('/anketo', [UserController::class, 'storeAnketo']);
-Route::post('/anketo/question', [UserController::class, 'getQuestion']);
-
-Route::post('/login', [UserController::class, 'login']);
-
-Route::post('/chat', [ChatbotController::class, 'chat']);
-Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
-
 Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/delete-account', [UserController::class, 'deleteAccount']);
+
+Route::post('/anketo', [UserController::class, 'storeAnketo']);
+Route::post('/anketo/question', [UserController::class, 'getQuestion']);
+
+Route::post('/personality-test', [UserController::class, 'personalityTest']);
+Route::get('/personality-test/{user_id}', [UserController::class, 'getPersonalityTest']);
+
+Route::post('/chat', [ChatbotController::class, 'chat']);
+Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);

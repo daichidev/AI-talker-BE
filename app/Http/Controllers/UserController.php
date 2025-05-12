@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Anketo;
 use App\Models\User;
 use App\Models\Avatar;
-
+use App\Models\PersonalityTest;
 use App\Http\Controllers\DeepImageController;
 
 use Illuminate\Support\Facades\Http;
@@ -20,10 +20,7 @@ class UserController extends Controller
 {
     protected $questions = [
         'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
-        'blood_type', 'job', 'hobby', 'is_sociable', 'likes_group_activities', 'energetic_at_parties', 'comfortable_public_speaking',
-        'helpful_to_others', 'respects_others_opinions', 'avoids_conflicts', 'tries_to_be_kind', 'meets_deadlines', 'plans_ahead',
-        'rarely_forgets_things', 'takes_responsibility', 'easily_anxious', 'tends_to_feel_down', 'dwells_on_mistakes', 'sensitive_to_pressure',
-        'likes_new_experiences', 'interested_in_arts', 'open_to_new_ideas', 'enjoys_change'
+        'blood_type', 'job', 'hobby'
     ];
 
     public function storeFaceID(Request $request) {
@@ -207,55 +204,16 @@ class UserController extends Controller
             );
         }
 
-        if ($request->question_key < 10) {
-            Anketo::updateOrCreate(
-                ['user_id' => $request->user_id],
-                [$questionKey => $request->content]
-            );
-        } else {
-            $traitToNumber = [
-                '外向性'     => 1,
-                '協調性'     => 2,
-                '誠実性'     => 3,
-                '神経症傾向' => 4,
-                '開放性'     => 5,
-            ];
-
-            $mappedValue = $traitToNumber[$request->content] ?? 1;
-
-            Anketo::where('user_id', $request->user_id)
-            ->update([
-                $questionKey => $mappedValue
-            ]);
-        }
-
+        Anketo::updateOrCreate(
+            ['user_id' => $request->user_id],
+            [$questionKey => $request->content]
+        );
    
-        // if ($questionKey == 'hobby') {
-        //     return response()->json([
-        //         'success' => true,
-        //         'anketo_status' => $user->anketo_status,
-        //         'next_question_text' => "色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
-        //     ]);
-        // }
-        if ($questionKey == 'enjoys_change') {
-            $anketoData = Anketo::where('user_id', $request->user_id)->first();
-
-            $averageExtraversion = ($anketoData->is_sociable + $anketoData->likes_group_activities + $anketoData->energetic_at_parties + $anketoData->comfortable_public_speaking) / 4;
-            $averageAgreeableness = ($anketoData->helpful_to_others + $anketoData->respects_others_opinions + $anketoData->avoids_conflicts + $anketoData->tries_to_be_kind) / 4;
-            $averageConscientiousness = ($anketoData->meets_deadlines + $anketoData->plans_ahead + $anketoData->rarely_forgets_things + $anketoData->takes_responsibility) / 4;
-            $averageNeuroticism = ($anketoData->easily_anxious + $anketoData->tends_to_feel_down + $anketoData->dwells_on_mistakes + $anketoData->sensitive_to_pressure) / 4;
-            $averageOpenness = ($anketoData->likes_new_experiences + $anketoData->interested_in_arts + $anketoData->open_to_new_ideas + $anketoData->enjoys_change) / 4;
-
-            $averageExtraversion = round($averageExtraversion, 2);
-            $averageAgreeableness = round($averageAgreeableness, 2);
-            $averageConscientiousness = round($averageConscientiousness, 2);
-            $averageNeuroticism = round($averageNeuroticism, 2);
-            $averageOpenness = round($averageOpenness, 2);
-
+        if ($questionKey == 'hobby') {
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'next_question_text' => $averageExtraversion."/".$averageAgreeableness."/".$averageConscientiousness."/".$averageNeuroticism."/".$averageOpenness."/"."色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
+                'next_question_text' => "色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
             ]);
         }
 
@@ -303,9 +261,8 @@ class UserController extends Controller
     {
         $tableName = app(ChatLogService::class)->getTableName($userId);
     
-        // Check if table exists first
         if (!Schema::hasTable($tableName)) {
-            return collect(); // Return empty collection if no table exists
+            return collect();
         }
 
         $chatLogs = DB::table($tableName)
@@ -369,7 +326,6 @@ class UserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Delete the user's chat log table
         $tableName = app(ChatLogService::class)->getTableName($user->id);
         if (Schema::hasTable($tableName)) {
             Schema::drop($tableName);
@@ -378,5 +334,60 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'Account deleted successfully']);
+    }
+
+    public function personalityTest(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'personality_answers' => 'required|array|size:20',
+            'personality_answers.*' => 'integer',
+        ]);
+
+        // Calculate averages
+        $averageExtraversion = ($request->personality_answers[0] + $request->personality_answers[1] + $request->personality_answers[2] + $request->personality_answers[3]) / 4;
+        $averageAgreeableness = ($request->personality_answers[4] + $request->personality_answers[5] + $request->personality_answers[6] + $request->personality_answers[7]) / 4;
+        $averageConscientiousness = ($request->personality_answers[8] + $request->personality_answers[9] + $request->personality_answers[10] + $request->personality_answers[11]) / 4;
+        $averageNeuroticism = ($request->personality_answers[12] + $request->personality_answers[13] + $request->personality_answers[14] + $request->personality_answers[15]) / 4;
+        $averageOpenness = ($request->personality_answers[16] + $request->personality_answers[17] + $request->personality_answers[18] + $request->personality_answers[19]) / 4;
+
+        $averageExtraversion = round($averageExtraversion, 2);
+        $averageAgreeableness = round($averageAgreeableness, 2);
+        $averageConscientiousness = round($averageConscientiousness, 2);
+        $averageNeuroticism = round($averageNeuroticism, 2);
+        $averageOpenness = round($averageOpenness, 2);
+
+        // Store the personality answers and mean values in the personality_tests table
+        $personalityTest = PersonalityTest::where('user_id', $request->user_id)->first();
+        if (!$personalityTest) {
+            $personalityTest = new PersonalityTest();
+            $personalityTest->user_id = $request->user_id;
+        }
+        $personalityTest->personality_answers_array = json_encode($request->personality_answers);
+        $personalityTest->mean_values_array = json_encode([ $averageExtraversion, $averageAgreeableness, $averageConscientiousness, $averageNeuroticism, $averageOpenness ]);
+        $personalityTest->save();
+
+        return response()->json([
+            'success' => true,
+            'personality_test' => $personalityTest,
+            'message' => '性格診断の結果を保存しました。',
+        ]);
+    }
+
+    public function getPersonalityTest($user_id)
+    {
+        $personalityTest = PersonalityTest::where('user_id', $user_id)->first();
+
+        if (!$personalityTest) {
+            return response()->json([
+                'success' => false,
+                'message' => '性格診断の結果が見つかりません。'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'personality_test' => $personalityTest
+        ]);
     }
 }
