@@ -374,9 +374,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function getPersonalityTest($user_id)
+    public function getPersonalityTest($id)
     {
-        $personalityTest = PersonalityTest::where('user_id', $user_id)->first();
+        $personalityTest = PersonalityTest::where('user_id', $id)->first();
 
         if (!$personalityTest) {
             return response()->json([
