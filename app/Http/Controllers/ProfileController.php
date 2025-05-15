@@ -15,11 +15,14 @@ class ProfileController extends Controller
         if (!$profile) {
             return response()->json([
                 'success' => false,
-                'message' => 'Profile not found'
+                'data' => 'Profile not found'
             ]);
         }
 
-        return response()->json($profile);
+        return response()->json([
+            'success' => true,
+            'data' => $profile
+        ]);
     }
 
     public function update(Request $request, $userId)
