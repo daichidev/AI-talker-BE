@@ -8,6 +8,8 @@ use App\Models\Anketo;
 use App\Models\User;
 use App\Models\Avatar;
 use App\Models\PersonalityTest;
+use App\Models\Profile;
+
 use App\Http\Controllers\DeepImageController;
 
 use Illuminate\Support\Facades\Http;
@@ -202,13 +204,25 @@ class UserController extends Controller
                 ['user_id' => $request->user_id],
                 ['animal_fortune_telling_characteristics' => $birthdate_data['animal_fortune_telling_characteristics']]
             );
+            
+            Profile::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['animal_fortune_telling_result' => $birthdate_data['animal_fortune_telling_result']]
+            );
         }
 
         Anketo::updateOrCreate(
             ['user_id' => $request->user_id],
             [$questionKey => $request->content]
         );
-   
+        
+        if ($questionKey == 'user_nickname' || $questionKey == 'bot_nickname') {
+            Profile::updateOrCreate(
+                ['user_id' => $request->user_id],
+                [$questionKey => $request->content]
+            );
+        }
+
         if ($questionKey == 'hobby') {
             return response()->json([
                 'success' => true,
