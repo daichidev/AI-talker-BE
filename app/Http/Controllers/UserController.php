@@ -216,7 +216,7 @@ class UserController extends Controller
             [$questionKey => $request->content]
         );
         
-        if ($questionKey == 'user_nickname' || $questionKey == 'bot_nickname') {
+        if ($questionKey !== 'user_nickname' || $questionKey !== 'bot_nickname') {
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 [$questionKey => $request->content]
