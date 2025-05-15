@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatbotController;
-
+use App\Http\Controllers\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,3 +40,6 @@ Route::get('/personality-test/{id}', [UserController::class, 'getPersonalityTest
 
 Route::post('/chat', [ChatbotController::class, 'chat']);
 Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
+
+Route::get('/profile/{userId}', [ProfileController::class, 'show']);
+Route::post('/profile/{userId}', [ProfileController::class, 'update']);
