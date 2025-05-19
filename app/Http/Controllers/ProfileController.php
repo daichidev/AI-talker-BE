@@ -39,7 +39,7 @@ class ProfileController extends Controller
             'school_year' => 'nullable|string',
             'club_activity' => 'nullable|string',
             'department' => 'nullable|string',
-            'occupation' => 'nullable|string',
+            'job' => 'nullable|string',
             'company_name' => 'nullable|string',
             'position' => 'nullable|string',
             'hobby' => 'nullable|string',

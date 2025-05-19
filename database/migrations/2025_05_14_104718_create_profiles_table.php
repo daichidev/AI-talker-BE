@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('school_year')->nullable();
             $table->string('club_activity')->nullable();
             $table->string('department')->nullable();
-            $table->string('occupation')->nullable();
+            $table->string('job')->nullable();
             $table->string('company_name')->nullable();
             $table->string('position')->nullable();
             $table->text('hobby')->nullable();
