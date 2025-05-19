@@ -153,30 +153,28 @@ class UserController extends Controller
         $user = User::find($request->user_id);
 
         // Handle job selection logic
-        if ($questionKey === 'job') {
-            $jobCategories = [
-                '学生' => ['中学生', '高校生', '大学生', '大学院生', '浪人生', "その他"],
-                '会社員' => ['正社員', '契約社員', '派遣社員', '会社役員', '短時間社員', '準社員', '臨時社員', '業務委託', "その他"],
-                '経営者' => ['会長', '社長', '取締役', '店長', '個人事業主', "その他"],
-                '公務員' => ['国家公務員', '地方公務員', '自衛隊', '警察', '消防', "その他"],
-                '主婦' => ['主婦', '主夫', "その他"]
-            ];
+        $jobCategories = [
+            '学生' => ['中学生', '高校生', '大学生', '大学院生', '浪人生', "その他"],
+            '会社員' => ['正社員', '契約社員', '派遣社員', '会社役員', '短時間社員', '準社員', '臨時社員', '業務委託', "その他"],
+            '経営者' => ['会長', '社長', '取締役', '店長', '個人事業主', "その他"],
+            '公務員' => ['国家公務員', '地方公務員', '自衛隊', '警察', '消防', "その他"],
+            '主婦' => ['主婦', '主夫', "その他"]
+        ];
 
-            $selectedJob = $request->content;
+        $selectedJob = $request->content;
 
-            if (array_key_exists($selectedJob, $jobCategories)) {
-                return response()->json([
-                    'success' => true,
-                    'anketo_status' => $user->anketo_status,
-                    'next_question_text' => implode(", ", $jobCategories[$selectedJob])
-                ]);
-            } else if ($selectedJob === 'その他') {
-                return response()->json([
-                    'success' => true,
-                    'anketo_status' => $user->anketo_status,
-                    'next_question_text' => "職業を教えてください！"
-                ]);
-            }
+        if (array_key_exists($selectedJob, $jobCategories)) {
+            return response()->json([
+                'success' => true,
+                'anketo_status' => $user->anketo_status,
+                'next_question_text' => implode(", ", $jobCategories[$selectedJob])
+            ]);
+        } else if ($questionKey === 'job' && $selectedJob === 'その他') {
+            return response()->json([
+                'success' => true,
+                'anketo_status' => $user->anketo_status,
+                'next_question_text' => "職業を教えてください！"
+            ]);
         }
 
         if ($questionKey == 'birthdate') {          
