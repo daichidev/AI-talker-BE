@@ -47,6 +47,11 @@ class User extends Authenticatable
         return $this->hasOne(Anketo::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
     public function avatars()
     {
         return $this->hasMany(Avatar::class);

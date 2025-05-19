@@ -27,16 +27,56 @@ class OpenAIService
     public function chat($userId, $message)
     {
         try {
-            $user = User::with('anketos')->find($userId);
+            $user = User::with(['anketos', 'profile'])->find($userId);
             $anketoData = $user->anketos;
- 
-            $userInfo = "動物占い名：".$anketoData['animal_fortune_telling'].", 動物占い名に従う性格：".$anketoData['animal_fortune_telling_characteristics'].", 名前: ".$anketoData['name'].", 性別: ".$anketoData['gender'].", 生年月日: ".$anketoData['birthdate'].", 出身地: ".$anketoData['hometown'].", 住所: ".$anketoData['address'].", 血液型: ".$anketoData['blood_type'].", 職業: ".$anketoData['job'].", 趣味: ".$anketoData['hobby']."";
+            $profileData = $user->profile;
+
+            $userInfo = "";
+            
+            // プロフィール情報が存在する場合に追加
+            if ($profileData) {
+                $userInfo .= "名前: " . ($profileData->name ?? $anketoData['name']) . ", ";
+                $userInfo .= "AI名: " . ($profileData->ai_name ?? '') . ", ";
+                $userInfo .= "性別: " . ($profileData->gender ?? $anketoData['gender']) . ", ";
+                $userInfo .= "生年月日: " . ($profileData->birthdate ?? $anketoData['birthdate']) . ", ";
+                $userInfo .= "出身地: " . ($profileData->hometown ?? $anketoData['hometown']) . ", ";
+                $userInfo .= "住所: " . ($profileData->address ?? $anketoData['address']) . ", ";
+                $userInfo .= "血液型: " . ($profileData->blood_type ?? $anketoData['blood_type']) . ", ";
+                $userInfo .= "学校名: " . ($profileData->school_name ?? '') . ", ";
+                $userInfo .= "学年: " . ($profileData->school_year ?? '') . ", ";
+                $userInfo .= "部活動: " . ($profileData->club_activity ?? '') . ", ";
+                $userInfo .= "学部: " . ($profileData->department ?? '') . ", ";
+                $userInfo .= "職業: " . ($profileData->occupation ?? $anketoData['job']) . ", ";
+                $userInfo .= "会社名: " . ($profileData->company_name ?? '') . ", ";
+                $userInfo .= "役職: " . ($profileData->position ?? '') . ", ";
+                $userInfo .= "趣味: " . ($profileData->hobby ?? $anketoData['hobby']) . ", ";
+                $userInfo .= "家族構成: " . ($profileData->family_structure ?? '') . ", ";
+                $userInfo .= "特技: " . ($profileData->special_skills ?? '') . ", ";
+                $userInfo .= "夢: " . ($profileData->dream ?? '') . ", ";
+                $userInfo .= "動物占い名に従う性格: " . ($profileData->animal_fortune_telling_result ?? $anketoData['animal_fortune_telling_characteristics']) . ", ";
+            } else {
+                // プロフィール情報が存在しない場合はアンケート情報のみを使用
+                $userInfo .= "名前: " . $anketoData['name'] . ", ";
+                $userInfo .= "性別: " . $anketoData['gender'] . ", ";
+                $userInfo .= "生年月日: " . $anketoData['birthdate'] . ", ";
+                $userInfo .= "出身地: " . $anketoData['hometown'] . ", ";
+                $userInfo .= "住所: " . $anketoData['address'] . ", ";
+                $userInfo .= "血液型: " . $anketoData['blood_type'] . ", ";
+                $userInfo .= "職業: " . $anketoData['job'] . ", ";
+                $userInfo .= "趣味: " . $anketoData['hobby'] . ", ";
+                $userInfo .= "動物占い名に従う性格: " . $anketoData['animal_fortune_telling_characteristics'] . ", ";
+            }
+
+            // アンケート情報を追加
+            $userInfo .= "動物占い名：" . $anketoData['animal_fortune_telling'] . ", ";
+
+            $userInfo = rtrim($userInfo, ', ');
  
             $tableName = app(ChatLogService::class)->getTableName($userId);
     
-            // Check if table exists first
+            // テーブルが存在するか確認
             if (!Schema::hasTable($tableName)) {
-                return collect(); // Return empty collection if no table exists
+                return collect(); // テーブルが存在しない場合は空のコレクションを返す
             }
     
             $chatLogs = DB::table($tableName)

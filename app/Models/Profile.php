@@ -19,14 +19,21 @@ class Profile extends Model
         'address',
         'blood_type',
         'school_name',
+        'school_year',
+        'club_activity',
+        'department',
+        'occupation',
         'company_name',
-        'income_or_allowance',
+        'position',
         'hobby',
         'family_structure',
         'special_skills',
         'dream',
-        'favorite_type',
-        'weakness',
         'animal_fortune_telling_result',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

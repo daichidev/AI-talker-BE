@@ -23,14 +23,16 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('blood_type', 3)->nullable();
             $table->string('school_name')->nullable();
+            $table->string('school_year')->nullable();
+            $table->string('club_activity')->nullable();
+            $table->string('department')->nullable();
+            $table->string('occupation')->nullable();
             $table->string('company_name')->nullable();
-            $table->string('income_or_allowance')->nullable();
+            $table->string('position')->nullable();
             $table->text('hobby')->nullable();
             $table->text('family_structure')->nullable();
             $table->text('special_skills')->nullable();
             $table->text('dream')->nullable();
-            $table->text('favorite_type')->nullable();
-            $table->text('weakness')->nullable();
             $table->text('animal_fortune_telling_result')->nullable();
 
             $table->timestamps();
