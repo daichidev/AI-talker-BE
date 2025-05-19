@@ -22,7 +22,7 @@ class Profile extends Model
         'school_year',
         'club_activity',
         'department',
-        'occupation',
+        'job',
         'company_name',
         'position',
         'hobby',
