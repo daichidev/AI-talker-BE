@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WorldController;
+use App\Http\Controllers\CommandGeneratorController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,3 +46,10 @@ Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
 Route::post('/profile/{userId}', [ProfileController::class, 'update']);
+
+Route::get('/world-big-category', [WorldController::class, 'getWorldBigCategory']);
+Route::get('/world-medium-category/{worldBigCategoryId}', [WorldController::class, 'getWorldMediumCategory']);
+Route::get('/world-small-category/{worldMediumCategoryId}', [WorldController::class, 'getWorldSmallCategory']);
+Route::post('/world-room', [WorldController::class, 'postWorldRoom']);
+
+Route::post('/generate-command', [CommandGeneratorController::class, 'generateCommand']);

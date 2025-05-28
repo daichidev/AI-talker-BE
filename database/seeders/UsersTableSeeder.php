@@ -23,5 +23,31 @@ class UsersTableSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        DB::table('users')->insert([
+            'name' => null,
+            'email' => 'test111111@gmail.com',
+            'email_verified_at' => null,
+            'password' => Hash::make('test111111'), // Use real password or same hash
+            'device_id' => '2',
+            'face_photo' => 'face_id_photos/test.jpg',
+            'anketo_status' => 0,
+            'remember_token' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('users')->insert([
+            'name' => null,
+            'email' => 'test222222@gmail.com',
+            'email_verified_at' => null,
+            'password' => Hash::make('test222222'), // Use real password or same hash
+            'device_id' => '3',
+            'face_photo' => 'face_id_photos/test.jpg',
+            'anketo_status' => 0,
+            'remember_token' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }
