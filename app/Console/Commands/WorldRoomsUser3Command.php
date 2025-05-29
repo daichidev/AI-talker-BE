@@ -26,7 +26,7 @@ class WorldRoomsUser3Command extends Command
      */
     public function handle()
     {
-        $userId = $this->argument('user_id') ?? 1;
+        $userId = $this->argument('user_id') ?? 3;
         
         // ワールドルームの処理
         $worldRoom = WorldRoom::where('user_id', $userId)->first();

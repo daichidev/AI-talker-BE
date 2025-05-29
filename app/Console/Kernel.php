@@ -19,7 +19,6 @@ class Kernel extends ConsoleKernel
 
         Commands\WorldRoomsUser1Command::class,
 
-
     ];
 
     /**
@@ -30,9 +29,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('world-rooms-user3 1')->everyMinute();
-$schedule->command('world-rooms-user2 1')->everyMinute();
-$schedule->command('world-rooms-user1 1')->everyMinute();
+        $schedule->command('world-rooms-user3  3')->everyMinute();
+$schedule->command('world-rooms-user2  2')->everyMinute();
+$schedule->command('world-rooms-user1  1')->everyMinute();
 }
 
     /**

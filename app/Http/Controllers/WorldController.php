@@ -60,7 +60,8 @@ class WorldController extends Controller
                 // CommandGeneratorControllerを使用してコマンドを生成
                 $commandRequest = new Request([
                     'name' => $commandName,
-                    'path' => 'app/Console/Commands'
+                    'path' => 'app/Console/Commands',
+                    'user_id' => $validated['user_id']
                 ]);
                 
                 app(CommandGeneratorController::class)->generateCommand($commandRequest);
@@ -73,8 +74,6 @@ class WorldController extends Controller
                 'world_medium_category_id' => $validated['world_medium_category_id'],
                 'world_small_category_id' => $request['world_small_category_id'] ?? NULL
             ];
-            
-            \Log::info('Data being passed to updateOrCreate:', $data);
             
             $worldRoom = WorldRoom::updateOrCreate(
                 ['user_id' => $validated['user_id']],

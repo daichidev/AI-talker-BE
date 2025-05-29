@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\WorldRoom;
+use Illuminate\Support\Facades\DB; 
+use App\Services\AIChatLogService;
 
 class CommandGeneratorController extends Controller
 {
@@ -95,12 +97,18 @@ class {$name}Command extends Command
     {
         \$userId = \$this->argument('user_id') ?? {$defaultUserId};
         
-        // ワールドルームの処理
-        \$worldRoom = WorldRoom::where('user_id', \$userId)->first();
+        \$user = User::where('id', \$userId)->first();
 
-        if (\$worldRoom) {
-            if(\$worldRoom->world_small_category_id) {
-                \$worldRooms = WorldRoom::where('world_small_category_id', \$worldRoom->world_small_category_id)->get();
+        if (!\$user->match_user_id) {
+            // ワールドルームの処理
+            \$worldRoom = WorldRoom::where('user_id', \$userId)->first();
+
+            if (\$worldRoom) {
+                if(\$worldRoom->world_small_category_id) {
+                    \$worldRooms = WorldRoom::where('world_small_category_id', \$worldRoom->world_small_category_id)->get();
+                } else {
+                    \$worldRooms = WorldRoom::where('world_medium_category_id', \$worldRoom->world_medium_category_id)->get();
+                }
 
                 \$userIds = \$worldRooms->pluck('user_id')->toArray();
 
@@ -111,13 +119,23 @@ class {$name}Command extends Command
                 \$randomUserId = !empty(\$userIds) ? \$userIds[array_rand(\$userIds)] : null;
 
                 \Log::info("Random User ID: {\$randomUserId}");
+
+                \$user->match_user_id = \$randomUserId;
+                \$user->save();
             } else {
-                \$worldRooms = WorldRoom::where('world_medium_category_id', \$worldRoom->world_medium_category_id)->get();
+                \$this->error("No world room found for user ID: {\$userId}");
             }
-        } else {
-            \$this->error("No world room found for user ID: {\$userId}");
         }
-        
+
+        \$tableName = app(AIChatLogService::class)->ensureUserTableExists(\$userId);
+
+        \$responseData = $this->openAIService->chat(\$user->match_user_id, "こんにちは");
+
+         DB::table(\$tableName)->insert([
+            'question' => "こんにちは",
+            'answer' => \$responseData['choices'][0]['message']['content'],
+        ]);
+
         \$this->info('Command executed successfully!');
     }
 }
@@ -127,7 +145,7 @@ PHP;
     }
 
     /**
-     * コマンド名に基づいてシグネチャを取得
+     * コマンド名に基づいてシグネチャを取得registerCommandInKernel
      */
     protected function getCommandSignature($name)
     {
@@ -137,11 +155,10 @@ PHP;
     /**
      * Kernelにコマンドを登録
      */
-    protected function registerCommandInKernel($commandName, $userId = null)
+    protected function registerCommandInKernel($commandName, $userId)
     {
         $kernelPath = app_path('Console/Kernel.php');
         $kernelContent = file_get_contents($kernelPath);
-        \Log::info("registerCommandInKernel: {$userId}");
         // コマンドを登録
         if (strpos($kernelContent, 'protected $commands = [') !== false) {
             $newCommand = "        Commands\\{$commandName}Command::class,\n";
@@ -161,10 +178,9 @@ PHP;
     /**
      * Kernelにコマンドのスケジュールを登録
      */
-    protected function registerScheduleInKernel(&$kernelContent, $commandName, $userId = null)
+    protected function registerScheduleInKernel(&$kernelContent, $commandName, $userId)
     {
         $commandSignature = $this->getCommandSignature($commandName);
-        \Log::info("registerScheduleInKernel: {$userId}");
         $argument = isset($userId) && $userId ? " {$userId}" : "1";
         $newSchedule = "        \$schedule->command('{$commandSignature} {$argument}')->everyMinute();\n";
 

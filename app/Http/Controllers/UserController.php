@@ -214,7 +214,7 @@ class UserController extends Controller
             [$questionKey => $request->content]
         );
         
-        if ($questionKey !== 'user_nickname' || $questionKey !== 'bot_nickname') {
+        if ($questionKey !== 'user_nickname') {
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 [$questionKey => $request->content]
@@ -310,14 +310,15 @@ class UserController extends Controller
             
             // 2. テーブルから該当の数値を取得
             $baseNumber = $unmeisuTable[$year][$month] ?? null;
+            $totalNumber = ($baseNumber + $day) > 60 ? ($baseNumber + $day) - 60 : $baseNumber + $day;
 
             // 動物リスト
             $animals = config('fortune_telling.animals');
-            $animal = $animals[$baseNumber % 60];
+            $animal = $animals[$totalNumber];
 
             // 動物リスト
             $fortuneCharacteristics = config('fortune_telling.fortuneCharacteristics');
-            $fortuneCharacteristic = $fortuneCharacteristics[$baseNumber % 60];
+            $fortuneCharacteristic = $fortuneCharacteristics[$totalNumber];
 
             return [
                 'animal_fortune_telling_result' => $animal,

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\UserController;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
@@ -29,7 +31,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'name' => 'nullable|string',
-            'ai_name' => 'nullable|string',
+            'bot_nickname' => 'nullable|string',
             'gender' => 'nullable|string',
             'birthdate' => 'nullable|date',
             'hometown' => 'nullable|string',
@@ -48,6 +50,16 @@ class ProfileController extends Controller
             'dream' => 'nullable|string',
             'animal_fortune_telling_result' => 'nullable|string',
         ]);
+
+        // If birthdate is being updated, calculate the animal sign
+        if (isset($validated['birthdate'])) {
+            // Convert date from YYYY-MM-DD to YYYY.M.D format
+            $formattedDate = Carbon::parse($validated['birthdate'])->format('Y.n.j');
+            
+            $userController = new UserController();
+            $birthdate_data = $userController->getAnimalSign($formattedDate);
+            $validated['animal_fortune_telling_result'] = $birthdate_data['animal_fortune_telling_result'];
+        }
 
         $profile = Profile::updateOrCreate(
             ['user_id' => $userId],
