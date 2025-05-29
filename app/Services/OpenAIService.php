@@ -36,7 +36,7 @@ class OpenAIService
             // プロフィール情報が存在する場合に追加
             if ($profileData) {
                 $userInfo .= "名前: " . ($profileData->name ?? $anketoData['name']) . ", ";
-                $userInfo .= "AI名: " . ($profileData->ai_name ?? '') . ", ";
+                $userInfo .= "AI名: " . ($profileData->bot_nickname ?? '') . ", ";
                 $userInfo .= "性別: " . ($profileData->gender ?? $anketoData['gender']) . ", ";
                 $userInfo .= "生年月日: " . ($profileData->birthdate ?? $anketoData['birthdate']) . ", ";
                 $userInfo .= "出身地: " . ($profileData->hometown ?? $anketoData['hometown']) . ", ";
