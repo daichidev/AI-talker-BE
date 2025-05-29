@@ -66,6 +66,9 @@ class ProfileController extends Controller
             $validated
         );
 
-        return response()->json($profile);
+        return response()->json([
+            'success' => true,
+            'data' => $profile
+        ]);
     }
 }

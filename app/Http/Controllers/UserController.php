@@ -289,7 +289,7 @@ class UserController extends Controller
         });
     }
 
-    private function getAnimalSign($birthdate)
+    public function getAnimalSign($birthdate)
     {
         // 入力を分割して取得
         list($year, $month, $day) = explode('.', $birthdate);
