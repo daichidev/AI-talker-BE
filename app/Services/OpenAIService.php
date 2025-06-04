@@ -123,7 +123,7 @@ class OpenAIService
                 'json' => [
                     'model' => 'o4-mini',
                     'messages' => $fullMessage,
-                    'temperature' => 0.95,
+                    // 'temperature' => 0.95,
                 ],
             ]);
 
