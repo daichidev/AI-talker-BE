@@ -121,7 +121,7 @@ class OpenAIService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'gpt-4o-mini',
+                    'model' => 'o4-mini',
                     'messages' => $fullMessage,
                     'temperature' => 0.95,
                 ],
