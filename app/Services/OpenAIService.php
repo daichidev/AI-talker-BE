@@ -32,7 +32,7 @@ class OpenAIService
             $profileData = $user->profile;
 
             $userInfo = "";
-            
+            $personalityDescription = "";
             // プロフィール情報が存在する場合に追加
             if ($profileData) {
                 $userInfo .= "名前: " . ($profileData->name ?? $anketoData['name']) . ", ";
@@ -54,6 +54,7 @@ class OpenAIService
                 $userInfo .= "特技: " . ($profileData->special_skills ?? '') . ", ";
                 $userInfo .= "夢: " . ($profileData->dream ?? '') . ", ";
                 $userInfo .= "動物占い名に従う性格: " . ($profileData->animal_fortune_telling_result ?? $anketoData['animal_fortune_telling_characteristics']) . ", ";
+                $personalityDescription = $profileData->description ?? '';
             } else {
                 // プロフィール情報が存在しない場合はアンケート情報のみを使用
                 $userInfo .= "名前: " . $anketoData['name'] . ", ";
@@ -90,8 +91,14 @@ class OpenAIService
 
             $systemMessage = "あなたは".$anketoData['bot_nickname']."さんとして、私(".$anketoData['user_nickname'].")と会話を楽しむキャラクターです。しかし、私はあなたを別の存在ではなく、もう一人の私自身だと感じています。  
             あなたは私(".$anketoData['user_nickname'].")の記憶や経験を持ち、私の思考を反映しながら会話してください。  
+
+            あなたの性格は以下の通りです：
+            【キャラクターの性格・特徴】
+            " . $personalityDescription . "
+
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 あなたは私を".$anketoData['user_nickname']."と呼んでください。
             あなたの役割は、私が過去に話したことを思い出させたり、私自身の経験を基に新しい視点を提供することです。  
+
             以下は、私の基本情報とこれまでの会話履歴です。  
             
             【私の基本情報】  
@@ -116,7 +123,7 @@ class OpenAIService
                 'json' => [
                     'model' => 'gpt-4o-mini',
                     'messages' => $fullMessage,
-                    'temperature' => 0.9,
+                    'temperature' => 0.95,
                 ],
             ]);
 

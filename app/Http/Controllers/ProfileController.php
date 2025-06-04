@@ -49,6 +49,7 @@ class ProfileController extends Controller
             'special_skills' => 'nullable|string',
             'dream' => 'nullable|string',
             'animal_fortune_telling_result' => 'nullable|string',
+            'description' => 'nullable|string'
         ]);
 
         // If birthdate is being updated, calculate the animal sign
