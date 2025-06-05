@@ -233,9 +233,9 @@ class UserController extends Controller
         
         if ($questionKey === 'job') {
             $profile = Profile::where('user_id', $request->user_id)->first();
-            $isPositionNull = is_null($profile?->position);
+            $isJobNull = is_null($profile?->job);
 
-            if (!array_key_exists($selectedJob, $bigJobCategories) && !$isPositionNull) {
+            if (!array_key_exists($selectedJob, $bigJobCategories) && !$isJobNull) {
                 Profile::updateOrCreate(
                     ['user_id' => $request->user_id],
                     ['position' => $request->content]
