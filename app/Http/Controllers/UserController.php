@@ -185,12 +185,6 @@ class UserController extends Controller
                 'anketo_status' => $user->anketo_status,
                 'next_question_text' => "職業を教えてください！"
             ]);
-        } else if (!array_key_exists($selectedJob, $jobCategories) && $selectedJob !== 'その他') {
-            return response()->json([
-                'success' => true,
-                'anketo_status' => $user->anketo_status,
-                'next_question_text' => "職業を教えてください！"
-            ]);
         }
 
         if ($questionKey == 'birthdate') {          
@@ -231,7 +225,7 @@ class UserController extends Controller
         );
         
         if ($questionKey === 'job') {
-            if (!array_key_exists($selectedJob, $bigJobCategories)  && $selectedJob === 'その他') {
+            if (!array_key_exists($selectedJob, $bigJobCategories)  && $selectedJob !== 'その他') {
                 Profile::updateOrCreate(
                     ['user_id' => $request->user_id],
                     ['position' => $request->content]
