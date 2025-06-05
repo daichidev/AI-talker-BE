@@ -161,6 +161,16 @@ class UserController extends Controller
             '主婦' => ['主婦', '主夫', "その他"]
         ];
 
+        $bigJobCategories = [
+            "学生",
+            "会社員",
+            "経営者",
+            "公務員",
+            "パート／アルバイト",
+            "主婦",
+            "無職",
+        ];
+
         $selectedJob = $request->content;
 
         if (array_key_exists($selectedJob, $jobCategories)) {
@@ -170,6 +180,12 @@ class UserController extends Controller
                 'next_question_text' => implode(", ", $jobCategories[$selectedJob])
             ]);
         } else if ($questionKey === 'job' && $selectedJob === 'その他') {
+            return response()->json([
+                'success' => true,
+                'anketo_status' => $user->anketo_status,
+                'next_question_text' => "職業を教えてください！"
+            ]);
+        } else if (!array_key_exists($selectedJob, $jobCategories) && $selectedJob !== 'その他') {
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
@@ -208,13 +224,25 @@ class UserController extends Controller
                 ['animal_fortune_telling_result' => $birthdate_data['animal_fortune_telling_result']]
             );
         }
-
+        
         Anketo::updateOrCreate(
             ['user_id' => $request->user_id],
             [$questionKey => $request->content]
         );
         
-        if ($questionKey !== 'user_nickname') {
+        if ($questionKey === 'job') {
+            if (!array_key_exists($selectedJob, $bigJobCategories)  && $selectedJob === 'その他') {
+                Profile::updateOrCreate(
+                    ['user_id' => $request->user_id],
+                    ['position' => $request->content]
+                );
+            } else {
+                Profile::updateOrCreate(
+                    ['user_id' => $request->user_id],
+                    ['job' => $request->content]
+                );
+            }
+        }else if ($questionKey !== 'user_nickname') {
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 [$questionKey => $request->content]
