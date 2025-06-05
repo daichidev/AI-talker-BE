@@ -173,6 +173,13 @@ class UserController extends Controller
 
         $selectedJob = $request->content;
 
+        if (array_key_exists($selectedJob, $bigJobCategories)) {
+            Profile::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['job' => $request->content]
+            );
+        }
+
         if (array_key_exists($selectedJob, $jobCategories)) {
             return response()->json([
                 'success' => true,
@@ -225,7 +232,10 @@ class UserController extends Controller
         );
         
         if ($questionKey === 'job') {
-            if (!array_key_exists($selectedJob, $bigJobCategories)  && $selectedJob !== 'その他') {
+            $profile = Profile::where('user_id', $request->user_id)->first();
+            $isPositionNull = is_null($profile?->position);
+
+            if (!array_key_exists($selectedJob, $bigJobCategories) && !$isPositionNull) {
                 Profile::updateOrCreate(
                     ['user_id' => $request->user_id],
                     ['position' => $request->content]
@@ -236,7 +246,7 @@ class UserController extends Controller
                     ['job' => $request->content]
                 );
             }
-        }else if ($questionKey !== 'user_nickname') {
+        } else if ($questionKey !== 'user_nickname') {
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 [$questionKey => $request->content]
