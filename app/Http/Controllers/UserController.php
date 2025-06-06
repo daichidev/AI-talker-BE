@@ -173,7 +173,7 @@ class UserController extends Controller
 
         $selectedJob = $request->content;
 
-        if (array_key_exists($selectedJob, $bigJobCategories)) {
+        if (in_array($selectedJob, $bigJobCategories)) {
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 ['job' => $request->content]
@@ -235,7 +235,7 @@ class UserController extends Controller
             $profile = Profile::where('user_id', $request->user_id)->first();
             $isJobNull = is_null($profile?->job);
 
-            if (!array_key_exists($selectedJob, $bigJobCategories) && !$isJobNull) {
+            if (!in_array($selectedJob, $bigJobCategories) && !$isJobNull) {
                 Profile::updateOrCreate(
                     ['user_id' => $request->user_id],
                     ['position' => $request->content]
