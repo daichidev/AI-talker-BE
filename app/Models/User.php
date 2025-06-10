@@ -20,7 +20,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
+        'device_id',
+        'face_photo',
+        'anketo_status',
+        'match_user_id',
+        'remember_token',
+        'role',
     ];
 
     /**
