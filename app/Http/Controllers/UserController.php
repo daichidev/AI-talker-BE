@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Avatar;
 use App\Models\PersonalityTest;
 use App\Models\Profile;
+use App\Models\Syncro;
 
 use App\Http\Controllers\DeepImageController;
 
@@ -84,7 +85,12 @@ class UserController extends Controller
             $avatar->avatar_link = $avatarPath;
             $avatar->user_id = $user->id;
             $avatar->save();
-    
+            
+            $syncro = new Syncro();
+            $syncro->user_id = $user->id;
+            $syncro->score_login = 1;
+            $syncro->save();
+
             return response()->json([
                 'success' => true, 
                 'userId' => $user->id,
@@ -101,6 +107,11 @@ class UserController extends Controller
             'deviceId' => 'required|string',
         ]);
 
+        $user = User::where('device_id', $request->deviceId)->first();
+        $syncro = Syncro::where('user_id', $user->id)->first();
+        $syncro->score_login += 1;
+        $syncro->save();
+
         return $this->authenticateUser(['device_id' => $request->deviceId]);
     }
 
@@ -110,6 +121,11 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        $user = User::where('email', $request->email)->first();
+        $syncro = Syncro::where('user_id', $user->id)->first();
+        $syncro->score_login += 1;
+        $syncro->save();
 
         return $this->authenticateUser(['email' => $request->email, 'password' => $request->password]);
     }
@@ -204,6 +220,10 @@ class UserController extends Controller
             }
 
             $birthdate_data = $this->getAnimalSign($request->content);
+
+            $syncro = Syncro::where('user_id', $request->user_id)->first();
+            $syncro->done_animal_fortune = true;
+            $syncro->save();
         }
 
         $user->anketo_status += 1;
@@ -413,6 +433,10 @@ class UserController extends Controller
         $personalityTest->personality_answers_array = json_encode($request->personality_answers);
         $personalityTest->mean_values_array = json_encode([ $averageExtraversion, $averageAgreeableness, $averageConscientiousness, $averageNeuroticism, $averageOpenness ]);
         $personalityTest->save();
+
+        $syncro = Syncro::where('user_id', $request->user_id)->first();
+        $syncro->done_big5_analysis = true;
+        $syncro->save();
 
         return response()->json([
             'success' => true,

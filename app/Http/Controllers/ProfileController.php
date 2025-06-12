@@ -67,6 +67,15 @@ class ProfileController extends Controller
             $validated
         );
 
+        $nonNullFields = array_filter($validated, function($value) {
+            return $value !== null;
+        });
+        $count = count($nonNullFields);
+
+        $syncro = Syncro::where('user_id', $userId)->first();
+        $syncro->score_profile = $count;
+        $syncro->save();
+
         return response()->json([
             'success' => true,
             'data' => $profile
