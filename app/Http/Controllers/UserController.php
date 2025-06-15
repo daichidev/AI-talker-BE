@@ -108,7 +108,11 @@ class UserController extends Controller
         ]);
 
         $user = User::where('device_id', $request->deviceId)->first();
-        $syncro = Syncro::where('user_id', $user->id)->first();
+
+        $syncro = Syncro::firstOrCreate(
+            ['user_id' => $user->id],
+            ['score_login' => 0]
+        );
         $syncro->score_login += 1;
         $syncro->save();
 
@@ -123,7 +127,11 @@ class UserController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-        $syncro = Syncro::where('user_id', $user->id)->first();
+
+        $syncro = Syncro::firstOrCreate(
+            ['user_id' => $user->id],
+            ['score_login' => 0]
+        );
         $syncro->score_login += 1;
         $syncro->save();
 
