@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Models\Syncro;
+use App\Models\Profile;
 
 class SyncroController extends Controller
 {
