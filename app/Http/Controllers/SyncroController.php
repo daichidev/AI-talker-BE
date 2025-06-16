@@ -79,6 +79,7 @@ class SyncroController extends Controller
     {
         $syncro = Syncro::where('user_id', $userId)->first();
         $totalPoints = 0;
+        $limitPoints = 0;
 
         if ($syncro) {
             $taskMap = [
@@ -109,14 +110,22 @@ class SyncroController extends Controller
         foreach ($this->levelThresholds as $level => $threshold) {
             if ($totalPoints >= $threshold) {
                 $syncLevel = $level;
+                $limitPoints = $level == 50 ? 2395143242 : $this->levelThresholds[$level + 1];
             } else {
                 break;
             }
         }
 
+        $profile = Profile::where('user_id', $userId)->first();
+        if ($profile) {
+            $bot_nickname = $profile->bot_nickname ?? 'なし';
+        }
+
         return response()->json([
             'totalPoints' => $totalPoints,
+            'limitPoints' => $limitPoints,
             'syncLevel' => $syncLevel,
+            'bot_nickname' => $bot_nickname,
         ]);
     }
 }
