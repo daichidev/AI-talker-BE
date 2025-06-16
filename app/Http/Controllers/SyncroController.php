@@ -82,7 +82,8 @@ class SyncroController extends Controller
         $syncro = Syncro::where('user_id', $userId)->first();
         $totalPoints = 0;
         $limitPoints = 0;
-
+        $bot_nickname = 'なし';
+        
         if ($syncro) {
             $taskMap = [
                 'score_profile' => 'profile',
