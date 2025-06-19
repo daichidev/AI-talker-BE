@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WorldController;
+use App\Http\Controllers\SyncroController;
 use App\Http\Controllers\CommandGeneratorController;
 
 /*
@@ -46,6 +47,8 @@ Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
 Route::post('/profile/{userId}', [ProfileController::class, 'update']);
+
+Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
 
 Route::get('/world-big-category', [WorldController::class, 'getWorldBigCategory']);
 Route::get('/world-medium-category/{worldBigCategoryId}', [WorldController::class, 'getWorldMediumCategory']);
