@@ -65,14 +65,14 @@ class DeepImageController extends Controller
         // ]);
         $photoPath = $request->input('photoPath');
         $avatarType = $request->input('avatar_type');
-        $avatarGenderType = $request->input('avatarGenderType');
+        $avatarGenderType = $request->input('avatar_gender_type');
         $fullPhotoPath = storage_path("app/public/face_id_photos/{$photoPath}");
 
-        $descriptions = ($avatarGenderType === 1) 
+        $descriptions = ((int)$avatarGenderType === 1) 
             ? self::FEMALE_DESCRIPTIONS[$avatarType] ?? self::FEMALE_DESCRIPTIONS[3]
             : self::MALE_DESCRIPTIONS[$avatarType] ?? self::MALE_DESCRIPTIONS[3];
         $randomDescription = $descriptions[array_rand($descriptions)];
-    
+
         $data = [
             "width" => 850,
             "height" => 1400,
