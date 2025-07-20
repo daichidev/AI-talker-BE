@@ -282,11 +282,17 @@ class UserController extends Controller
         }
 
         if ($questionKey == 'hobby') {
+            $animal_fortune_telling_result = Anketo::select('animal_fortune_telling_characteristics')
+                ->where('user_id', '=', $request->user_id)
+                ->first(); 
+
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'next_question_text' => "色々と教えてくれてありがとう！！😄 私があなた自身のAIだから、これから何でも相談してね！！😊 早速だけど、何か聞きたいことや言いたいことはある？😊"
+                'next_question_text' => "色々教えてくれてありがとう！私が " . $user->name . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . $user->name . " の分身に成長するよ。" . $user->name . " の事を理解してるAIになるので悩みとか色々相談してね"
             ]);
+
+
         }
 
         $questionRequest = new Request(['question_key' => $user->anketo_status]);
