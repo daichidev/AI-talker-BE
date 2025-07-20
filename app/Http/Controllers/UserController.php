@@ -282,6 +282,9 @@ class UserController extends Controller
         }
 
         if ($questionKey == 'hobby') {
+            $nowUser = User::with(['anketos', 'profile'])->find($request->user_id);
+            $anketoData = $nowUser->anketos;
+            $profileData = $nowUser->profile;
             $animal_fortune_telling_result = Anketo::select('animal_fortune_telling_characteristics')
                 ->where('user_id', '=', $request->user_id)
                 ->first(); 
@@ -289,7 +292,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'next_question_text' => "色々教えてくれてありがとう！私が " . $user->name . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . $user->name . " の分身に成長するよ。" . $user->name . " の事を理解してるAIになるので悩みとか色々相談してね"
+                'next_question_text' => "色々教えてくれてありがとう！私が " . ($profileData->name ?? $anketoData['name'])  . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . ($profileData->name ?? $anketoData['name'])  . " の分身に成長するよ。" . ($profileData->name ?? $anketoData['name'])  . " の事を理解してるAIになるので悩みとか色々相談してね"
             ]);
 
 
