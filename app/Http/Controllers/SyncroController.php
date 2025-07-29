@@ -26,6 +26,7 @@ class SyncroController extends Controller
     ];
 
     private $levelThresholds = [
+        1 => 0,
         2 => 3,
         3 => 7,
         4 => 13,
