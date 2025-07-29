@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Config;
 class DeepImageController extends Controller
 {
     private $apiUrl = 'https://deep-image.ai/rest_api/process_result';
+    private $processUrl = 'https://deep-image.ai/rest_api/process';
     private $statusUrl = 'https://deep-image.ai/rest_api/result/';
     private $apiKey;
 
@@ -59,6 +60,57 @@ class DeepImageController extends Controller
         $this->apiKey = Config::get('app.deep_image_api_key');
     }
 
+    /**
+     * Poll the job result until completion or timeout
+     */
+    private function pollJobResult($jobId, $maxAttempts = 60)
+    {
+        $attempt = 0;
+        
+        while ($attempt < $maxAttempts) {
+            $attempt++;
+            Log::info("Polling attempt {$attempt}/{$maxAttempts}");
+            
+            try {
+                $statusResponse = Http::withHeaders(['x-api-key' => $this->apiKey])
+                    ->timeout(10)
+                    ->get($this->statusUrl . $jobId);
+                
+                Log::info("Poll response status: " . $statusResponse->status());
+                
+                if (!$statusResponse->successful()) {
+                    Log::error("Poll request failed with status " . $statusResponse->status());
+                    Log::error("Poll response: " . $statusResponse->body());
+                    return null;
+                }
+                
+                $responseData = $statusResponse->json();
+                Log::info("Poll response: " . json_encode($responseData, JSON_PRETTY_PRINT));
+                
+                if ($responseData['status'] == 'complete') {
+                    Log::info("Job completed successfully");
+                    return $responseData;
+                } elseif ($responseData['status'] == 'failed') {
+                    Log::error("Job failed: " . json_encode($responseData));
+                    return null;
+                } elseif (in_array($responseData['status'], ['received', 'in_progress'])) {
+                    Log::info("Job still in progress: " . $responseData['status']);
+                    sleep(1);
+                } else {
+                    Log::error("Unexpected status: " . ($responseData['status'] ?? 'unknown'));
+                    return null;
+                }
+                
+            } catch (\Exception $e) {
+                Log::error("Error during polling: " . $e->getMessage());
+                return null;
+            }
+        }
+        
+        Log::error("Job did not complete within {$maxAttempts} attempts");
+        return null;
+    }
+
     public function processImage(Request $request)
     {
         // return response()->json([
@@ -81,7 +133,7 @@ class DeepImageController extends Controller
                 "generate" => [
                     "description" => $randomDescription,
                     "adapter_type" => "face",
-                    "face_id" => True
+                    "face_id" => true
                 ]
             ]
         ];
@@ -89,43 +141,92 @@ class DeepImageController extends Controller
         $headers = [
             'x-api-key' => $this->apiKey,
         ];
-    
-        $response = Http::withHeaders($headers)
-            ->attach('image', fopen($fullPhotoPath, 'r'), basename($fullPhotoPath))
-            ->post($this->apiUrl, ['parameters' => json_encode($data)]);
-    
-        if ($response->successful()) {
-            $responseData = $response->json();
-    
-            if ($responseData['status'] == 'complete') {
-                $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
 
-                return response()->json([
-                    'image_url' => $processedImageUrl,
-                ]);
-            }
-    
-            while ($responseData['status'] == 'in_progress') {
-                sleep(1);
-                $statusResponse = Http::withHeaders($headers)
-                    ->get($this->statusUrl . $responseData['job']);
-    
-                if ($statusResponse->successful()) {
-                    $responseData = $statusResponse->json();
+        Log::info("Starting image generation process");
+        Log::info("Using image: {$fullPhotoPath}");
+        Log::info("Request data: " . json_encode($data, JSON_PRETTY_PRINT));
+
+        try {
+            // First, try the process_result API (25s timeout)
+            Log::info("Trying process_result API (25s timeout)");
+            
+            try {
+                $response = Http::withHeaders($headers)
+                    ->timeout(30) // 30s timeout to be safe
+                    ->attach('image', fopen($fullPhotoPath, 'r'), basename($fullPhotoPath))
+                    ->post($this->apiUrl, ['parameters' => json_encode($data)]);
+                
+                Log::info("Response status code: " . $response->status());
+                Log::info("Response headers: " . json_encode($response->headers()));
+                
+                if ($response->successful()) {
+                    $responseData = $response->json();
+                    Log::info("Response JSON: " . json_encode($responseData, JSON_PRETTY_PRINT));
+                    
                     if ($responseData['status'] == 'complete') {
+                        Log::info("Job completed immediately via process_result");
                         $processedImageUrl = $this->downloadAndSaveImage($responseData['result_url']);
-
+                        
                         return response()->json([
                             'image_url' => $processedImageUrl,
                         ]);
+                    } else {
+                        Log::info("process_result API returned non-complete status, falling back to process API");
+                        throw new \Exception("Non-complete status from process_result");
                     }
+                } else {
+                    Log::info("process_result API failed with status " . $response->status() . ", falling back to process API");
+                    throw new \Exception("process_result API failed: " . $response->status());
+                }
+                
+            } catch (\Exception $e) {
+                Log::info("process_result API failed or timed out: " . $e->getMessage());
+                Log::info("Falling back to process API + polling approach");
+                
+                // Use the process API to get a job ID
+                Log::info("Sending POST request to process API");
+                $response = Http::withHeaders($headers)
+                    ->attach('image', fopen($fullPhotoPath, 'r'), basename($fullPhotoPath))
+                    ->post($this->processUrl, ['parameters' => json_encode($data)]);
+                
+                Log::info("Process API response status code: " . $response->status());
+                
+                if ($response->successful()) {
+                    $responseData = $response->json();
+                    Log::info("Process API response: " . json_encode($responseData, JSON_PRETTY_PRINT));
+                    
+                    $jobId = $responseData['job'] ?? null;
+                    if ($jobId) {
+                        Log::info("Job ID received: {$jobId}");
+                        // Poll for the result
+                        $result = $this->pollJobResult($jobId);
+                        if ($result) {
+                            $processedImageUrl = $this->downloadAndSaveImage($result['result_url']);
+                            
+                            return response()->json([
+                                'image_url' => $processedImageUrl,
+                            ]);
+                        } else {
+                            Log::error("Failed to get result from polling");
+                            return response()->json(['error' => '画像処理ジョブが正常に完了しませんでした。'], 500);
+                        }
+                    } else {
+                        Log::error("No job ID received from process API");
+                        Log::error("Full response: " . json_encode($responseData, JSON_PRETTY_PRINT));
+                        return response()->json(['error' => '画像処理ジョブの開始に失敗しました。'], 500);
+                    }
+                } else {
+                    Log::error("Process API failed with status code: " . $response->status());
+                    Log::error("Error response: " . $response->body());
+                    return response()->json(['error' => '画像処理ジョブの開始に失敗しました。'], 500);
                 }
             }
-
-            return response()->json(['error' => '画像処理ジョブが正常に完了しませんでした。'], 500);
+            
+        } catch (\Exception $e) {
+            Log::error("Unexpected error: " . $e->getMessage());
+            Log::error("Traceback: " . $e->getTraceAsString());
+            return response()->json(['error' => '画像処理中にエラーが発生しました。'], 500);
         }
-
-        return response()->json(['error' => '画像処理ジョブの開始に失敗しました。'], 500);
     }
     
     private function downloadAndSaveImage($url)
