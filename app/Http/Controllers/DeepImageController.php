@@ -93,9 +93,9 @@ class DeepImageController extends Controller
                 } elseif ($responseData['status'] == 'failed') {
                     Log::error("Job failed: " . json_encode($responseData));
                     return null;
-                } elseif (in_array($responseData['status'], ['received', 'in_progress'])) {
+                } elseif (in_array($responseData['status'], ['received', 'in_progress', 'not_started'])) {
                     Log::info("Job still in progress: " . $responseData['status']);
-                    sleep(1);
+                    sleep(2);
                 } else {
                     Log::error("Unexpected status: " . ($responseData['status'] ?? 'unknown'));
                     return null;
