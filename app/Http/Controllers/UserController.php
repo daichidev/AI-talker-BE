@@ -10,6 +10,7 @@ use App\Models\Avatar;
 use App\Models\PersonalityTest;
 use App\Models\Profile;
 use App\Models\Syncro;
+use App\Models\Report;
 
 use App\Http\Controllers\DeepImageController;
 
@@ -477,5 +478,19 @@ class UserController extends Controller
             'success' => true,
             'personality_test' => $personalityTest
         ]);
+    }
+
+    public function postReport($id, Request $request)
+    {
+        $request->validate([
+            'reportText' => 'required|string',
+        ]);
+
+        $report = new Report();
+        $report->user_id = $id;
+        $report->report_text = $request->reportText;
+        $report->save();
+
+        return response()->json(['success' => true, 'message' => 'レポートを保存しました。']);
     }
 }

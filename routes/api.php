@@ -56,3 +56,5 @@ Route::get('/world-small-category/{worldMediumCategoryId}', [WorldController::cl
 Route::post('/world-room', [WorldController::class, 'postWorldRoom']);
 
 Route::post('/generate-command', [CommandGeneratorController::class, 'generateCommand']);
+
+Route::post('/report/{id}', [UserController::class, 'postReport']);
