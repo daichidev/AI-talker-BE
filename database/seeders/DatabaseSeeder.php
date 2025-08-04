@@ -17,8 +17,5 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(AvatarsTableSeeder::class);
         $this->call(AnketosTableSeeder::class);
-        $this->call(WorldBigCategoriesTableSeeder::class);
-        $this->call(WorldMediumCategoriesTableSeeder::class);
-        $this->call(WorldSmallCategoriesTableSeeder::class);
     }
 }

@@ -13,12 +13,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\WorldRoomsUser3Command::class,
-
-        Commands\WorldRoomsUser2Command::class,
-
-        Commands\WorldRoomsUser1Command::class,
-
     ];
 
     /**
@@ -29,10 +23,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('world-rooms-user3  3')->everyMinute();
-$schedule->command('world-rooms-user2  2')->everyMinute();
-$schedule->command('world-rooms-user1  1')->everyMinute();
-}
+
+    }
 
     /**
      * Register the commands for the application.
