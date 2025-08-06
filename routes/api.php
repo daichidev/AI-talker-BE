@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SyncroController;
+use App\Http\Controllers\AiMatchingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,3 +50,7 @@ Route::post('/profile/{userId}', [ProfileController::class, 'update']);
 Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
 
 Route::post('/report/{id}', [UserController::class, 'postReport']);
+
+// 検索機能
+Route::post('/matching/select-users', [AiMatchingController::class, 'searchUsers']);
+Route::post('/matching/select-user', [AiMatchingController::class, 'selectUser']);

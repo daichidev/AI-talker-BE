@@ -483,11 +483,13 @@ class UserController extends Controller
     public function postReport($id, Request $request)
     {
         $request->validate([
+            'reportType' => 'required|integer',
             'reportText' => 'required|string',
         ]);
 
         $report = new Report();
         $report->user_id = $id;
+        $report->report_type = $request->reportType;
         $report->report_text = $request->reportText;
         $report->save();
 
