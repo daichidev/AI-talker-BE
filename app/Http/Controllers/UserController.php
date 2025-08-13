@@ -495,4 +495,47 @@ class UserController extends Controller
 
         return response()->json(['success' => true, 'message' => 'レポートを保存しました。']);
     }
+
+    public function resetAvatar(Request $request) {
+        $request->validate([
+            'userId' => 'required|integer',
+            'photo' => 'required|image|mimes:jpeg,png,jpg',
+            'avatarType' => 'required|integer',
+            'avatarGenderType' => 'required|integer',
+        ]);
+
+        // 写真をstorage/app/public/face_id_photosに保存
+        $photoPath = $request->file('photo')->store('face_id_photos', 'public');
+
+        // ファイル名のみを取得
+        $filename = basename($photoPath);
+
+        $deepImageController = new DeepImageController();
+        $modifiedRequest = new Request([
+            'photoPath' => $filename,
+            'avatar_type' => $request->avatarType,
+            'avatar_gender_type' => $request->avatarGenderType
+        ]);
+        $response = $deepImageController->processImage($modifiedRequest);
+        $responseData = $response->getData(true);
+
+        if (isset($responseData['image_url'])) {
+            $avatarPath = $responseData['image_url'];
+           
+            $user = User::find($request->userId);
+            $user->face_photo = $photoPath;
+            $user->save();
+
+            $avatar = Avatar::where('user_id', $request->userId)->first();
+            $avatar->avatar_link = $avatarPath;
+            $avatar->save();
+
+            return response()->json([
+                'success' => true, 
+                'avatarPath' => $avatarPath  
+            ]);
+        } else {
+            return response()->json(['success' => false, 'message' => '画像の処理に失敗しました。'], 500);
+        }
+    }
 }

@@ -28,6 +28,7 @@ Route::get('/test', function() {
 });
 
 Route::post('/store-face-id', [UserController::class, 'storeFaceID']);
+Route::post('/reset-avatar', [UserController::class, 'resetAvatar']);
 
 Route::post('/login-with-face-id', [UserController::class, 'loginWithFaceID']);
 
