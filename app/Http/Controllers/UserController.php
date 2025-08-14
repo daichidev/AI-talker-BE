@@ -538,4 +538,87 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => '画像の処理に失敗しました。'], 500);
         }
     }
+
+    public function getDeleteAccount()
+    {
+        return view('user.delete-account');
+    }
+
+    public function postDeleteAccount(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'delete_reason' => 'required|string',
+            'delete_reason_detail' => 'nullable|string',
+            'confirm_profile' => 'required|accepted',
+            'confirm_avatar' => 'required|accepted',
+            'confirm_chat' => 'required|accepted',
+            'confirm_matching' => 'required|accepted',
+            'confirm_irreversible' => 'required|accepted',
+        ]);
+
+        // Find user by email
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return redirect()->back()->with('error', '指定されたメールアドレスのアカウントが見つかりません。');
+        }
+
+        // Verify password
+        if (!Hash::check($request->password, $user->password)) {
+            return redirect()->back()->with('error', 'パスワードが正しくありません。');
+        }
+
+        try {
+            // Start database transaction
+            DB::beginTransaction();
+
+            // Delete chat logs table if exists
+            $tableName = app(ChatLogService::class)->getTableName($user->id);
+            if (Schema::hasTable($tableName)) {
+                Schema::drop($tableName);
+            }
+
+            // Delete related data
+            Avatar::where('user_id', $user->id)->delete();
+            Anketo::where('user_id', $user->id)->delete();
+            Profile::where('user_id', $user->id)->delete();
+            PersonalityTest::where('user_id', $user->id)->delete();
+            Syncro::where('user_id', $user->id)->delete();
+            Report::where('user_id', $user->id)->delete();
+
+            // Delete user's personal access tokens
+            $user->tokens()->delete();
+
+            // Delete the user
+            $user->delete();
+
+            // Commit transaction
+            DB::commit();
+
+            // Log the deletion request for audit purposes
+            \Log::info('Account deletion requested', [
+                'email' => $request->email,
+                'reason' => $request->delete_reason,
+                'detail' => $request->delete_reason_detail,
+                'deleted_at' => now()
+            ]);
+
+            return redirect()->back()->with('success', 'アカウントと関連データが正常に削除されました。ご利用いただき、ありがとうございました。');
+
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            DB::rollBack();
+            
+            \Log::error('Account deletion failed', [
+                'email' => $request->email,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()->with('error', 'アカウント削除中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
+        }
+    }
+
+    
 }
