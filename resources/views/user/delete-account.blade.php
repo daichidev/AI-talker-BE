@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アカウント削除リクエスト</title>
+    <title>My AI - アカウント削除リクエスト</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
@@ -21,16 +21,44 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 30px;
         }
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        .app-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .app-header .subtitle {
+            font-size: 18px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .app-header .developer {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        .app-header .tagline {
+            font-size: 16px;
+            font-style: italic;
+            opacity: 0.9;
+        }
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #e74c3c;
             padding-bottom: 20px;
         }
-        .header h1 {
+        .header h2 {
             color: #e74c3c;
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
         }
         .warning-box {
             background-color: #fff3cd;
@@ -53,7 +81,7 @@
             font-weight: 600;
             color: #555;
         }
-        select, textarea {
+        select, textarea, input[type="email"], input[type="password"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -131,12 +159,47 @@
             border: 1px solid #f5c6cb;
             color: #721c24;
         }
+        .app-info {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .app-info h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .app-info p {
+            color: #6c757d;
+            margin: 5px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- My AI App Header -->
+        <div class="app-header">
+            <h1>My AI</h1>
+            <div class="subtitle">自分のAIがスマホの中に！</div>
+            <div class="developer">開発者: TEZUKAHIROAKI</div>
+            <div class="tagline">あなただけのパーソナルAIアシスタント</div>
+        </div>
+
+        <!-- App Information Box -->
+        <div class="app-info">
+            <h3>📱 My AI アプリについて</h3>
+            <p><strong>アプリ名:</strong> My AI - 自分のAIがスマホの中に！</p>
+            <p><strong>開発者:</strong> TEZUKAHIROAKI</p>
+            <p><strong>Google Play:</strong> <a href="https://play.google.com/store/apps/details?id=com.ai_talker_client" target="_blank" style="color: #007bff; text-decoration: none;">My AI アプリをダウンロード</a></p>
+            <p><strong>対応年齢:</strong> 3歳以上</p>
+            <p><strong>機能:</strong> パーソナルAI、チャット、アバター生成、性格診断</p>
+        </div>
+
         <div class="header">
-            <h1>⚠️ アカウント削除リクエスト</h1>
+            <h2>⚠️ アカウント削除リクエスト</h2>
         </div>
 
         @if(session('success'))
@@ -159,11 +222,12 @@
                 <li>アバター画像</li>
                 <li>チャット履歴</li>
                 <li>マッチング情報</li>
+                <li>性格診断結果</li>
                 <li>その他すべての関連データ</li>
             </ul>
         </div>
 
-        <form action="{{ route('account.post-delete-account') }}" method="POST" id="deleteAccountForm">
+        <form action="{{ route('myai.post-delete-account') }}" method="POST" id="deleteAccountForm">
             @csrf
             
             <div class="form-group">
@@ -174,6 +238,7 @@
                     <option value="no_longer_using">もう使用していない</option>
                     <option value="found_better_service">より良いサービスを見つけた</option>
                     <option value="technical_issues">技術的な問題</option>
+                    <option value="app_not_meeting_expectations">アプリが期待に応えなかった</option>
                     <option value="other">その他</option>
                 </select>
             </div>
@@ -181,21 +246,19 @@
             <div class="form-group">
                 <label for="delete_reason_detail">詳細な理由（任意）：</label>
                 <textarea name="delete_reason_detail" id="delete_reason_detail" 
-                          placeholder="削除理由について詳しく教えてください。サービス改善の参考にさせていただきます。"></textarea>
+                          placeholder="削除理由について詳しく教えてください。My AIアプリの改善の参考にさせていただきます。"></textarea>
             </div>
 
             <div class="form-group">
                 <label for="email">アカウントのメールアドレス：</label>
                 <input type="email" name="email" id="email" required 
-                       placeholder="削除するアカウントのメールアドレスを入力してください"
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+                       placeholder="削除するアカウントのメールアドレスを入力してください">
             </div>
 
             <div class="form-group">
                 <label for="password">パスワード：</label>
                 <input type="password" name="password" id="password" required 
-                       placeholder="アカウントのパスワードを入力してください"
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
+                       placeholder="アカウントのパスワードを入力してください">
             </div>
 
             <div class="checkbox-group">
@@ -234,6 +297,12 @@
                 </button>
             </div>
         </form>
+
+        <!-- Footer with app info -->
+        <div class="app-info" style="margin-top: 30px;">
+            <p><strong>My AI</strong> - あなただけのパーソナルAIアシスタント</p>
+            <p>開発者: TEZUKAHIROAKI | サポート: お問い合わせはアプリ内からお願いします</p>
+        </div>
     </div>
 
     <script>
@@ -252,7 +321,7 @@
                 return false;
             }
             
-            return confirm('本当にアカウント削除をリクエストしますか？\nこの操作は取り消すことができません。');
+            return confirm('本当にMy AIアカウントの削除をリクエストしますか？\nこの操作は取り消すことができません。');
         }
 
         // フォーム送信前の最終確認

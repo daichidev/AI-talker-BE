@@ -33,6 +33,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // アカウント削除リクエスト用のルート
-Route::get('/account/delete-account', [UserController::class, 'getDeleteAccount'])->name('account.get-delete-account');
+Route::get('/myai/delete-account', [UserController::class, 'getDeleteAccount'])->name('myai.get-delete-account');
 
-Route::post('/account/delete-account', [UserController::class, 'postDeleteAccount'])->name('account.post-delete-account');
+Route::post('/myai/delete-account', [UserController::class, 'postDeleteAccount'])->name('myai.post-delete-account');
