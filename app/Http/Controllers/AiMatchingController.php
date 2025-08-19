@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Profile;
 use Carbon\Carbon;
 use App\Services\FriendChatLogService;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; 
 
 class AiMatchingController extends Controller
 {
@@ -109,10 +111,10 @@ class AiMatchingController extends Controller
             'friend_id' => 'required|integer',
         ]);
         
-        $friendUser = User::find($request->friend_id)::with(['profile', 'avatars'])->first();
+        $friendUser = User::with(['profile', 'avatars'])->find($request->friend_id);
 
         return response()->json([
-            'friend_user_avatar_link' => $friendUser->avatars->avatar_link,
+            'friend_user_avatar_link' => $friendUser->avatars->first()->avatar_link,
             'friend_user_name' => $friendUser->profile->name,
             'messages' => $this->getChatLogs($request->user_id, $request->friend_id),
         ]);
