@@ -68,6 +68,10 @@ class AiMatchingController extends Controller
             $friendUserIds = json_decode($requestingUser->friend_users, true);
             if (is_array($friendUserIds) && !empty($friendUserIds)) {
                 $query->whereIn('id', $friendUserIds);
+            } else {
+                return response()->json([
+                    'users' => [],
+                ]);
             }
         }
 
