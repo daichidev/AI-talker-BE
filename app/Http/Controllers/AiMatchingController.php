@@ -71,25 +71,18 @@ class AiMatchingController extends Controller
 
         $users = $query->get()->map(function ($user) {
             $profile = $user->profile;
-            $avatar = $user->avatars;
-            
-            $age = null;
-            
-            if ($profile && $profile->birthdate) {
-                $age = Carbon::parse($profile->birthdate)->age;
-            }
+            $avatar = $user->avatars->first();
 
             return [
                 'id' => $user->id,
-                'name' => $profile->name && '',
-                'subname' => $profile->subname && '',
-                'avatar' => $user->avatar_link,
+                'name' => $profile['name'] ?? '',
+                'subname' => $profile['bot_nickname'] ?? '',
+                'avatar' => $avatar?->avatar_link,
             ];
         });
 
         return response()->json([
             'users' => $users,
-            'count' => $users->count()
         ]);
     }
 
