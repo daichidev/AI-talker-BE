@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->json('friend_users')->nullable()->after('match_user_id');
-            $table->json('show_of_users')->nullable()->after('friend_users');
-            $table->json('ban_users')->nullable()->after('show_of_users');
         });
     }
 
@@ -25,8 +23,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('friend_users');
-            $table->dropColumn('show_of_users');
-            $table->dropColumn('ban_users');
         });
     }
 };

@@ -53,5 +53,8 @@ Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
 Route::post('/report/{id}', [UserController::class, 'postReport']);
 
 // 検索機能
-Route::post('/matching/select-users', [AiMatchingController::class, 'searchUsers']);
-Route::post('/matching/select-user', [AiMatchingController::class, 'selectUser']);
+Route::post('/matching/get-users', [AiMatchingController::class, 'getUsers']);
+Route::post('/matching/delete-friend', [AiMatchingController::class, 'deleteFriend']);
+
+Route::post('/matching/select-friend', [AiMatchingController::class, 'selectFriend']);
+Route::post('/matching/chat-with-friend', [ChatbotController::class, 'chatWithFriend']);

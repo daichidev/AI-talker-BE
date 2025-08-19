@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profile;
 use Carbon\Carbon;
+use App\Services\FriendChatLogService;
 
 class AiMatchingController extends Controller
 {
     /**
      * 年齢・性別・地域でユーザーを検索
      */
-    public function searchUsers(Request $request)
+    public function getUsers(Request $request)
     {
         $request->validate([
             'user_id' => 'required|integer',
@@ -22,7 +23,7 @@ class AiMatchingController extends Controller
             'hometown' => 'nullable|string|max:255',
         ]);
 
-        $query = User::with(['profile']);
+        $query = User::with(['profile', 'avatar']);
 
         // 年齢フィルター
         if ($request->filled('min_age') || $request->filled('max_age')) {
@@ -60,15 +61,18 @@ class AiMatchingController extends Controller
 
         // ban_usersに含まれるユーザーを除外
         $requestingUser = User::find($request->user_id);
-        if ($requestingUser && $requestingUser->ban_users) {
-            $banUserIds = json_decode($requestingUser->ban_users, true);
-            if (is_array($banUserIds) && !empty($banUserIds)) {
-                $query->whereNotIn('id', $banUserIds);
+
+        if ($requestingUser && $requestingUser->friend_users) {
+            $friendUserIds = json_decode($requestingUser->friend_users, true);
+            if (is_array($friendUserIds) && !empty($friendUserIds)) {
+                $query->whereIn('id', $friendUserIds);
             }
         }
 
         $users = $query->get()->map(function ($user) {
             $profile = $user->profile;
+            $avatar = $user->avatar;
+            
             $age = null;
             
             if ($profile && $profile->birthdate) {
@@ -77,33 +81,67 @@ class AiMatchingController extends Controller
 
             return [
                 'id' => $user->id,
-                'name' => $profile->name,
+                'name' => $profile->name && '',
+                'subname' => $profile->subname && '',
+                'avatar' => $user->avatar_link,
             ];
         });
 
         return response()->json([
-            'success' => true,
             'users' => $users,
             'count' => $users->count()
         ]);
     }
 
-    public function selectUser(Request $request)
+    public function deleteFriend(Request $request)
     {
         $request->validate([
             'user_id' => 'required|integer',
-            'selected_user_id' => 'required|integer',
+            'delete_friend_id' => 'required|integer',
         ]);
 
-        $requestingUser = User::find($request->user_id);
-        if ($requestingUser) {
-            $requestingUser->matching_users = $request->selected_user_id;
-            $requestingUser->save();
-        }
+        $user = User::find($request->user_id);
+        $user->friend_users = json_encode(array_diff(json_decode($user->friend_users, true), [$request->delete_friend_id]));
+        $user->save();
 
         return response()->json([
-            'success' => true,
-            'message' => 'ユーザーを選択しました',
+            'success' => true
         ]);
     }
-} 
+
+    public function selectFriend(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'friend_id' => 'required|integer',
+        ]);
+        
+        $friendUser = User::find($request->friend_id)::with(['profile', 'avatar'])->first();
+
+        return response()->json([
+            'friend_user_avatar_link' => $friendUser->avatar->avatar_link,
+            'friend_user_name' => $friendUser->profile->name,
+            'messages' => $this->getChatLogs($request->user_id, $request->friend_id),
+        ]);
+    }
+
+    private function getChatLogs($userId, $friendId)
+    {
+        $tableName = app(FriendChatLogService::class)->getTableName($userId, $friendId);
+    
+        if (!Schema::hasTable($tableName)) {
+            return collect();
+        }
+
+        $chatLogs = DB::table($tableName)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return $chatLogs->flatMap(function ($chatLog) {
+            return [
+                ['text' => $chatLog->question, 'sender' => 'user'],
+                ['text' => $chatLog->answer, 'sender' => 'bot'],
+            ];
+        });
+    }
+}

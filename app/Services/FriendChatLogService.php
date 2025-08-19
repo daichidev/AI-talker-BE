@@ -5,16 +5,16 @@ namespace App\Services;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
-class AIChatLogService
+class FriendChatLogService
 {
-    public function getTableName($userId)
+    public function getTableName($userId, $friendId)
     {
-        return "ai_chat_logs_" . $userId;
+        return "chat_logs_" . $userId."_".$friendId;
     }
 
-    public function ensureUserTableExists($userId)
+    public function ensureUserTableExists($userId, $friendId)
     {
-        $tableName = $this->getTableName($userId);
+        $tableName = $this->getTableName($userId, $friendId);
         
         if (!Schema::hasTable($tableName)) {
             Schema::create($tableName, function (Blueprint $table) {

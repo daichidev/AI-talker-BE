@@ -619,6 +619,4 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'アカウント削除中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
         }
     }
-
-    
 }
