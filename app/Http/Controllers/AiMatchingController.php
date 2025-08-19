@@ -23,7 +23,7 @@ class AiMatchingController extends Controller
             'hometown' => 'nullable|string|max:255',
         ]);
 
-        $query = User::with(['profile', 'avatar']);
+        $query = User::with(['profile', 'avatars']);
 
         // 年齢フィルター
         if ($request->filled('min_age') || $request->filled('max_age')) {
@@ -71,7 +71,7 @@ class AiMatchingController extends Controller
 
         $users = $query->get()->map(function ($user) {
             $profile = $user->profile;
-            $avatar = $user->avatar;
+            $avatar = $user->avatars;
             
             $age = null;
             
@@ -116,10 +116,10 @@ class AiMatchingController extends Controller
             'friend_id' => 'required|integer',
         ]);
         
-        $friendUser = User::find($request->friend_id)::with(['profile', 'avatar'])->first();
+        $friendUser = User::find($request->friend_id)::with(['profile', 'avatars'])->first();
 
         return response()->json([
-            'friend_user_avatar_link' => $friendUser->avatar->avatar_link,
+            'friend_user_avatar_link' => $friendUser->avatars->avatar_link,
             'friend_user_name' => $friendUser->profile->name,
             'messages' => $this->getChatLogs($request->user_id, $request->friend_id),
         ]);
