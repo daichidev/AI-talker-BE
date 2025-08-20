@@ -79,7 +79,7 @@ class AiMatchingController extends Controller
             $profile = $user->profile;
             $avatar = $user->avatars->first();
 
-            $chatLogs = $this->getChatLogs($request->user_id, $user->id);
+            $chatLogs = $this->getAllChatLogs($request->user_id, $user->id);
 
             // 時間表示のロジック
             $timeDisplay = null;
@@ -166,5 +166,18 @@ class AiMatchingController extends Controller
                 ['text' => $chatLog->answer, 'sender' => 'bot'],
             ];
         });
+    }
+
+    private function getAllChatLogs($userId, $friendId)
+    {
+        $tableName = app(FriendChatLogService::class)->getTableName($userId, $friendId);
+    
+        if (!Schema::hasTable($tableName)) {
+            return collect();
+        }
+
+        return DB::table($tableName)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
     }
 }
