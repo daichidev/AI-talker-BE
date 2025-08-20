@@ -84,7 +84,7 @@ class AiMatchingController extends Controller
             // 時間表示のロジック
             $timeDisplay = null;
             if ($chatLogs->count() > 0) {
-                $lastMessage = $chatLogs->last();
+                $lastMessage = $chatLogs->first();
                 if ($lastMessage && isset($lastMessage->created_at)) {
                     $createdAt = Carbon::parse($lastMessage->created_at);
                     $now = Carbon::now();
@@ -103,7 +103,7 @@ class AiMatchingController extends Controller
                 'id' => $user->id,
                 'name' => $profile['bot_nickname'] ?? '',
                 'avatar' => $avatar?->avatar_link,
-                'messages' => $chatLogs->count() > 0 ? $chatLogs->last()->answer : null,
+                'messages' => $chatLogs->count() > 0 ? $chatLogs->first()->answer : null,
                 'time' => $timeDisplay,
             ];
         });
