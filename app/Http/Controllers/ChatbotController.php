@@ -53,7 +53,7 @@ class ChatbotController extends Controller
 
         $tableName = app(FriendChatLogService::class)->ensureUserTableExists($request->user_id, $request->friend_user_id);
 
-        $responseData = $this->openAIService->chat($request->friend_user_id, $tableName, $request->message);
+        $responseData = $this->openAIService->chatWithFriend($request->user_id, $request->friend_user_id, $tableName, $request->message);
 
         DB::table($tableName)->insert([
             'question' => $request->message,
