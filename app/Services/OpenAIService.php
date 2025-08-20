@@ -24,7 +24,7 @@ class OpenAIService
         $this->apiKey = Config::get('app.open_api_key');
     }
 
-    public function chat($userId, $message)
+    public function chat($userId, $tableName, $message)
     {
         try {
             $user = User::with(['anketos', 'profile'])->find($userId);
@@ -72,13 +72,6 @@ class OpenAIService
             $userInfo .= "動物占い名：" . $anketoData['animal_fortune_telling'] . ", ";
 
             $userInfo = rtrim($userInfo, ', ');
- 
-            $tableName = app(ChatLogService::class)->getTableName($userId);
-    
-            // テーブルが存在するか確認
-            if (!Schema::hasTable($tableName)) {
-                return collect(); // テーブルが存在しない場合は空のコレクションを返す
-            }
     
             $chatLogs = DB::table($tableName)
                         ->orderBy('created_at', 'desc')
