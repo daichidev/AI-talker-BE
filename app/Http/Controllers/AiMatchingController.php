@@ -101,7 +101,9 @@ class AiMatchingController extends Controller
 
         $user = User::find($request->user_id);
         $friend_users = array_diff(json_decode($user->friend_users, true), [$request->delete_friend_id]);
-        $user->friend_users = count($friend_users) > 0 ? json_encode($friend_users) : null;
+        $friend_users = array_values($friend_users);
+        $friend_users_string = json_encode($friend_users); 
+        $user->friend_users = count($friend_users) > 0 ? $friend_users_string : null;
         $user->save();
 
         return response()->json([
