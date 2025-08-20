@@ -75,7 +75,7 @@ class AiMatchingController extends Controller
             ]);
         }
 
-        $users = $query->get()->map(function ($user) {
+        $users = $query->get()->map(function ($user) use ($request) {
             $profile = $user->profile;
             $avatar = $user->avatars->first();
 
