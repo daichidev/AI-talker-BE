@@ -79,11 +79,32 @@ class AiMatchingController extends Controller
             $profile = $user->profile;
             $avatar = $user->avatars->first();
 
+            $chatLogs = $this->getChatLogs($request->user_id, $user->id);
+
+            // 時間表示のロジック
+            $timeDisplay = null;
+            if ($chatLogs->count() > 0) {
+                $lastMessage = $chatLogs->last();
+                if ($lastMessage && isset($lastMessage->created_at)) {
+                    $createdAt = Carbon::parse($lastMessage->created_at);
+                    $now = Carbon::now();
+                    
+                    if ($createdAt->isToday()) {
+                        // 本日の場合：時間（17:30）
+                        $timeDisplay = $createdAt->format('H:i');
+                    } else {
+                        // 本日以外の場合：日付（8月20日）
+                        $timeDisplay = $createdAt->format('n月j日');
+                    }
+                }
+            }
+
             return [
                 'id' => $user->id,
-                'name' => $profile['name'] ?? '',
-                'subname' => $profile['bot_nickname'] ?? '',
+                'name' => $profile['bot_nickname'] ?? '',
                 'avatar' => $avatar?->avatar_link,
+                'messages' => $chatLogs->count() > 0 ? $chatLogs->last()->answer : null,
+                'time' => $timeDisplay,
             ];
         });
 

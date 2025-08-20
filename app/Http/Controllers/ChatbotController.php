@@ -10,6 +10,8 @@ use App\Services\FriendChatLogService;
 use App\Services\OpenAIService;
 use App\Services\GeminiService;
 
+use Carbon\Carbon;
+
 class ChatbotController extends Controller
 {
     protected $openAIService;
@@ -58,6 +60,8 @@ class ChatbotController extends Controller
         DB::table($tableName)->insert([
             'question' => $request->message,
             'answer' => $responseData['choices'][0]['message']['content'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         return response()->json([
@@ -80,6 +84,8 @@ class ChatbotController extends Controller
          DB::table($tableName)->insert([
             'question' => $request->message,
             'answer' => $responseData['candidates'][0]['content']['parts'][0]['text'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         return response()->json([
