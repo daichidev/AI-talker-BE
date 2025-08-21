@@ -127,6 +127,11 @@ class AiMatchingController extends Controller
         $user->friend_users = count($friend_users) > 0 ? $friend_users_string : null;
         $user->save();
 
+        $tableName = app(FriendChatLogService::class)->getTableName($request->user_id, $request->delete_friend_id);
+        if (Schema::hasTable($tableName)) {
+            Schema::drop($tableName);
+        }
+
         return response()->json([
             'success' => true
         ]);
