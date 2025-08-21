@@ -103,7 +103,7 @@ class AiMatchingController extends Controller
                 'id' => $user->id,
                 'name' => $profile['bot_nickname'] ?? '',
                 'avatar' => $avatar?->avatar_link,
-                'messages' => $chatLogs->count() > 0 ? $chatLogs->first()->answer : null,
+                'last_message' => $chatLogs->count() > 0 ? $chatLogs->first()->answer : null,
                 'time' => $timeDisplay,
             ];
         });
@@ -157,7 +157,7 @@ class AiMatchingController extends Controller
         }
 
         $chatLogs = DB::table($tableName)
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('created_at', 'asc')
                     ->get();
 
         return $chatLogs->flatMap(function ($chatLog) {
