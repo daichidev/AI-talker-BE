@@ -42,6 +42,8 @@ Route::post('/anketo/question', [UserController::class, 'getQuestion']);
 Route::post('/personality-test', [UserController::class, 'personalityTest']);
 Route::get('/personality-test/{id}', [UserController::class, 'getPersonalityTest']);
 
+Route::post('/handle-invite', [UserController::class, 'handleInvite']);
+
 Route::post('/chat', [ChatbotController::class, 'chat']);
 Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 

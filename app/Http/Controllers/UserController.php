@@ -295,8 +295,6 @@ class UserController extends Controller
                 'anketo_status' => $user->anketo_status,
                 'next_question_text' => "色々教えてくれてありがとう！私が " . ($profileData->name ?? $anketoData['name'])  . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . ($profileData->name ?? $anketoData['name'])  . " の分身に成長するよ。" . ($profileData->name ?? $anketoData['name'])  . " の事を理解してるAIになるので悩みとか色々相談してね"
             ]);
-
-
         }
 
         $questionRequest = new Request(['question_key' => $user->anketo_status]);
@@ -617,6 +615,41 @@ class UserController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'アカウント削除中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
+        }
+    }
+
+    public function handleInvite(Request $request){
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'friend_id' => 'required|integer'
+        ]);
+
+        $user = User::find($request->user_id);
+        $friend_users = json_decode($user->friend_users, true) ?: [];
+
+        if (!in_array((int)$request->friend_id, $friend_users)) {
+            $friend_users[] = (int)$request->friend_id;
+            $friend_users = array_values($friend_users);
+            $friend_users_string = json_encode($friend_users);
+            
+            $user->friend_users = $friend_users_string;
+            $user->save();
+            
+            $syncro = Syncro::firstOrCreate(
+                ['user_id' => $request->user_id],
+                ['score_friend_invite_sent' => 0]
+            );
+            $syncro->score_friend_invite_sent += 1;
+            $syncro->save();
+
+            $syncro = Syncro::firstOrCreate(
+                ['user_id' => $request->friend_id],
+                ['score_friend_invite_received' => 0]
+            );
+            $syncro->score_friend_invite_received += 1;
+            $syncro->save();
+
+            return response()->json(['success' => true, 'message' => '招待を受け入れました。']);
         }
     }
 }
