@@ -624,11 +624,11 @@ class UserController extends Controller
             'friend_id' => 'required|integer'
         ]);
 
-        $user = User::find($request->user_id);
+        $user = User::find($request->friend_id);
         $friend_users = json_decode($user->friend_users, true) ?: [];
 
-        if (!in_array((int)$request->friend_id, $friend_users)) {
-            $friend_users[] = (int)$request->friend_id;
+        if (!in_array((int)$request->user_id, $friend_users)) {
+            $friend_users[] = (int)$request->user_id;
             $friend_users = array_values($friend_users);
             $friend_users_string = json_encode($friend_users);
             
@@ -636,14 +636,14 @@ class UserController extends Controller
             $user->save();
             
             $syncro = Syncro::firstOrCreate(
-                ['user_id' => $request->user_id],
+                ['user_id' => $request->friend_id],
                 ['score_friend_invite_sent' => 0]
             );
             $syncro->score_friend_invite_sent += 1;
             $syncro->save();
 
             $syncro = Syncro::firstOrCreate(
-                ['user_id' => $request->friend_id],
+                ['user_id' => $request->user_id],
                 ['score_friend_invite_received' => 0]
             );
             $syncro->score_friend_invite_received += 1;
