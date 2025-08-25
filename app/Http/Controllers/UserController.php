@@ -623,33 +623,50 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
             'friend_id' => 'required|integer'
         ]);
-
-        $user = User::find($request->friend_id);
-        $friend_users = json_decode($user->friend_users, true) ?: [];
-
-        if (!in_array((int)$request->user_id, $friend_users)) {
-            $friend_users[] = (int)$request->user_id;
-            $friend_users = array_values($friend_users);
-            $friend_users_string = json_encode($friend_users);
-            
-            $user->friend_users = $friend_users_string;
-            $user->save();
-            
-            $syncro = Syncro::firstOrCreate(
-                ['user_id' => $request->friend_id],
-                ['score_friend_invite_sent' => 0]
-            );
-            $syncro->score_friend_invite_sent += 1;
-            $syncro->save();
-
-            $syncro = Syncro::firstOrCreate(
-                ['user_id' => $request->user_id],
-                ['score_friend_invite_received' => 0]
-            );
-            $syncro->score_friend_invite_received += 1;
-            $syncro->save();
-
-            return response()->json(['success' => true, 'message' => '招待を受け入れました。']);
+    
+        // 両方のユーザーを取得
+        $user = User::find($request->user_id);
+        $friend = User::find($request->friend_id);
+        
+        // 既にフレンドかどうかをチェック（双方向チェック）
+        $user_friends = json_decode($user->friend_users, true) ?: [];
+        $friend_friends = json_decode($friend->friend_users, true) ?: [];
+        
+        // 既にフレンドかどうかをチェック
+        if (in_array((int)$request->friend_id, $user_friends) && 
+            in_array((int)$request->user_id, $friend_friends)) {
+            return response()->json(['success' => false, 'message' => '既にフレンドです。']);
         }
+        
+        // ユーザーのフレンドリストにfriend_idがまだない場合は追加
+        if (!in_array((int)$request->friend_id, $user_friends)) {
+            $user_friends[] = (int)$request->friend_id;
+            $user->friend_users = json_encode(array_values($user_friends));
+            $user->save();
+        }
+        
+        // フレンドのフレンドリストにuser_idがまだない場合は追加
+        if (!in_array((int)$request->user_id, $friend_friends)) {
+            $friend_friends[] = (int)$request->user_id;
+            $friend->friend_users = json_encode(array_values($friend_friends));
+            $friend->save();
+        }
+        
+        // 同期スコアを更新
+        $syncro = Syncro::firstOrCreate(
+            ['user_id' => $request->user_id],
+            ['score_friend_invite_sent' => 0]
+        );
+        $syncro->score_friend_invite_sent += 1;
+        $syncro->save();
+    
+        $syncro = Syncro::firstOrCreate(
+            ['user_id' => $request->friend_id],
+            ['score_friend_invite_received' => 0]
+        );
+        $syncro->score_friend_invite_received += 1;
+        $syncro->save();
+    
+        return response()->json(['success' => true, 'message' => '招待を受け入れました。']);
     }
 }
