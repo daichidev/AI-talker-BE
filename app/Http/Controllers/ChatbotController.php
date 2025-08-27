@@ -57,16 +57,19 @@ class ChatbotController extends Controller
 
         $responseData = $this->openAIService->chatWithFriend($request->user_id, $request->friend_user_id, $tableName, $request->message);
 
+        $now = Carbon::now();
+        
         DB::table($tableName)->insert([
             'question' => $request->message,
             'answer' => $responseData['choices'][0]['message']['content'],
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => $responseData['choices'][0]['message']['content']
+            'message' => $responseData['choices'][0]['message']['content'],
+            'time' => $now->toISOString()
         ]);
     }
 
