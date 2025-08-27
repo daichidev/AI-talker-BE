@@ -25,7 +25,7 @@ class AiMatchingController extends Controller
             'hometown' => 'nullable|string|max:255',
         ]);
 
-        $query = User::with(['profile', 'avatars', 'syncro']);
+        $query = User::with(['profile', 'avatars']);
 
         // 年齢フィルター
         if ($request->filled('min_age') || $request->filled('max_age')) {
@@ -80,8 +80,7 @@ class AiMatchingController extends Controller
         $users = $query->get()->map(function ($user) use ($request, $syncroController) {
             $profile = $user->profile;
             $avatar = $user->avatars->first();
-            $syncro = $user->syncro;
-
+            $syncro = Syncro::where('user_id', $user->id)->first();
             $chatLogs = $this->getAllChatLogs($request->user_id, $user->id);
 
             // Calculate sync level using SyncroController methods
