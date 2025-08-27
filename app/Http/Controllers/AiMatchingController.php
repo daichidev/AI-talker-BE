@@ -167,8 +167,8 @@ class AiMatchingController extends Controller
 
         return $chatLogs->flatMap(function ($chatLog) {
             return [
-                ['text' => $chatLog->question, 'sender' => 'user'],
-                ['text' => $chatLog->answer, 'sender' => 'bot'],
+                ['text' => $chatLog->question, 'sender' => 'user', 'time' => $chatLog->created_at],
+                ['text' => $chatLog->answer, 'sender' => 'bot', 'time' => $chatLog->created_at],
             ];
         });
     }
