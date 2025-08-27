@@ -25,7 +25,7 @@ class AiMatchingController extends Controller
             'hometown' => 'nullable|string|max:255',
         ]);
 
-        $query = User::with(['profile', 'avatars']);
+        $query = User::with(['profile', 'avatars', 'syncro']);
 
         // 年齢フィルター
         if ($request->filled('min_age') || $request->filled('max_age')) {
@@ -75,11 +75,18 @@ class AiMatchingController extends Controller
             ]);
         }
 
-        $users = $query->get()->map(function ($user) use ($request) {
+        $syncroController = app(SyncroController::class);
+
+        $users = $query->get()->map(function ($user) use ($request, $syncroController) {
             $profile = $user->profile;
             $avatar = $user->avatars->first();
+            $syncro = $user->syncro;
 
             $chatLogs = $this->getAllChatLogs($request->user_id, $user->id);
+
+            // Calculate sync level using SyncroController methods
+            $totalPoints = $syncroController->calculateTotalPoints($syncro);
+            $syncLevel = $syncroController->calculateSyncLevel($totalPoints);
 
             // 時間表示のロジック
             $timeDisplay = null;
@@ -105,6 +112,7 @@ class AiMatchingController extends Controller
                 'avatar' => $avatar?->avatar_link,
                 'last_message' => $chatLogs->count() > 0 ? $chatLogs->first()->answer : null,
                 'time' => $timeDisplay,
+                'syncLevel' => $syncLevel,
             ];
         });
 

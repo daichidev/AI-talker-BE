@@ -110,15 +110,8 @@ class SyncroController extends Controller
             }
         }
 
-        $syncLevel = 1;
-        foreach ($this->levelThresholds as $level => $threshold) {
-            if ($totalPoints >= $threshold) {
-                $syncLevel = $level;
-                $limitPoints = $level == 50 ? 2395143242 : $this->levelThresholds[$level + 1];
-            } else {
-                break;
-            }
-        }
+        $syncLevel = $this->calculateSyncLevel($totalPoints);
+        $limitPoints = $syncLevel == 50 ? 2395143242 : $this->levelThresholds[$syncLevel + 1];
 
         $profile = Profile::where('user_id', $userId)->first();
         if ($profile) {
@@ -131,5 +124,51 @@ class SyncroController extends Controller
             'syncLevel' => $syncLevel,
             'bot_nickname' => $bot_nickname,
         ]);
+    }
+
+    public function calculateSyncLevel($totalPoints)
+    {
+        $syncLevel = 1;
+        foreach ($this->levelThresholds as $level => $threshold) {
+            if ($totalPoints >= $threshold) {
+                $syncLevel = $level;
+            } else {
+                break;
+            }
+        }
+        return $syncLevel;
+    }
+
+    public function calculateTotalPoints($syncro)
+    {
+        if (!$syncro) {
+            return 0;
+        }
+
+        $totalPoints = 0;
+        $taskMap = [
+            'score_profile' => 'profile',
+            'done_animal_fortune' => 'animal_fortune',
+            'done_big5_analysis' => 'big5_analysis',
+            'done_kakeai' => 'kakeai',
+            'score_login' => 'login',  
+            'score_ai_talk' => 'ai_talk',
+            'score_friend_invite_sent' => 'friend_invite_sent',
+            'score_friend_invite_received' => 'friend_invite_received',
+            'done_personality_test' => 'personality_test',
+            'score_account_link' => 'account_link',
+            'score_sns_link' => 'sns_link',
+            'done_location_info' => 'location_info',
+            'done_cookie_on' => 'cookie_on',
+        ];
+
+        foreach ($taskMap as $field => $taskKey) {
+            if ($syncro->$field) {
+                $points = $this->taskPoints[$taskKey] * $syncro->$field ?? 0;
+                $totalPoints += is_numeric($points) ? $points : 0;
+            }
+        }
+
+        return $totalPoints;
     }
 }
