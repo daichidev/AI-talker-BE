@@ -69,7 +69,7 @@ class ChatbotController extends Controller
         return response()->json([
             'success' => true,
             'message' => $responseData['choices'][0]['message']['content'],
-            'time' => $now->toISOString()
+            'time' => $now->format('Y-m-d H:i:s')
         ]);
     }
 
