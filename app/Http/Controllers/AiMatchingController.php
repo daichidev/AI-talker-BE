@@ -158,7 +158,7 @@ class AiMatchingController extends Controller
 
         return response()->json([
             'friend_user_avatar_link' => $friendUser->avatars->first()->avatar_link,
-            'friend_user_name' => $friendUser->profile->name,
+            'friend_user_name' => $friendUser->profile->bot_nickname,
             'messages' => $this->getChatLogs($request->user_id, $request->friend_id),
         ]);
     }
