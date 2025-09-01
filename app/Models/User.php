@@ -59,6 +59,11 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class);
     }
 
+    public function personalityTest()
+    {
+        return $this->hasOne(PersonalityTest::class);
+    }
+
     public function avatars()
     {
         return $this->hasMany(Avatar::class);
