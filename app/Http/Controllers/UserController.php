@@ -17,6 +17,7 @@ use App\Http\Controllers\DeepImageController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use App\Services\ChatLogService;
+use App\Services\FriendChatLogService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB; 
 
@@ -572,11 +573,26 @@ class UserController extends Controller
             // Start database transaction
             DB::beginTransaction();
 
-            // Delete chat logs table if exists
-            $tableName = app(ChatLogService::class)->getTableName($user->id);
-            if (Schema::hasTable($tableName)) {
-                Schema::drop($tableName);
+            // Delete user's personal chat logs table
+            $chatLogService = app(ChatLogService::class);
+            $personalTableDropped = $chatLogService->dropUserTable($user->id);
+
+            // Delete friend chat logs tables where this user is involved
+            $friendChatLogService = app(FriendChatLogService::class);
+            
+            // Get all friend IDs from the user's friend list
+            $friendIds = json_decode($user->friend_users, true) ?: [];
+            
+            // Drop friend chat tables where this user is the primary user
+            $droppedFriendTables = [];
+            foreach ($friendIds as $friendId) {
+                if ($friendChatLogService->dropFriendTable($user->id, $friendId)) {
+                    $droppedFriendTables[] = "chat_logs_{$user->id}_{$friendId}";
+                }
             }
+            
+            // Drop friend chat tables where this user is the friend
+            $droppedInverseTables = $friendChatLogService->dropAllTablesForUser($user->id);
 
             // Delete related data
             Avatar::where('user_id', $user->id)->delete();
@@ -595,24 +611,10 @@ class UserController extends Controller
             // Commit transaction
             DB::commit();
 
-            // Log the deletion request for audit purposes
-            \Log::info('Account deletion requested', [
-                'email' => $request->email,
-                'reason' => $request->delete_reason,
-                'detail' => $request->delete_reason_detail,
-                'deleted_at' => now()
-            ]);
-
             return redirect()->back()->with('success', 'アカウントと関連データが正常に削除されました。ご利用いただき、ありがとうございました。');
-
         } catch (\Exception $e) {
             // Rollback transaction on error
             DB::rollBack();
-            
-            \Log::error('Account deletion failed', [
-                'email' => $request->email,
-                'error' => $e->getMessage()
-            ]);
 
             return redirect()->back()->with('error', 'アカウント削除中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
         }

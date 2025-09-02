@@ -27,4 +27,26 @@ class ChatLogService
         
         return $tableName;
     }
+
+    public function dropUserTable($userId)
+    {
+        $tableName = $this->getTableName($userId);
+        
+        if (Schema::hasTable($tableName)) {
+            Schema::drop($tableName);
+            return true;
+        }
+        
+        return false;
+    }
+
+    public function getUserTableName($userId)
+    {
+        return $this->getTableName($userId);
+    }
+
+    public function tableExists($userId)
+    {
+        return Schema::hasTable($this->getTableName($userId));
+    }
 }
