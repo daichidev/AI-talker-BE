@@ -43,16 +43,21 @@ class OpenAIService
                     $big5Traits = ['外向性', '協調性', '誠実性', '神経症傾向', '開放性'];
                     $traitValues = array_combine($big5Traits, $meanValues);
                     
-                    // 4点以上の特性を取得
+                    // 4点以上の特性と3点未満の特性を取得
                     $highTraits = [];
+                    $lowTraits = [];
                     foreach ($traitValues as $trait => $value) {
-                        if ($value >= 4.0) {
+                        if ($value >= 3.0) {
                             $highTraits[$trait] = $value;
+                        } elseif ($value < 3.0) {
+                            $lowTraits[$trait] = $value;
                         }
                     }
                     
-                    if (!empty($highTraits)) {
+                    if (!empty($highTraits) || !empty($lowTraits)) {
                         $big5Personality = "【Big5性格特性】\n";
+                        
+                        // 高い特性を表示
                         foreach ($highTraits as $trait => $value) {
                             switch ($trait) {
                                 case '外向性':
@@ -72,11 +77,33 @@ class OpenAIService
                                     break;
                             }
                         }
+
+                        // 低い特性を表示（正反対の性格）
+                        foreach ($lowTraits as $trait => $value) {
+                            switch ($trait) {
+                                case '外向性':
+                                    $big5Personality .= "【内向性】が高い人\n・控えめで一人の時間を大切にし、深く考える人！\n";
+                                    break;
+                                case '開放性':
+                                    $big5Personality .= "【保守性】が高い人\n・現実的で伝統を重視し、安定を好む人！\n";
+                                    break;
+                                case '神経症傾向':
+                                    $big5Personality .= "【安定性】が高い人\n・落ち着きがあり、精神的に安定している人！\n";
+                                    break;
+                                case '誠実性':
+                                    $big5Personality .= "【衝動性】が高い人\n・気分屋で自由奔放、柔軟性がある人！\n";
+                                    break;
+                                case '協調性':
+                                    $big5Personality .= "【競争性】が高い人\n・批判的で自己主張が強く、独立心旺盛な人！\n";
+                                    break;
+                            }
+                        }
+                        
                         $big5Personality .= "\n";
                     }
                 }
             }
-            
+
             // プロフィール情報が存在する場合に追加
             if ($userProfileData) {
                 $userInfo .= "名前: " . ($userProfileData->name ?? $userAnketoData['name']) . ", ";
@@ -193,16 +220,21 @@ class OpenAIService
                     $big5Traits = ['外向性', '協調性', '誠実性', '神経症傾向', '開放性'];
                     $traitValues = array_combine($big5Traits, $meanValues);
                     
-                    // 4点以上の特性を取得
+                    // 4点以上の特性と3点未満の特性を取得
                     $highTraits = [];
+                    $lowTraits = [];
                     foreach ($traitValues as $trait => $value) {
                         if ($value >= 4.0) {
                             $highTraits[$trait] = $value;
+                        } elseif ($value < 3.0) {
+                            $lowTraits[$trait] = $value;
                         }
                     }
                     
-                    if (!empty($highTraits)) {
+                    if (!empty($highTraits) || !empty($lowTraits)) {
                         $userBig5Personality = "【Big5性格特性】\n";
+                        
+                        // 高い特性を表示
                         foreach ($highTraits as $trait => $value) {
                             switch ($trait) {
                                 case '外向性':
@@ -222,6 +254,28 @@ class OpenAIService
                                     break;
                             }
                         }
+                        
+                        // 低い特性を表示（正反対の性格）
+                        foreach ($lowTraits as $trait => $value) {
+                            switch ($trait) {
+                                case '外向性':
+                                    $userBig5Personality .= "【内向性】が高い人\n・控えめで一人の時間を大切にし、深く考える人！\n";
+                                    break;
+                                case '開放性':
+                                    $userBig5Personality .= "【保守性】が高い人\n・現実的で伝統を重視し、安定を好む人！\n";
+                                    break;
+                                case '神経症傾向':
+                                    $userBig5Personality .= "【安定性】が高い人\n・落ち着きがあり、精神的に安定している人！\n";
+                                    break;
+                                case '誠実性':
+                                    $userBig5Personality .= "【衝動性】が高い人\n・気分屋で自由奔放、柔軟性がある人！\n";
+                                    break;
+                                case '協調性':
+                                    $userBig5Personality .= "【競争性】が高い人\n・批判的で自己主張が強く、独立心旺盛な人！\n";
+                                    break;
+                            }
+                        }
+                        
                         $userBig5Personality .= "\n";
                     }
                 }
@@ -278,16 +332,21 @@ class OpenAIService
                     $big5Traits = ['外向性', '協調性', '誠実性', '神経症傾向', '開放性'];
                     $traitValues = array_combine($big5Traits, $meanValues);
                     
-                    // 4点以上の特性を取得
+                    // 4点以上の特性と3点未満の特性を取得
                     $highTraits = [];
+                    $lowTraits = [];
                     foreach ($traitValues as $trait => $value) {
                         if ($value >= 4.0) {
                             $highTraits[$trait] = $value;
+                        } elseif ($value < 3.0) {
+                            $lowTraits[$trait] = $value;
                         }
                     }
                     
-                    if (!empty($highTraits)) {
+                    if (!empty($highTraits) || !empty($lowTraits)) {
                         $friendBig5Personality = "【Big5性格特性】\n";
+                        
+                        // 高い特性を表示
                         foreach ($highTraits as $trait => $value) {
                             switch ($trait) {
                                 case '外向性':
@@ -307,6 +366,28 @@ class OpenAIService
                                     break;
                             }
                         }
+                        
+                        // 低い特性を表示（正反対の性格）
+                        foreach ($lowTraits as $trait => $value) {
+                            switch ($trait) {
+                                case '外向性':
+                                    $friendBig5Personality .= "【内向性】が高い人\n・控えめで一人の時間を大切にし、深く考える人！\n";
+                                    break;
+                                case '開放性':
+                                    $friendBig5Personality .= "【保守性】が高い人\n・現実的で伝統を重視し、安定を好む人！\n";
+                                    break;
+                                case '神経症傾向':
+                                    $friendBig5Personality .= "【安定性】が高い人\n・落ち着きがあり、精神的に安定している人！\n";
+                                    break;
+                                case '誠実性':
+                                    $friendBig5Personality .= "【衝動性】が高い人\n・気分屋で自由奔放、柔軟性がある人！\n";
+                                    break;
+                                case '協調性':
+                                    $friendBig5Personality .= "【競争性】が高い人\n・批判的で自己主張が強く、独立心旺盛な人！\n";
+                                    break;
+                            }
+                        }
+                        
                         $friendBig5Personality .= "\n";
                     }
                 }
