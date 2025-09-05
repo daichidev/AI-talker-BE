@@ -133,19 +133,28 @@ class SyncroController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Update user points based on operation
-        if ($operation === 'add') {
-            $user->point += $points;
-        } else {
-            $user->point -= $points;
-        }
-        $user->save();
-
         // Calculate total points from syncro data using existing method
         $syncro = Syncro::where('user_id', $userId)->first();
         $totalPoints = $this->calculateTotalPoints($syncro);
 
+        // Update user points based on operation
+        if ($operation === 'add') {
+            $user->point += $points;
+        } else {
+            $availablePoints = $user->point + $totalPoints;
+            if ($availablePoints < $points) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'ポイントが足りません'
+                ]);
+            }
+            
+            $user->point -= $points;
+        }
+        $user->save();
+
         return response()->json([
+            'success' => true,
             'point' => $user->point + $totalPoints,
         ]);
     }
