@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Syncro;
 use App\Models\Profile;
+use App\Models\User;
 
 class SyncroController extends Controller
 {
@@ -81,34 +82,9 @@ class SyncroController extends Controller
     public function show($userId)
     {
         $syncro = Syncro::where('user_id', $userId)->first();
-        $totalPoints = 0;
+        $totalPoints = $this->calculateTotalPoints($syncro);
         $limitPoints = 0;
         $bot_nickname = 'なし';
-        
-        if ($syncro) {
-            $taskMap = [
-                'score_profile' => 'profile',
-                'done_animal_fortune' => 'animal_fortune',
-                'done_big5_analysis' => 'big5_analysis',
-                'done_kakeai' => 'kakeai',
-                'score_login' => 'login',  
-                'score_ai_talk' => 'ai_talk',
-                'score_friend_invite_sent' => 'friend_invite_sent',
-                'score_friend_invite_received' => 'friend_invite_received',
-                'done_personality_test' => 'personality_test',
-                'score_account_link' => 'account_link',
-                'score_sns_link' => 'sns_link',
-                'done_location_info' => 'location_info',
-                'done_cookie_on' => 'cookie_on',
-            ];
-    
-            foreach ($taskMap as $field => $taskKey) {
-                if ($syncro->$field) {
-                    $points = $this->taskPoints[$taskKey] * $syncro->$field ?? 0;
-                    $totalPoints += is_numeric($points) ? $points : 0;
-                }
-            }
-        }
 
         $syncLevel = $this->calculateSyncLevel($totalPoints);
         $limitPoints = $syncLevel == 50 ? 2395143242 : $this->levelThresholds[$syncLevel + 1];
@@ -123,6 +99,54 @@ class SyncroController extends Controller
             'limitPoints' => $limitPoints,
             'syncLevel' => $syncLevel,
             'bot_nickname' => $bot_nickname,
+        ]);
+    }
+
+    public function getPoint($userId)
+    {
+        $user = User::where('id', $userId)->first();
+        $userPoint = $user ? $user->point : 0;
+        
+        // Calculate total points from syncro data using existing method
+        $syncro = Syncro::where('user_id', $userId)->first();
+        $totalPoints = $this->calculateTotalPoints($syncro);
+
+        return response()->json([
+            'point' => $userPoint + $totalPoints,
+        ]);
+    }
+
+    public function addPoint(Request $request, $userId)
+    {
+        return $this->updateUserPoints($userId, $request->point, 'add');
+    }
+
+    public function removePoint(Request $request, $userId)
+    {
+        return $this->updateUserPoints($userId, $request->point, 'remove');
+    }
+
+    private function updateUserPoints($userId, $points, $operation)
+    {
+        $user = User::where('id', $userId)->first();
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Update user points based on operation
+        if ($operation === 'add') {
+            $user->point += $points;
+        } else {
+            $user->point -= $points;
+        }
+        $user->save();
+
+        // Calculate total points from syncro data using existing method
+        $syncro = Syncro::where('user_id', $userId)->first();
+        $totalPoints = $this->calculateTotalPoints($syncro);
+
+        return response()->json([
+            'point' => $user->point + $totalPoints,
         ]);
     }
 

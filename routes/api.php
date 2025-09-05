@@ -54,6 +54,10 @@ Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
 
 Route::post('/report/{id}', [UserController::class, 'postReport']);
 
+Route::get('/get-point/{userId}', [SyncroController::class, 'getPoint']);
+Route::post('/add-point/{userId}', [SyncroController::class, 'addPoint']);
+Route::post('/remove-point/{userId}', [SyncroController::class, 'removePoint']);
+
 // 検索機能
 Route::post('/matching/get-users', [AiMatchingController::class, 'getUsers']);
 Route::post('/matching/delete-friend', [AiMatchingController::class, 'deleteFriend']);
