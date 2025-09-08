@@ -12,7 +12,7 @@ use App\Models\Profile;
 use App\Models\Syncro;
 use App\Models\Report;
 
-use App\Http\Controllers\DeepImageController;
+use App\Http\Controllers\Image\DeepImageController;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;

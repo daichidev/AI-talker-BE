@@ -7,6 +7,8 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SyncroController;
 use App\Http\Controllers\AiMatchingController;
+use App\Http\Controllers\Image\GeminiImageController;
+use App\Http\Controllers\Image\DeepImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +66,6 @@ Route::post('/matching/delete-friend', [AiMatchingController::class, 'deleteFrie
 
 Route::post('/matching/select-friend', [AiMatchingController::class, 'selectFriend']);
 Route::post('/matching/chat-with-friend', [ChatbotController::class, 'chatWithFriend']);
+
+// GEMINI画像生成
+Route::post('/generate-avatar-gemini', [GeminiImageController::class, 'generateAvatar']);
