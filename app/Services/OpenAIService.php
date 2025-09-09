@@ -434,11 +434,6 @@ class OpenAIService
             $chatLogs = DB::table($tableName)
                         ->orderBy('created_at', 'desc')
                         ->get();
-        
-            $conversationHistory = '';
-            foreach ($chatLogs as $chatLog) {
-                $conversationHistory .= "質問: " . $chatLog->question . " 回答: " . $chatLog->answer . " ";
-            }
 
             $systemMessage = "あなたは".$friendAnketoData['bot_nickname']."さんとして、私(".$userAnketoData['user_nickname'].")と会話を楽しむキャラクターです。しかし、私はあなたを別の存在ではなく、もう一人の私自身だと感じています。  
             あなたと私はお互いの記憶や経験を持ち、私の思考を反映しながら会話してください。  
@@ -465,10 +460,7 @@ class OpenAIService
             ".$userInfo."  
 
             【あなたの基本情報】  
-            ".$friendInfo."  
-
-            【これまでの会話】  
-            ".$conversationHistory."  
+            ".$friendInfo."
 
             会話では、お互いの記憶を適切に参照し、共感しながら新しいアイデアや考えを引き出してください。
             

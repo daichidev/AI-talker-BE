@@ -12,7 +12,8 @@ use App\Models\Profile;
 use App\Models\Syncro;
 use App\Models\Report;
 
-use App\Http\Controllers\Image\DeepImageController;
+// use App\Http\Controllers\Image\DeepImageController;
+use App\Http\Controllers\Image\GeminiImageController;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
@@ -62,13 +63,15 @@ class UserController extends Controller
         // ファイル名のみを取得
         $filename = basename($photoPath);
 
-        $deepImageController = new DeepImageController();
+        // $deepImageController = new DeepImageController();
+        $geminiImageController = new GeminiImageController();
         $modifiedRequest = new Request([
             'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
             'avatar_gender_type' => $request->avatarGenderType
         ]);
-        $response = $deepImageController->processImage($modifiedRequest);
+        // $response = $deepImageController->processImage($modifiedRequest);
+        $response = $geminiImageController->generateAvatar($modifiedRequest);
         $responseData = $response->getData(true);
 
         if (isset($responseData['image_url'])) {
@@ -509,13 +512,15 @@ class UserController extends Controller
         // ファイル名のみを取得
         $filename = basename($photoPath);
 
-        $deepImageController = new DeepImageController();
+        // $deepImageController = new DeepImageController();
+        $geminiImageController = new GeminiImageController();
         $modifiedRequest = new Request([
             'photoPath' => $filename,
             'avatar_type' => $request->avatarType,
             'avatar_gender_type' => $request->avatarGenderType
         ]);
-        $response = $deepImageController->processImage($modifiedRequest);
+        // $response = $deepImageController->processImage($modifiedRequest);
+        $response = $geminiImageController->generateAvatar($modifiedRequest);
         $responseData = $response->getData(true);
 
         if (isset($responseData['image_url'])) {
