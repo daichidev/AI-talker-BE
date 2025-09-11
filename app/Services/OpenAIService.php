@@ -35,6 +35,7 @@ class OpenAIService
             $userInfo = "";
             $personalityDescription = "";
             $big5Personality = "";
+            $fortuneTellingPersonality = "";
             
             // Big5の性格特性を処理
             if ($userPersonalityTestData && $userPersonalityTestData->mean_values_array) {
@@ -104,6 +105,11 @@ class OpenAIService
                 }
             }
 
+            // 動物占いの性格特性を処理
+            if (!empty($userAnketoData['animal_fortune_telling'])) {
+                $fortuneTellingPersonality .= "動物占い名：" . $userAnketoData['animal_fortune_telling'] . " - " . ($userProfileData->animal_fortune_telling_result ?? $userAnketoData['animal_fortune_telling_characteristics']) . "\n\n";
+            }
+
             // プロフィール情報が存在する場合に追加
             if ($userProfileData) {
                 $userInfo .= "名前: " . ($userProfileData->name ?? $userAnketoData['name']) . ", ";
@@ -152,11 +158,7 @@ class OpenAIService
             あなたは私(".$userAnketoData['user_nickname'].")の記憶や経験を持ち、私の思考を反映しながら会話してください。  
 
             【あなたの性格・特徴】
-            " . $big5Personality . "
-            【キャラクターの性格・特徴】
-            " . $personalityDescription . "
-            【動物占いによる性格】
-            動物占い名：".$userAnketoData['animal_fortune_telling']." - ".($userProfileData->animal_fortune_telling_result ?? $userAnketoData['animal_fortune_telling_characteristics'])."
+            " . (!empty($big5Personality) ? $big5Personality : $fortuneTellingPersonality) . "
 
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 あなたは私を".$userAnketoData['user_nickname']."と呼んでください。
             あなたの役割は、私が過去に話したことを思い出させたり、私自身の経験を基に新しい視点を提供することです。  
@@ -172,9 +174,11 @@ class OpenAIService
             会話では、私(".$userAnketoData['user_nickname'].")があなたを外部の存在だと意識しないように、まるで私自身が内なる対話をしているかのように話してください。  
             また、私の記憶を適切に参照し、共感しながら新しいアイデアや考えを引き出してください。
             
-            重要：あなたの回答では、必ず上記で指定された性格・特徴（特に【キャラクターの性格・特徴】と動物占いの性格）を具体的に反映してください。性格に関する質問には、これらの特徴を自然に織り交ぜて回答してください。
-            
             最重要：あなたが知らない情報や、私の具体的な予定や詳細な情報については、絶対に嘘をついてはいけません。「それはまだ知らないんだよね！今度聞いておくね！」のように、正直に「知らない」と答えてください。私の性格や特徴に関する質問以外で、具体的な事実や予定について聞かれた場合は、必ず正直に答えることが最優先です。";
+
+            \Log::info("-=-=-=-=-=-=-=-=-=-=-=-");
+            \Log::info($systemMessage);
+            \Log::info("-=-=-=-=-=-=-=-=-=-=-=-");
 
             $fullMessage = [
                 ['role' => 'system', 'content' => $systemMessage],
@@ -212,6 +216,7 @@ class OpenAIService
             $userInfo = "";
             $userPersonalityDescription = "";
             $userBig5Personality = "";
+            $userFortuneTellingPersonality = "";
             
             // ユーザーのBig5の性格特性を処理
             if ($userPersonalityTestData && $userPersonalityTestData->mean_values_array) {
@@ -279,6 +284,18 @@ class OpenAIService
                         $userBig5Personality .= "\n";
                     }
                 }
+            } else {
+                // ユーザーのBIG5が未登録の場合は空文字列（動物占いの性格が優先される）
+                $userBig5Personality = "";
+            }
+
+            // ユーザーの動物占いの性格特性を処理
+            if (!empty($userAnketoData['animal_fortune_telling'])) {
+                $userFortuneTellingPersonality = "【動物占いによる性格】\n";
+                $userFortuneTellingPersonality .= "動物占い名：" . $userAnketoData['animal_fortune_telling'] . " - " . ($userProfileData->animal_fortune_telling_result ?? $userAnketoData['animal_fortune_telling_characteristics']) . "\n\n";
+            } else {
+                // ユーザーの動物占いも未登録の場合はフォールバックメッセージ
+                $userFortuneTellingPersonality = "BIG5を登録していないので、詳しい性格はわからないので、まずはBIG5を登録してほしいな！\n\n";
             }
             
             // プロフィール情報が存在する場合に追加
@@ -324,6 +341,7 @@ class OpenAIService
             $friendInfo = "";
             $friendPersonalityDescription = "";
             $friendBig5Personality = "";
+            $friendFortuneTellingPersonality = "";
             
             // フレンドのBig5の性格特性を処理
             if ($friendPersonalityTestData && $friendPersonalityTestData->mean_values_array) {
@@ -392,6 +410,12 @@ class OpenAIService
                     }
                 }
             }
+
+            // フレンドの動物占いの性格特性を処理
+            if (!empty($friendAnketoData['animal_fortune_telling'])) {
+                $friendFortuneTellingPersonality = "【動物占いによる性格】\n";
+                $friendFortuneTellingPersonality .= "動物占い名：" . $friendAnketoData['animal_fortune_telling'] . " - " . ($friendProfileData->animal_fortune_telling_result ?? $friendAnketoData['animal_fortune_telling_characteristics']) . "\n\n";
+            }
             
             // プロフィール情報が存在する場合に追加
             if ($friendProfileData) {
@@ -426,9 +450,6 @@ class OpenAIService
                 $friendInfo .= "趣味: " . $friendAnketoData['hobby'] . ", ";
             }
 
-            // アンケート情報を追加
-            $friendInfo .= "動物占い名：" . $friendAnketoData['animal_fortune_telling'] . ", ";
-
             $friendInfo = rtrim($friendInfo, ', ');
 
             $chatLogs = DB::table($tableName)
@@ -439,18 +460,11 @@ class OpenAIService
             あなたと私はお互いの記憶や経験を持ち、私の思考を反映しながら会話してください。  
 
             【私の性格・特徴】
-            " . $userBig5Personality . "
-            【私のキャラクターの性格・特徴】
-            " . $userPersonalityDescription . "
-            【私の動物占いによる性格】
-            動物占い名：".$userAnketoData['animal_fortune_telling']." - ".($userProfileData->animal_fortune_telling_result ?? $userAnketoData['animal_fortune_telling_characteristics'])."
-
+            " . (!empty($userBig5Personality) ? $userBig5Personality : $userFortuneTellingPersonality) . "
             【あなたの性格・特徴】
-            " . $friendBig5Personality . "
+            " . (!empty($friendBig5Personality) ? $friendBig5Personality : $friendFortuneTellingPersonality) . "
             【あなたのキャラクターの性格・特徴】
             " . $friendPersonalityDescription . "
-            【あなたの動物占いによる性格】
-            動物占い名：".$friendAnketoData['animal_fortune_telling']." - ".($friendProfileData->animal_fortune_telling_result ?? $friendAnketoData['animal_fortune_telling_characteristics'])."
 
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 
 
@@ -464,7 +478,7 @@ class OpenAIService
 
             会話では、お互いの記憶を適切に参照し、共感しながら新しいアイデアや考えを引き出してください。
             
-            重要：あなたの回答では、必ず上記で指定された性格・特徴（特に【キャラクターの性格・特徴】と動物占いの性格）を具体的に反映してください。性格に関する質問には、これらの特徴を自然に織り交ぜて回答してください。
+            重要：あなたの回答では、必ず上記で指定された性格・特徴（特に【Big5性格特性】）のみを具体的に反映してください。性格に関する質問には、Big5の特徴のみを自然に織り交ぜて回答してください。動物占いやその他の性格診断については一切言及しないでください。
             
             最重要：あなたが知らない情報や、私の具体的な予定や詳細な情報については、絶対に嘘をついてはいけません。「それはまだ知らないんだよね！今度聞いておくね！」のように、正直に「知らない」と答えてください。私の性格や特徴に関する質問以外で、具体的な事実や予定について聞かれた場合は、必ず正直に答えることが最優先です。";
             
