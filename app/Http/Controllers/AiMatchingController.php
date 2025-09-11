@@ -47,7 +47,7 @@ class AiMatchingController extends Controller
         // 性別フィルター
         if ($request->filled('gender')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
-                $profileQuery->where('gender', $request->gender);
+                $profileQuery->where('gender', $request->gender ? "女性" : "男性");
             });
         }
 

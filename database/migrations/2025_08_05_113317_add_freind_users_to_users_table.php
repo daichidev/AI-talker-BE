@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->longText('friend_users')->nullable()->after('match_user_id');
+            $table->longText('friend_users')->nullable()->after('anketo_status');
         });
     }
 

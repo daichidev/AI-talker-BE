@@ -22,7 +22,6 @@ class CreateUsersTable extends Migration
             $table->string('device_id')->unique();
             $table->string('face_photo');
             $table->integer('anketo_status')->default(0);
-            $table->integer('match_user_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
