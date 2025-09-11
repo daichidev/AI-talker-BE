@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -30,6 +31,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports.index');
 });
 
 // アカウント削除リクエスト用のルート

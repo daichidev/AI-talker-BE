@@ -1,31 +1,8 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ユーザー編集</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="min-h-screen">
-        <nav class="bg-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex items-center">
-                        <h1 class="text-xl font-bold">管理画面</h1>
-                    </div>
-                    <div class="flex items-center">
-                        <a href="{{ route('admin.users.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">ユーザー一覧に戻る</a>
-                        <form action="{{ route('admin.logout') }}" method="POST" class="ml-4">
-                            @csrf
-                            <button type="submit" class="text-gray-600 hover:text-gray-900">ログアウト</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </nav>
+@extends('layouts.admin')
 
-        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+@section('title', 'ユーザー編集')
+
+@section('content')
             @if($errors->any())
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <ul>
@@ -80,7 +57,4 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
-</body>
-</html> 
+@endsection
