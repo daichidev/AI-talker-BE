@@ -65,7 +65,7 @@ class AiMatchingController extends Controller
         // 自分自身を除外
         $query->where('id', '!=', $request->user_id);
 
-        if ($request->filled('is_all_users')) {
+        if (!$request->filled('is_all_users')) {
             // フレンドリストに含まれるユーザーを除外
             $requestingUser = User::find($request->user_id);
 
