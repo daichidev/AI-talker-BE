@@ -26,6 +26,7 @@ class AiMatchingController extends Controller
             'max_age' => 'nullable|integer|min:18|max:100',
             'gender' => 'nullable|boolean',
             'hometown' => 'nullable|string|max:255',
+            'is_all_users' => 'nullable|boolean',
         ]);
 
         $query = User::with(['profile', 'avatars']);
@@ -64,18 +65,20 @@ class AiMatchingController extends Controller
         // 自分自身を除外
         $query->where('id', '!=', $request->user_id);
 
-        // ban_usersに含まれるユーザーを除外
-        $requestingUser = User::find($request->user_id);
+        if ($request->filled('is_all_users')) {
+            // フレンドリストに含まれるユーザーを除外
+            $requestingUser = User::find($request->user_id);
 
-        if ($requestingUser && $requestingUser->friend_users) {
-            $friendUserIds = json_decode($requestingUser->friend_users, true);
-            if (is_array($friendUserIds) && !empty($friendUserIds)) {
-                $query->whereIn('id', $friendUserIds);
-            } 
-        } else {
-            return response()->json([
-                'users' => [],
-            ]);
+            if ($requestingUser && $requestingUser->friend_users) {
+                $friendUserIds = json_decode($requestingUser->friend_users, true);
+                if (is_array($friendUserIds) && !empty($friendUserIds)) {
+                    $query->whereIn('id', $friendUserIds);
+                } 
+            } else {
+                return response()->json([
+                    'users' => [],
+                ]);
+            }
         }
 
         $syncroController = app(SyncroController::class);
