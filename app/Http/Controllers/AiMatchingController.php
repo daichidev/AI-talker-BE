@@ -27,6 +27,7 @@ class AiMatchingController extends Controller
             'gender' => 'nullable|boolean',
             'hometown' => 'nullable|string|max:255',
             'is_all_users' => 'nullable|boolean',
+            'is_invited_friend_users' => 'nullable|boolean',
         ]);
 
         $query = User::with(['profile', 'avatars']);
@@ -42,21 +43,24 @@ class AiMatchingController extends Controller
                     $minDate = Carbon::now()->subYears($request->max_age + 1);
                     $profileQuery->where('birthdate', '>', $minDate);
                 }
-            });
+            })
+            ->whereRaw("JSON_EXTRACT(filter_status, '$.birthdate') = true");
         }
 
         // 性別フィルター
         if ($request->filled('gender')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
                 $profileQuery->where('gender', $request->gender ? "女性" : "男性");
-            });
+            })
+            ->whereRaw("JSON_EXTRACT(filter_status, '$.gender') = true");
         }
 
         // 地域フィルター
         if ($request->filled('hometown')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
                 $profileQuery->where('hometown', 'LIKE', '%' . $request->hometown . '%');
-            });
+            })
+            ->whereRaw("JSON_EXTRACT(filter_status, '$.hometown') = true");
         }
 
         // プロフィールが存在するユーザーのみを取得
@@ -65,7 +69,21 @@ class AiMatchingController extends Controller
         // 自分自身を除外
         $query->where('id', '!=', $request->user_id);
 
-        if (!$request->filled('is_all_users')) {
+        if ($request->filled('is_invited_friend_users')) {
+            // フレンドリストに含まれるユーザーを除外
+            $requestingUser = User::find($request->user_id);
+
+            if ($requestingUser && $requestingUser->invited_friend_users) {
+                $invitedFriendUserIds = json_decode($requestingUser->invited_friend_users, true);
+                if (is_array($invitedFriendUserIds) && !empty($invitedFriendUserIds)) {
+                    $query->whereIn('id', $invitedFriendUserIds);
+                }
+            } else {
+                return response()->json([
+                    'users' => [],
+                ]);
+            }
+        }else if (!$request->filled('is_all_users')) {
             // フレンドリストに含まれるユーザーを除外
             $requestingUser = User::find($request->user_id);
 
@@ -73,6 +91,20 @@ class AiMatchingController extends Controller
                 $friendUserIds = json_decode($requestingUser->friend_users, true);
                 if (is_array($friendUserIds) && !empty($friendUserIds)) {
                     $query->whereIn('id', $friendUserIds);
+                } 
+            } else {
+                return response()->json([
+                    'users' => [],
+                ]);
+            }
+        } else {
+            // フレンドリストに含まれるユーザーを除外
+            $requestingUser = User::find($request->user_id);
+
+            if ($requestingUser && $requestingUser->friend_users) {
+                $friendUserIds = json_decode($requestingUser->friend_users, true);
+                if (is_array($friendUserIds) && !empty($friendUserIds)) {
+                    $query->whereNotIn('id', $friendUserIds);
                 } 
             } else {
                 return response()->json([
@@ -197,5 +229,60 @@ class AiMatchingController extends Controller
         return DB::table($tableName)
                     ->orderBy('created_at', 'desc')
                     ->get();
+    }
+
+    public function inviteFriend(Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'friend_id' => 'required|integer',
+        ]);
+        
+        
+        $user = User::find($request->user_id);
+
+        $invitedFriendUsers = json_decode($user->invited_friend_users, true) ?? [];
+        
+        if (!in_array($request->friend_id, $invitedFriendUsers)) {
+            array_push($invitedFriendUsers, $request->friend_id);
+            $user->invited_friend_users = json_encode(array_values($invitedFriendUsers));
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    public function matchFriend(Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'friend_id' => 'required|integer',
+        ]);
+        
+        
+        $user = User::find($request->user_id);
+
+        $invitedFriendUsers = json_decode($user->invited_friend_users, true) ?? [];
+        $friendUsers = json_decode($user->friend_users, true) ?? [];
+
+        if (in_array($request->friend_id, $invitedFriendUsers)) {
+            // Remove from invited_friend_users
+            $invitedFriendUsers = array_filter($invitedFriendUsers, function($id) use ($request) {
+                return $id !== $request->friend_id;
+            });
+            $user->invited_friend_users = json_encode(array_values($invitedFriendUsers));
+            
+            // Add to friend_users
+            if (!in_array($request->friend_id, $friendUsers)) {
+                $friendUsers[] = $request->friend_id;
+                $user->friend_users = json_encode(array_values($friendUsers));
+            }
+            
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }
