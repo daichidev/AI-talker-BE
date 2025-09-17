@@ -70,7 +70,6 @@ class AiMatchingController extends Controller
         $query->where('id', '!=', $request->user_id);
 
         if ($request->filled('is_invited_friend_users')) {
-            // フレンドリストに含まれるユーザーを除外
             $requestingUser = User::find($request->user_id);
 
             if ($requestingUser && $requestingUser->invited_friend_users) {
@@ -84,9 +83,7 @@ class AiMatchingController extends Controller
                 ]);
             }
         }else if (!$request->filled('is_all_users')) {
-            // フレンドリストに含まれるユーザーを除外
             $requestingUser = User::find($request->user_id);
-
             if ($requestingUser && $requestingUser->friend_users) {
                 $friendUserIds = json_decode($requestingUser->friend_users, true);
                 if (is_array($friendUserIds) && !empty($friendUserIds)) {
@@ -98,7 +95,6 @@ class AiMatchingController extends Controller
                 ]);
             }
         } else {
-            // フレンドリストに含まれるユーザーを除外
             $requestingUser = User::find($request->user_id);
 
             if ($requestingUser && $requestingUser->friend_users) {
@@ -153,8 +149,11 @@ class AiMatchingController extends Controller
             ];
         });
 
+        $invitedFriendUser = User::find($request->user_id);
+
         return response()->json([
             'users' => $users,
+            'invited_friend_users' => $invitedFriendUser?->invited_friend_users,
         ]);
     }
 
