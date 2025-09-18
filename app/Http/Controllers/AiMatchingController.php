@@ -251,8 +251,8 @@ class AiMatchingController extends Controller
 
         if (!in_array($request->user_id, $invitedFriendUsers)) {
             array_push($invitedFriendUsers, $request->user_id);
-            $user->invite_friend_users = json_encode(array_values($invitedFriendUsers));
-            $user->save();
+            $friendUser->invited_friend_users = json_encode(array_values($invitedFriendUsers));
+            $friendUser->save();
         }
 
         return response()->json([
