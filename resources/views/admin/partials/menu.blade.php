@@ -9,6 +9,10 @@
                class="{{ request()->routeIs('admin.reports.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
                 報告
             </a>
+            <a href="{{ route('admin.announcement.index') }}"
+               class="{{ request()->routeIs('admin.announcement.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
+               お知らせ
+            </a>
         </div>
     </div>
 </div>

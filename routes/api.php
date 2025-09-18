@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SyncroController;
 use App\Http\Controllers\AiMatchingController;
+use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\Image\GeminiImageController;
 use App\Http\Controllers\Image\DeepImageController;
 
@@ -73,3 +74,6 @@ Route::post('/matching/reject-friend', [AiMatchingController::class, 'rejectFrie
 
 // GEMINI画像生成
 Route::post('/generate-avatar-gemini', [GeminiImageController::class, 'generateAvatar']);
+
+// 
+Route::get('/get-announcements', [AnnouncementController::class, 'getAnnouncements']);
