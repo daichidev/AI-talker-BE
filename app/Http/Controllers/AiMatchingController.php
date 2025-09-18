@@ -22,7 +22,7 @@ class AiMatchingController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer',
-            'name' => 'required|string',
+            'name' => 'nullable|string',
             'min_age' => 'nullable|integer|min:18|max:100',
             'max_age' => 'nullable|integer|min:18|max:100',
             'gender' => 'nullable|boolean',
