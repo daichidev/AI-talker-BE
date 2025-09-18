@@ -13,15 +13,15 @@ use Exception; // For catching token generation errors
 
 class AnnouncementController extends Controller
 {
-    protected GoogleAccessTokenService $accessTokenService;
+    // protected GoogleAccessTokenService $accessTokenService;
     protected string $firebaseProjectId;
 
     // Constructor to inject the Access Token Service
-    public function __construct(GoogleAccessTokenService $accessTokenService)
-    {
-        $this->accessTokenService = $accessTokenService;
-        $this->firebaseProjectId = 'push-notification-d077c';
-    }
+    // public function __construct(GoogleAccessTokenService $accessTokenService)
+    // {
+    //     $this->accessTokenService = $accessTokenService;
+    //     $this->firebaseProjectId = 'push-notification-d077c';
+    // }
 
     public function index(Request $request)
     {
