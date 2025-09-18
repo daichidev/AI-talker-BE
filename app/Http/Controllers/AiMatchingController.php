@@ -153,7 +153,7 @@ class AiMatchingController extends Controller
 
         return response()->json([
             'users' => $users,
-            'invited_friend_users' => $invitedFriendUser?->invited_friend_users,
+            'invite_friend_users' => $invitedFriendUser?->invite_friend_users,
         ]);
     }
 
@@ -238,12 +238,20 @@ class AiMatchingController extends Controller
         
         
         $user = User::find($request->user_id);
-
-        $invitedFriendUsers = json_decode($user->invited_friend_users, true) ?? [];
+        $inviteFriendUsers = json_decode($user->invite_friend_users, true) ?? [];
         
-        if (!in_array($request->friend_id, $invitedFriendUsers)) {
-            array_push($invitedFriendUsers, $request->friend_id);
-            $user->invited_friend_users = json_encode(array_values($invitedFriendUsers));
+        if (!in_array($request->friend_id, $inviteFriendUsers)) {
+            array_push($inviteFriendUsers, $request->friend_id);
+            $user->invite_friend_users = json_encode(array_values($inviteFriendUsers));
+            $user->save();
+        }
+
+        $friendUser = User::find($request->friend_id);
+        $invitedFriendUsers = json_decode($friendUser->invited_friend_users, true) ?? [];
+
+        if (!in_array($request->user_id, $invitedFriendUsers)) {
+            array_push($invitedFriendUsers, $request->user_id);
+            $user->invite_friend_users = json_encode(array_values($invitedFriendUsers));
             $user->save();
         }
 
@@ -265,19 +273,75 @@ class AiMatchingController extends Controller
         $friendUsers = json_decode($user->friend_users, true) ?? [];
 
         if (in_array($request->friend_id, $invitedFriendUsers)) {
-            // Remove from invited_friend_users
             $invitedFriendUsers = array_filter($invitedFriendUsers, function($id) use ($request) {
                 return $id !== $request->friend_id;
             });
             $user->invited_friend_users = json_encode(array_values($invitedFriendUsers));
             
-            // Add to friend_users
             if (!in_array($request->friend_id, $friendUsers)) {
                 $friendUsers[] = $request->friend_id;
                 $user->friend_users = json_encode(array_values($friendUsers));
             }
             
             $user->save();
+        }
+
+        $friendUser = User::find($request->friend_id);
+
+        $inviteFriendUsers = json_decode($friendUser->invite_friend_users, true) ?? [];
+        $friendYourUsers = json_decode($friendUser->friend_users, true) ?? [];
+
+        if (in_array($request->user_id, $inviteFriendUsers)) {
+
+            $inviteFriendUsers = array_filter($inviteFriendUsers, function($id) use ($request) {
+                return $id !== $request->user_id;
+            });
+            $friendUser->invited_friend_users = json_encode(array_values($inviteFriendUsers));
+            
+            if (!in_array($request->user_id, $friendYourUsers)) {
+                $friendYourUsers[] = $request->user_id;
+                $friendUser->friend_users = json_encode(array_values($friendYourUsers));
+            }
+            
+            $friendUser->save();
+        }
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    public function rejectFriend(Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'friend_id' => 'required|integer',
+        ]);
+        
+        
+        $user = User::find($request->user_id);
+
+        $invitedFriendUsers = json_decode($user->invited_friend_users, true) ?? [];
+
+        if (in_array($request->friend_id, $invitedFriendUsers)) {
+            $invitedFriendUsers = array_filter($invitedFriendUsers, function($id) use ($request) {
+                return $id !== $request->friend_id;
+            });
+            $user->invited_friend_users = json_encode(array_values($invitedFriendUsers));
+
+            $user->save();
+        }
+
+        $friendUser = User::find($request->friend_id);
+
+        $inviteFriendUsers = json_decode($friendUser->invite_friend_users, true) ?? [];
+
+        if (in_array($request->user_id, $inviteFriendUsers)) {
+            $inviteFriendUsers = array_filter($inviteFriendUsers, function($id) use ($request) {
+                return $id !== $request->user_id;
+            });
+            $friendUser->invited_friend_users = json_encode(array_values($inviteFriendUsers));
+            
+            $friendUser->save();
         }
 
         return response()->json([

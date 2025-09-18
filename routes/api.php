@@ -69,6 +69,7 @@ Route::post('/matching/chat-with-friend', [ChatbotController::class, 'chatWithFr
 
 Route::post('/matching/invite-friend', [AiMatchingController::class, 'inviteFriend']);
 Route::post('/matching/match-friend', [AiMatchingController::class, 'matchFriend']);
+Route::post('/matching/reject-friend', [AiMatchingController::class, 'rejectFriend']);
 
 // GEMINI画像生成
 Route::post('/generate-avatar-gemini', [GeminiImageController::class, 'generateAvatar']);

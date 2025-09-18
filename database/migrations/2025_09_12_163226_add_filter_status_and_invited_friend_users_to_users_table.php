@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->json('filter_status')->nullable()->after('point');
-            $table->longText('invited_friend_users')->nullable()->after('filter_status');
+            $table->longText('invite_friend_users')->nullable()->after('filter_status');
+            $table->longText('invited_friend_users')->nullable()->after('invite_friend_users');
         });
     }
 
@@ -24,6 +25,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('filter_status');
+            $table->dropColumn('invite_friend_users');
             $table->dropColumn('invited_friend_users');
         });
     }
