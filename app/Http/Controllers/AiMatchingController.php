@@ -22,6 +22,7 @@ class AiMatchingController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer',
+            'name' => 'required|string',
             'min_age' => 'nullable|integer|min:18|max:100',
             'max_age' => 'nullable|integer|min:18|max:100',
             'gender' => 'nullable|boolean',
@@ -31,6 +32,14 @@ class AiMatchingController extends Controller
         ]);
 
         $query = User::with(['profile', 'avatars']);
+
+        // 名前ィルター
+        if ($request->filled('name')) {
+            $query->whereHas('profile', function ($profileQuery) use ($request) {
+                $profileQuery->where('name', 'LIKE', '%' . $request->name . '%');
+            })
+            ->whereRaw("JSON_EXTRACT(filter_status, '$.name') = true");
+        }
 
         // 年齢フィルター
         if ($request->filled('min_age') || $request->filled('max_age')) {
@@ -76,6 +85,10 @@ class AiMatchingController extends Controller
                 $invitedFriendUserIds = json_decode($requestingUser->invited_friend_users, true);
                 if (is_array($invitedFriendUserIds) && !empty($invitedFriendUserIds)) {
                     $query->whereIn('id', $invitedFriendUserIds);
+                } else {
+                    return response()->json([
+                        'users' => [],
+                    ]);
                 }
             } else {
                 return response()->json([
@@ -296,7 +309,7 @@ class AiMatchingController extends Controller
             $inviteFriendUsers = array_filter($inviteFriendUsers, function($id) use ($request) {
                 return $id !== $request->user_id;
             });
-            $friendUser->invited_friend_users = json_encode(array_values($inviteFriendUsers));
+            $friendUser->invite_friend_users = json_encode(array_values($inviteFriendUsers));
             
             if (!in_array($request->user_id, $friendYourUsers)) {
                 $friendYourUsers[] = $request->user_id;
@@ -339,7 +352,7 @@ class AiMatchingController extends Controller
             $inviteFriendUsers = array_filter($inviteFriendUsers, function($id) use ($request) {
                 return $id !== $request->user_id;
             });
-            $friendUser->invited_friend_users = json_encode(array_values($inviteFriendUsers));
+            $friendUser->invite_friend_users = json_encode(array_values($inviteFriendUsers));
             
             $friendUser->save();
         }

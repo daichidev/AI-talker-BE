@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Models\Profile;
 use App\Models\Syncro;
+use App\Models\User;
+
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
 use Carbon\Carbon;
@@ -22,9 +25,11 @@ class ProfileController extends Controller
             ]);
         }
 
+        $user = User::find($userId);
         return response()->json([
             'success' => true,
-            'data' => $profile
+            'data' => $profile,
+            'filter_status' => $user->filter_status
         ]);
     }
 
