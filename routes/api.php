@@ -75,5 +75,8 @@ Route::post('/matching/reject-friend', [AiMatchingController::class, 'rejectFrie
 // GEMINI画像生成
 Route::post('/generate-avatar-gemini', [GeminiImageController::class, 'generateAvatar']);
 
-// 
+// announcements
 Route::get('/get-announcements', [AnnouncementController::class, 'getAnnouncements']);
+
+// mbti questions
+Route::get('/get-mbti-questions', [PersonalityJudgmentController::class, 'fetchMBTIQuestions']);
