@@ -20,7 +20,7 @@ class AnnouncementController extends Controller
     public function __construct(GoogleAccessTokenService $accessTokenService)
     {
         $this->accessTokenService = $accessTokenService;
-        $this->firebaseProjectId = 'push-notification-d077c';
+        $this->firebaseProjectId = 'myai-45e11';
     }
 
     public function index(Request $request)
