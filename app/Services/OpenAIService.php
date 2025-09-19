@@ -148,7 +148,7 @@ class OpenAIService
             $chatLogs = DB::table($tableName)
                         ->orderBy('created_at', 'desc')
                         ->get();
-        
+
             $conversationHistory = '';
             foreach ($chatLogs as $chatLog) {
                 $conversationHistory .= "質問: " . $chatLog->question . " 回答: " . $chatLog->answer . " ";
@@ -505,5 +505,45 @@ class OpenAIService
                 'message' => $e->getMessage(),
             ];
         }
+    }
+
+    public function generateQuestions() {
+        $prompt = "Generate 8 MBTI-style personality questions in Japanese.
+                    Each question should:
+                    - Test one of the dimensions: EI, SN, TF, JP
+                    - Include 5 multiple-choice options
+                    - Each option should have a value (E/I/S/N/T/F/J/P) and a weight (0–2)
+                    - Format as JSON array like:
+                    [
+                        {
+                            'id': 1,
+                            'question': 'Your question here',
+                            'dimension': 'EI',
+                            'options': [
+                            { 'text': 'Option A', 'value': 'E', 'weight': 2 },
+                            ...
+                            ]
+                        }
+                    ]";
+
+        $fullMessage = [
+            [
+                'role' => 'user',
+                'content' => $prompt
+            ]
+        ];
+
+        $response = $this->client->post('https://api.openai.com/v1/chat/completions', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'model' => 'o4-mini',
+                'messages' => $fullMessage
+            ],
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

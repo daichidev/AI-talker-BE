@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\admin\AdminUserController;
-use App\Http\Controllers\admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -33,6 +34,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports.index');
+
+    // お知らせ（通知）一覧画面用のルート
+    Route::get('/admin/announcement', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
+    Route::post('/admin/announcement', [AnnouncementController::class, 'store'])->name('admin.announcement.store');
+    Route::put('/admin/announcement/{id}', [AnnouncementController::class, 'update'])->name('admin.announcement.update');
+    Route::delete('/admin/announcement/{id}', [AnnouncementController::class, 'destroy'])->name('admin.announcement.destroy');
 });
 
 // アカウント削除リクエスト用のルート
