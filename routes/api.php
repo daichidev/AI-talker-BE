@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SyncroController;
 use App\Http\Controllers\AiMatchingController;
+use App\Http\Controllers\PersonalityJudgmentController;
 use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\Image\GeminiImageController;
 use App\Http\Controllers\Image\DeepImageController;
