@@ -99,14 +99,15 @@
                                                 in_array($status, ['archived','disabled']) => 'bg-rose-50 text-rose-700 ring-rose-200',
                                                 default => 'bg-slate-100 text-slate-700 ring-slate-300',
                                             };
-                                            $typeLabel = match(true) {
-                                                in_array($type, ['info','information','general']) => 'お知らせ',
-                                                in_array($type, ['maintenance','warning']) => 'メンテナンス / 注意',
-                                                in_array($type, ['update','release']) => '更新 / リリース',
+                                            $statusLabel = match(true) {
+                                                in_array($status, ['draft']) => '下書き',
+                                                in_array($status, ['scheduled','pending']) => '予定 / 保留中',
+                                                in_array($status, ['published','active']) => '公開中',
+                                                in_array($status, ['archived','disabled']) => 'アーカイブ済み / 無効',
                                                 default => 'その他',
                                             };
                                         @endphp
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $statusColor }}">{{ $typeLabel }}</span>
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $statusColor }}">{{ $statusLabel }}</span>
                                     </td>
                                     <td class="px-4 py-3 align-top text-gray-700">
                                         <div class="flex items-center gap-1">
