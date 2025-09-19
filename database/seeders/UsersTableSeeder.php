@@ -17,6 +17,7 @@ class UsersTableSeeder extends Seeder
             'email_verified_at' => null,
             'password' => Hash::make('test123456'), // Use real password or same hash
             'device_id' => '1',
+            'fcm_device_token' => '2',
             'face_photo' => 'face_id_photos/test.jpg',
             'anketo_status' => 0,
             'remember_token' => null,
@@ -31,6 +32,7 @@ class UsersTableSeeder extends Seeder
             'email_verified_at' => null,
             'password' => Hash::make('test111111'), // Use real password or same hash
             'device_id' => '2',
+            'fcm_device_token' => '3',
             'face_photo' => 'face_id_photos/test.jpg',
             'anketo_status' => 0,
             'remember_token' => null,
@@ -45,6 +47,7 @@ class UsersTableSeeder extends Seeder
             'email_verified_at' => null,
             'password' => Hash::make('test222222'), // Use real password or same hash
             'device_id' => '3',
+            'fcm_device_token' => '1',
             'face_photo' => 'face_id_photos/test.jpg',
             'anketo_status' => 0,
             'remember_token' => null,
