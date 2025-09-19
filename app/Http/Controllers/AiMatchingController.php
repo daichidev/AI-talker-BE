@@ -36,7 +36,7 @@ class AiMatchingController extends Controller
         // 名前ィルター
         if ($request->filled('name')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
-                $profileQuery->where('name', 'LIKE', '%' . $request->name . '%');
+                $profileQuery->where('bot_nickname', 'LIKE', '%' . $request->name . '%');
             })
             ->whereRaw("JSON_EXTRACT(filter_status, '$.name') = true");
         }
