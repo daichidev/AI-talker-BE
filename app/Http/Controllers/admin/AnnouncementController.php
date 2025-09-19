@@ -20,7 +20,7 @@ class AnnouncementController extends Controller
     public function __construct(GoogleAccessTokenService $accessTokenService)
     {
         $this->accessTokenService = $accessTokenService;
-        $this->firebaseProjectId = 'push-notification-d077c';
+        $this->firebaseProjectId = 'myai-45e11';
     }
 
     public function index(Request $request)
@@ -232,10 +232,10 @@ class AnnouncementController extends Controller
             // Remove `die;` - it was stopping execution prematurely.
             // The original code changes status here. This means an announcement is marked 'archived'
             // even if some individual notifications failed to send. Adjust this logic if needed.
-            if ($announcement->status === 'published') { // Assuming 'published' is a status, maybe 'pending' for first send
-                $announcement->status = 'archived'; // Or 'sent'
-                $announcement->save();
-            }
+            // if ($announcement->status === 'published') { // Assuming 'published' is a status, maybe 'pending' for first send
+            //     $announcement->status = 'archived'; // Or 'sent'
+            //     $announcement->save();
+            // }
         } // End of foreach $announcements
 
         $responseMessage = 'Push notifications process completed.';
