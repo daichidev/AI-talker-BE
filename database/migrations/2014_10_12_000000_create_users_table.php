@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('device_id')->unique();
+            $table->string('fcm_device_token')->unique();
             $table->string('face_photo');
             $table->integer('anketo_status')->default(0);
             $table->rememberToken();

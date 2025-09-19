@@ -32,6 +32,7 @@ class UserController extends Controller
     public function storeFaceID(Request $request) {
         $request->validate([
             'deviceId' => 'required|string',
+            'fcmDeviceToken' => 'required|string',
             'photo' => 'required|image|mimes:jpeg,png,jpg',
             'avatarType' => 'required|integer',
             'avatarGenderType' => 'required|integer',
@@ -76,9 +77,10 @@ class UserController extends Controller
 
         if (isset($responseData['image_url'])) {
             $avatarPath = $responseData['image_url'];
-
+            
              // device IDと写真のパスをデータベースに保存
             $user = new User();
+            $user->fcm_device_token = $request->fcmDeviceToken;
             $user->device_id = $request->deviceId;
             $user->face_photo = $photoPath;
             // $user->face_photo = 'test.jpg';
@@ -120,8 +122,16 @@ class UserController extends Controller
         );
         $syncro->score_login += 1;
         $syncro->save();
+    
+        $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
 
         return $this->authenticateUser(['device_id' => $request->deviceId]);
+    }
+
+    public function updateFCMDeviceToken($id, $token) {
+        $user = User::find($request->user_id);
+        $user->fcm_device_token = $token;
+        $user->save();
     }
 
     public function login(Request $request)
@@ -139,7 +149,7 @@ class UserController extends Controller
         );
         $syncro->score_login += 1;
         $syncro->save();
-
+        $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
         return $this->authenticateUser(['email' => $request->email, 'password' => $request->password]);
     }
 

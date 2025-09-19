@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'device_id',
+        'fcm_device_token',
         'face_photo',
         'anketo_status',
         'match_user_id',
