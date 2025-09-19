@@ -80,8 +80,14 @@
                                                 in_array($type, ['update','release']) => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
                                                 default => 'bg-gray-100 text-gray-700 ring-gray-300',
                                             };
+                                            $typeLabel = match(true) {
+                                                in_array($type, ['info','information','general']) => 'お知らせ',
+                                                in_array($type, ['maintenance','warning']) => 'メンテナンス / 注意',
+                                                in_array($type, ['update','release']) => '更新 / リリース',
+                                                default => 'その他',
+                                            };
                                         @endphp
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $typeColor }}">{{ $announcement->type }}</span>
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $typeColor }}">{{ $typeLabel }}</span>
                                     </td>
                                     <td class="px-4 py-3 align-top">
                                         @php
@@ -93,8 +99,14 @@
                                                 in_array($status, ['archived','disabled']) => 'bg-rose-50 text-rose-700 ring-rose-200',
                                                 default => 'bg-slate-100 text-slate-700 ring-slate-300',
                                             };
+                                            $typeLabel = match(true) {
+                                                in_array($type, ['info','information','general']) => 'お知らせ',
+                                                in_array($type, ['maintenance','warning']) => 'メンテナンス / 注意',
+                                                in_array($type, ['update','release']) => '更新 / リリース',
+                                                default => 'その他',
+                                            };
                                         @endphp
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $statusColor }}">{{ $announcement->status }}</span>
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $statusColor }}">{{ $typeLabel }}</span>
                                     </td>
                                     <td class="px-4 py-3 align-top text-gray-700">
                                         <div class="flex items-center gap-1">
