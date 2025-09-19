@@ -132,9 +132,9 @@ class AnnouncementController extends Controller
         $errors = [];
 
         // Fetch all unique and valid device tokens once to avoid repeated DB queries
-        $allDeviceTokens = User::whereNotNull('device_id')
-                               ->where('device_id', '!=', '')
-                               ->pluck('device_id')
+        $allDeviceTokens = User::whereNotNull('fcm_device_token')
+                               ->where('fcm_device_token', '!=', '')
+                               ->pluck('fcm_device_token')
                                ->unique()
                                ->toArray();
 
