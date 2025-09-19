@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminReportController;
-use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\admin\AdminUserController;
+use App\Http\Controllers\admin\AdminReportController;
+use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\UserController;
 
 /*
