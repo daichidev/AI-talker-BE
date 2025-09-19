@@ -65,11 +65,11 @@ class AiMatchingController extends Controller
         }
 
         // 地域フィルター
-        if ($request->filled('hometown')) {
+        if ($request->filled('address')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
-                $profileQuery->where('hometown', 'LIKE', '%' . $request->hometown . '%');
+                $profileQuery->where('address', 'LIKE', '%' . $request->address . '%');
             })
-            ->whereRaw("JSON_EXTRACT(filter_status, '$.hometown') = true");
+            ->whereRaw("JSON_EXTRACT(filter_status, '$.address') = true");
         }
 
         // プロフィールが存在するユーザーのみを取得
