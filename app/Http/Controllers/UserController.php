@@ -129,7 +129,7 @@ class UserController extends Controller
     }
 
     public function updateFCMDeviceToken($id, $token) {
-        $user = User::find($request->user_id);
+        $user = User::find($id);
         $user->fcm_device_token = $token;
         $user->save();
     }
@@ -140,7 +140,6 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
-
         $user = User::where('email', $request->email)->first();
 
         $syncro = Syncro::firstOrCreate(
@@ -181,7 +180,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function storeAnketo(Request $request) {       
+    public function storeAnketo(Request $request) {
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'question_key' => 'required',

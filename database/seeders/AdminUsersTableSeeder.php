@@ -18,6 +18,7 @@ class AdminUsersTableSeeder extends Seeder
             'email_verified_at' => null,
             'password' => Hash::make('test123456'), // Use real password or same hash
             'device_id' => '4',
+            'fcm_device_token' => '4',
             'face_photo' => 'face_id_photos/test.jpg',
             'anketo_status' => 0,
             'remember_token' => null,
