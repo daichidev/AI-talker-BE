@@ -70,7 +70,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 align-top max-w-[28rem] whitespace-nowrap overflow-hidden text-ellipsis text-gray-700">{{ $announcement->content }}</td>
+                                    <td class="px-4 py-3 align-top max-w-[20rem] whitespace-nowrap overflow-hidden text-ellipsis text-gray-700">{{ $announcement->content }}</td>
                                     <td class="px-4 py-3 align-top">
                                         @php
                                             $type = strtolower($announcement->type ?? '');
