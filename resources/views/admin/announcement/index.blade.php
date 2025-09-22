@@ -108,8 +108,8 @@
                                             };
                                             $statusLabel = match(true) {
                                                 in_array($status, ['draft'])                 => '下書き',
-                                                in_array($status, ['published'])   => '公開中',
-                                                in_array($status, ['archived'])  => '非公開',
+                                                in_array($status, ['published'])   => '送信予定',
+                                                in_array($status, ['archived'])  => '送信済み',
                                                 default                                      => '不明',
                                             };
                                         @endphp
@@ -191,9 +191,9 @@
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">ステータス</label>
                                         <select name="status" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="下書き">下書き</option>
-                                            <option value="published">公開中</option>
-                                            <option value="archived">非公開</option>
+                                            <option value="draft">下書き</option>
+                                            <option value="published">送信予定</option>
+                                            <option value="archived">送信済み</option>
                                         </select>
                                     </div>
                                     <!-- <div class="flex items-center gap-2 pt-6">
@@ -252,8 +252,8 @@
                                         <label class="mb-1 block text-sm font-medium text-gray-700">ステータス</label>
                                         <select name="status" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                             <option value="draft">下書き</option>
-                                            <option value="published">公開中</option>
-                                            <option value="archived">非公開</option>
+                                            <option value="published">送信予定</option>
+                                            <option value="archived">送信済み</option>
                                         </select>
                                     </div>
                                     <!-- <div class="flex items-center gap-2 pt-6">
@@ -317,8 +317,8 @@
             })
             .then(res => res.json())
             .then(data => {
-                alert('通知を送信しました');
-                // alert(data.message || '通知を送信しました');
+                // alert('通知を送信しました');
+                alert(data.message || '通知を送信しました');
             })
             .catch(err => {
                 console.error(err);
@@ -328,6 +328,7 @@
                 btn.disabled = false;
                 btn.classList.remove('opacity-60', 'cursor-not-allowed');
             });
+            location.reload();
         }
         (function(){
             const body = document.body;

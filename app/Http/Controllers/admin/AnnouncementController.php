@@ -127,6 +127,12 @@ class AnnouncementController extends Controller
         });
 
         $announcements = $query->get();
+        if ($announcements->isEmpty()) {
+            return response()->json([
+                'message' => '現在、送信予定の通知は存在しません。',
+                'count' => 0,
+            ]);
+        }
         $totalNotificationsSent = 0;
         $errors = [];
 
@@ -144,7 +150,7 @@ class AnnouncementController extends Controller
                 'count' => 0,
             ]);
         }
-
+        
         // Get the access token ONCE for all announcements and tokens
         try {
             $accessToken = $this->accessTokenService->getAccessToken();
@@ -231,10 +237,10 @@ class AnnouncementController extends Controller
             // Remove `die;` - it was stopping execution prematurely.
             // The original code changes status here. This means an announcement is marked 'archived'
             // even if some individual notifications failed to send. Adjust this logic if needed.
-            // if ($announcement->status === 'published') { // Assuming 'published' is a status, maybe 'pending' for first send
-            //     $announcement->status = 'archived'; // Or 'sent'
-            //     $announcement->save();
-            // }
+            if ($announcement->status === 'published') { // Assuming 'published' is a status, maybe 'pending' for first send
+                $announcement->status = 'archived'; // Or 'sent'
+                $announcement->save();
+            }
         } // End of foreach $announcements
 
         $responseMessage = 'Push notifications process completed.';
@@ -244,7 +250,7 @@ class AnnouncementController extends Controller
         }
 
         return response()->json([
-            'message' => $responseMessage,
+            'message' => '通知を送信しました',
             'total_announcements_processed' => $announcements->count(),
             'total_notifications_attempted_to_send' => $announcements->count() * count($allDeviceTokens),
             'successful_notifications_sent_count' => $totalNotificationsSent,
