@@ -198,6 +198,16 @@ class AnnouncementController extends Controller
                         'token' => $deviceToken, // Target a specific device token
                         'notification' => $notification,
                         'data' => $dataPayload, // Custom data accessible in your app
+                        'android' => [
+                            'ttl' => '3600s', // 1時間有効
+                            'priority' => 'high',
+                        ],
+                        'apns' => [
+                            'headers' => [
+                                'apns-priority' => '10', // 即時送信
+                                'apns-expiration' => (string)(time() + 3600), // 1時間後まで有効
+                            ],
+                        ],
                     ]
                 ];
 
