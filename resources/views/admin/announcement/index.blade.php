@@ -328,7 +328,9 @@
                 btn.disabled = false;
                 btn.classList.remove('opacity-60', 'cursor-not-allowed');
             });
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
         }
         (function(){
             const body = document.body;
