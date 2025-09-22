@@ -411,43 +411,75 @@ class OpenAIService
                 }
             }
 
-            // フレンドの動物占いの性格特性を処理
+            // フレンドの公開設定を取得
+            $friendFilter = is_array($friend->filter_status) ? $friend->filter_status : [];
+
+            // フレンドの動物占いの性格特性を処理（公開設定に従う）
             if (!empty($friendAnketoData['animal_fortune_telling'])) {
-                $friendFortuneTellingPersonality = "【動物占いによる性格】\n";
-                $friendFortuneTellingPersonality .= "動物占い名：" . $friendAnketoData['animal_fortune_telling'] . " - " . ($friendProfileData->animal_fortune_telling_result ?? $friendAnketoData['animal_fortune_telling_characteristics']) . "\n\n";
+                if (!empty($friendFilter['animal_fortune_telling_result'])) {
+                    $friendFortuneTellingPersonality = "【動物占いによる性格】\n";
+                    $friendFortuneTellingPersonality .= "動物占い名：" . $friendAnketoData['animal_fortune_telling'] . " - " . ($friendProfileData->animal_fortune_telling_result ?? $friendAnketoData['animal_fortune_telling_characteristics']) . "\n\n";
+                } else {
+                    $friendFortuneTellingPersonality = "";
+                }
             }
             
-            // プロフィール情報が存在する場合に追加
-            if ($friendProfileData) {
-                $friendInfo .= "名前: " . ($friendProfileData->name ?? $friendAnketoData['name']) . ", ";
+            // プロフィール情報の有無に関わらず、公開設定に従ってフレンド情報を組み立て
+            // 常に公開（OFFにできない）
+            $friendInfo .= "名前: " . (($friendProfileData->name ?? null) !== null ? $friendProfileData->name : $friendAnketoData['name']) . ", ";
+            $friendInfo .= "性別: " . (($friendProfileData->gender ?? null) !== null ? $friendProfileData->gender : $friendAnketoData['gender']) . ", ";
+            $friendInfo .= "生年月日: " . (($friendProfileData->birthdate ?? null) !== null ? $friendProfileData->birthdate : $friendAnketoData['birthdate']) . ", ";
+            $friendInfo .= "住所: " . (($friendProfileData->address ?? null) !== null ? $friendProfileData->address : $friendAnketoData['address']) . ", ";
+
+            // それ以外は公開設定がONのときのみ追加
+            if (!empty($friendFilter['bot_nickname'])) {
                 $friendInfo .= "AI名: " . ($friendProfileData->bot_nickname ?? '') . ", ";
-                $friendInfo .= "性別: " . ($friendProfileData->gender ?? $friendAnketoData['gender']) . ", ";
-                $friendInfo .= "生年月日: " . ($friendProfileData->birthdate ?? $friendAnketoData['birthdate']) . ", ";
-                $friendInfo .= "出身地: " . ($friendProfileData->hometown ?? $friendAnketoData['hometown']) . ", ";
-                $friendInfo .= "住所: " . ($friendProfileData->address ?? $friendAnketoData['address']) . ", ";
-                $friendInfo .= "血液型: " . ($friendProfileData->blood_type ?? $friendAnketoData['blood_type']) . ", ";
+            }
+            if (!empty($friendFilter['hometown'])) {
+                $friendInfo .= "出身地: " . (($friendProfileData->hometown ?? null) !== null ? $friendProfileData->hometown : $friendAnketoData['hometown']) . ", ";
+            }
+            if (!empty($friendFilter['blood_type'])) {
+                $friendInfo .= "血液型: " . (($friendProfileData->blood_type ?? null) !== null ? $friendProfileData->blood_type : $friendAnketoData['blood_type']) . ", ";
+            }
+            if (!empty($friendFilter['school_name'])) {
                 $friendInfo .= "学校名: " . ($friendProfileData->school_name ?? '') . ", ";
+            }
+            if (!empty($friendFilter['school_year'])) {
                 $friendInfo .= "学年: " . ($friendProfileData->school_year ?? '') . ", ";
+            }
+            if (!empty($friendFilter['club_activity'])) {
                 $friendInfo .= "部活動: " . ($friendProfileData->club_activity ?? '') . ", ";
+            }
+            if (!empty($friendFilter['department'])) {
                 $friendInfo .= "学部: " . ($friendProfileData->department ?? '') . ", ";
-                $friendInfo .= "職業: " . ($friendProfileData->occupation ?? $friendAnketoData['job']) . ", ";
+            }
+            if (!empty($friendFilter['job'])) {
+                $friendInfo .= "職業: " . (($friendProfileData->occupation ?? null) !== null ? $friendProfileData->occupation : $friendAnketoData['job']) . ", ";
+            }
+            if (!empty($friendFilter['company_name'])) {
                 $friendInfo .= "会社名: " . ($friendProfileData->company_name ?? '') . ", ";
+            }
+            if (!empty($friendFilter['position'])) {
                 $friendInfo .= "役職: " . ($friendProfileData->position ?? '') . ", ";
-                $friendInfo .= "趣味: " . ($friendProfileData->hobby ?? $friendAnketoData['hobby']) . ", ";
+            }
+            if (!empty($friendFilter['hobby'])) {
+                $friendInfo .= "趣味: " . (($friendProfileData->hobby ?? null) !== null ? $friendProfileData->hobby : $friendAnketoData['hobby']) . ", ";
+            }
+            if (!empty($friendFilter['family_structure'])) {
                 $friendInfo .= "家族構成: " . ($friendProfileData->family_structure ?? '') . ", ";
+            }
+            if (!empty($friendFilter['special_skills'])) {
                 $friendInfo .= "特技: " . ($friendProfileData->special_skills ?? '') . ", ";
+            }
+            if (!empty($friendFilter['dream'])) {
                 $friendInfo .= "夢: " . ($friendProfileData->dream ?? '') . ", ";
+            }
+
+            // 自己紹介文は公開設定がONのときのみ設定
+            if (!empty($friendFilter['description'])) {
                 $friendPersonalityDescription = $friendProfileData->description ?? '';
             } else {
-                // プロフィール情報が存在しない場合はアンケート情報のみを使用
-                $friendInfo .= "名前: " . $friendAnketoData['name'] . ", ";
-                $friendInfo .= "性別: " . $friendAnketoData['gender'] . ", ";
-                $friendInfo .= "生年月日: " . $friendAnketoData['birthdate'] . ", ";
-                $friendInfo .= "出身地: " . $friendAnketoData['hometown'] . ", ";
-                $friendInfo .= "住所: " . ($friendProfileData->address ?? $friendAnketoData['address']) . ", ";
-                $friendInfo .= "血液型: " . $friendAnketoData['blood_type'] . ", ";
-                $friendInfo .= "職業: " . $friendAnketoData['job'] . ", ";
-                $friendInfo .= "趣味: " . $friendAnketoData['hobby'] . ", ";
+                $friendPersonalityDescription = '';
             }
 
             $friendInfo = rtrim($friendInfo, ', ');
