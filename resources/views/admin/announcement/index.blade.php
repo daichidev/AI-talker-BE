@@ -75,15 +75,14 @@
                                         @php
                                             $type = strtolower($announcement->type ?? '');
                                             $typeColor = match(true) {
-                                                in_array($type, ['info','information','general']) => 'bg-blue-50 text-blue-700 ring-blue-200',
-                                                in_array($type, ['maintenance','warning']) => 'bg-amber-50 text-amber-800 ring-amber-200',
-                                                in_array($type, ['update','release']) => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-                                                default => 'bg-gray-100 text-gray-700 ring-gray-300',
+                                                in_array($type, ['info']) => 'bg-blue-50 text-blue-700 ring-blue-200',
+                                                in_array($type, ['warning']) => 'bg-amber-50 text-amber-800 ring-amber-200',
+                                                in_array($type, ['event']) => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
                                             };
                                             $typeLabel = match(true) {
-                                                in_array($type, ['info','information','general']) => 'お知らせ',
-                                                in_array($type, ['maintenance','warning']) => 'メンテナンス / 注意',
-                                                in_array($type, ['update','release']) => '更新 / リリース',
+                                                in_array($type, ['info'])    => 'お知らせ',
+                                                in_array($type, ['warning']) => '注意',
+                                                in_array($type, ['event'])   => 'イベント',
                                                 default => 'その他',
                                             };
                                         @endphp
@@ -100,11 +99,10 @@
                                                 default => 'bg-slate-100 text-slate-700 ring-slate-300',
                                             };
                                             $statusLabel = match(true) {
-                                                in_array($status, ['draft']) => '下書き',
-                                                in_array($status, ['scheduled','pending']) => '予定 / 保留中',
-                                                in_array($status, ['published','active']) => '公開中',
-                                                in_array($status, ['archived','disabled']) => 'アーカイブ済み / 無効',
-                                                default => 'その他',
+                                                in_array($status, ['draft'])                 => '下書き',
+                                                in_array($status, ['published'])   => '公開中',
+                                                in_array($status, ['archived'])  => '非公開',
+                                                default                                      => '不明',
                                             };
                                         @endphp
                                         <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 {{ $statusColor }}">{{ $statusLabel }}</span>
@@ -177,17 +175,17 @@
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">タイプ</label>
                                         <select name="type" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="info">info</option>
-                                            <option value="warning">warning</option>
-                                            <option value="event">event</option>
+                                            <option value="info">お知らせ</option>
+                                            <option value="warning">注意</option>
+                                            <option value="event">イベント</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">ステータス</label>
                                         <select name="status" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="draft">draft</option>
-                                            <option value="published">published</option>
-                                            <option value="archived">archived</option>
+                                            <option value="下書き">下書き</option>
+                                            <option value="published">公開中</option>
+                                            <option value="archived">非公開</option>
                                         </select>
                                     </div>
                                     <!-- <div class="flex items-center gap-2 pt-6">
@@ -237,17 +235,17 @@
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">タイプ</label>
                                         <select name="type" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="info">info</option>
-                                            <option value="warning">warning</option>
-                                            <option value="event">event</option>
+                                            <option value="info">お知らせ</option>
+                                            <option value="warning">注意</option>
+                                            <option value="event">イベント</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">ステータス</label>
                                         <select name="status" required class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="draft">draft</option>
-                                            <option value="published">published</option>
-                                            <option value="archived">archived</option>
+                                            <option value="draft">下書き</option>
+                                            <option value="published">公開中</option>
+                                            <option value="archived">非公開</option>
                                         </select>
                                     </div>
                                     <!-- <div class="flex items-center gap-2 pt-6">
