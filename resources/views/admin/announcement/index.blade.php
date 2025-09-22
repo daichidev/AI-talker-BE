@@ -8,10 +8,18 @@
                     <div class="mb-5 space-y-4">
                         <div class="flex items-center justify-between">
                             <h2 class="text-lg font-semibold text-gray-900">お知らせ一覧</h2>
-                            <button type="button" data-modal-target="create" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-                                新規作成
-                            </button>
+                            <div>
+                                <button type="button" data-modal-target="create" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                                    新規作成
+                                </button>
+                                <button type="button" id="send-announcement-btn" onclick="sendnotification()" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a2 2 0 01-2-2h4a2 2 0 01-2 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    通知を送る
+                                </button>
+                            </div>                    
                         </div>
                         <form action="{{ route('admin.announcement.index') }}" method="GET" class="w-full">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -295,6 +303,32 @@
 
 @push('scripts')
     <script>
+        function sendnotification() {
+            const btn = document.getElementById("send-announcement-btn");
+            btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch(`/admin/send-announcements`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('通知を送信しました');
+                // alert(data.message || '通知を送信しました');
+            })
+            .catch(err => {
+                console.error(err);
+                alert('通知の送信に失敗しました');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-60', 'cursor-not-allowed');
+            });
+        }
         (function(){
             const body = document.body;
             function openModal(id){
@@ -419,6 +453,7 @@
                     submitFormAjax(deleteForm, null);
                 });
             }
+            
         })();
     </script>
 @endpush

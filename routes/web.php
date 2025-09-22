@@ -40,6 +40,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/announcement', [AnnouncementController::class, 'store'])->name('admin.announcement.store');
     Route::put('/admin/announcement/{id}', [AnnouncementController::class, 'update'])->name('admin.announcement.update');
     Route::delete('/admin/announcement/{id}', [AnnouncementController::class, 'destroy'])->name('admin.announcement.destroy');
+    Route::POST('/admin/send-announcements', [AnnouncementController::class, 'sendPushNotification']);
 });
 
 // アカウント削除リクエスト用のルート

@@ -35,7 +35,6 @@ class AnnouncementController extends Controller
         }
 
         $announcements = $query->paginate(20);
-        $this->sendPushNotification();
         return view('admin.announcement.index', compact('announcements'));
     }
 
