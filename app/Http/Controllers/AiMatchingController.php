@@ -257,15 +257,7 @@ class AiMatchingController extends Controller
         
         $user = User::find($request->user_id);
         $inviteFriendUsers = json_decode($user->invite_friend_users, true) ?? [];
-        $userFriendUsers = json_decode($user->friend_users, true) ?? [];
         
-        // すでに友だちであれば招待しない（重複防止）
-        if (in_array($request->friend_id, $userFriendUsers)) {
-            return response()->json([
-                'success' => true
-            ]);
-        }
-
         if (!in_array($request->friend_id, $inviteFriendUsers)) {
             array_push($inviteFriendUsers, $request->friend_id);
             $user->invite_friend_users = json_encode(array_values($inviteFriendUsers));
@@ -274,14 +266,6 @@ class AiMatchingController extends Controller
 
         $friendUser = User::find($request->friend_id);
         $invitedFriendUsers = json_decode($friendUser->invited_friend_users, true) ?? [];
-        $friendUserFriendUsers = json_decode($friendUser->friend_users, true) ?? [];
-
-        // 相手側もすでに友だちであれば招待しない（重複防止）
-        if (in_array($request->user_id, $friendUserFriendUsers)) {
-            return response()->json([
-                'success' => true
-            ]);
-        }
 
         if (!in_array($request->user_id, $invitedFriendUsers)) {
             array_push($invitedFriendUsers, $request->user_id);
