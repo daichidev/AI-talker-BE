@@ -21,6 +21,7 @@ use App\Services\ChatLogService;
 use App\Services\FriendChatLogService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB; 
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -86,6 +87,7 @@ class UserController extends Controller
             // $user->face_photo = 'test.jpg';
             $user->email = $request->userEmail;
             $user->password = bcrypt($request->userPassword); // Hash the password
+            $user->first_login_datetime_on_today = Carbon::now();
             $user->save();
     
             $avatar = new Avatar();
@@ -116,12 +118,20 @@ class UserController extends Controller
 
         $user = User::where('device_id', $request->deviceId)->first();
 
-        $syncro = Syncro::firstOrCreate(
-            ['user_id' => $user->id],
-            ['score_login' => 0]
-        );
-        $syncro->score_login += 1;
-        $syncro->save();
+        $today = Carbon::today();
+        $firstLoginToday = $user->first_login_datetime_on_today ? Carbon::parse($user->first_login_datetime_on_today)->isSameDay($today) : false;
+        
+        if (!$firstLoginToday) {
+            $user->first_login_datetime_on_today = Carbon::now();
+            $user->save();
+            
+            $syncro = Syncro::firstOrCreate(
+                ['user_id' => $user->id],
+                ['score_login' => 0]
+            );
+            $syncro->score_login += 1;
+            $syncro->save();
+        }
     
         $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
 
@@ -142,12 +152,21 @@ class UserController extends Controller
         ]);
         $user = User::where('email', $request->email)->first();
 
-        $syncro = Syncro::firstOrCreate(
-            ['user_id' => $user->id],
-            ['score_login' => 0]
-        );
-        $syncro->score_login += 1;
-        $syncro->save();
+        $today = Carbon::today();
+        $firstLoginToday = $user->first_login_datetime_on_today ? Carbon::parse($user->first_login_datetime_on_today)->isSameDay($today) : false;
+        
+        if (!$firstLoginToday) {
+            $user->first_login_datetime_on_today = Carbon::now();
+            $user->save();
+            
+            $syncro = Syncro::firstOrCreate(
+                ['user_id' => $user->id],
+                ['score_login' => 0]
+            );
+            $syncro->score_login += 1;
+            $syncro->save();
+        }
+        
         $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
         return $this->authenticateUser(['email' => $request->email, 'password' => $request->password]);
     }
