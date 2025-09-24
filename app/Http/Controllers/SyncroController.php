@@ -15,7 +15,7 @@ class SyncroController extends Controller
         'animal_fortune' => 10,
         'big5_analysis' => 20,
         'kakeai' => 20,
-        'login' => 1,
+        'login' => 50,
         'ai_talk' => 10,
         'friend_invite_sent' => 100,
         'friend_invite_received' => 20,
