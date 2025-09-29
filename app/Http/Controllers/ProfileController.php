@@ -29,7 +29,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'data' => $profile,
-            'filter_status' => $user->filter_status
+            'search_show_status' => $user->search_show_status
         ]);
     }
 
@@ -56,7 +56,7 @@ class ProfileController extends Controller
             'dream' => 'nullable|string',
             'animal_fortune_telling_result' => 'nullable|string',
             'description' => 'nullable|string',
-            'privacy_settings' => 'nullable'
+            'search_show_status' => 'nullable'
         ]);
 
         // If birthdate is being updated, calculate the animal sign
@@ -84,7 +84,7 @@ class ProfileController extends Controller
         $syncro->save();
 
         $user = User::find($userId);
-        $user->filter_status = $validated['privacy_settings'];
+        $user->search_show_status = $validated['search_show_status'];
         $user->save();
 
         return response()->json([

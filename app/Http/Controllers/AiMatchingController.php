@@ -37,8 +37,7 @@ class AiMatchingController extends Controller
         if ($request->filled('name')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
                 $profileQuery->where('bot_nickname', 'LIKE', '%' . $request->name . '%');
-            })
-            ->whereRaw("JSON_EXTRACT(filter_status, '$.name') = true");
+            });
         }
 
         // 年齢フィルター
@@ -52,31 +51,28 @@ class AiMatchingController extends Controller
                     $minDate = Carbon::now()->subYears($request->max_age + 1);
                     $profileQuery->where('birthdate', '>', $minDate);
                 }
-            })
-            ->whereRaw("JSON_EXTRACT(filter_status, '$.birthdate') = true");
+            });
         }
 
         // 性別フィルター
         if ($request->filled('gender')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
                 $profileQuery->where('gender', $request->gender ? "女性" : "男性");
-            })
-            ->whereRaw("JSON_EXTRACT(filter_status, '$.gender') = true");
+            });
         }
 
         // 地域フィルター
         if ($request->filled('address')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
                 $profileQuery->where('address', 'LIKE', '%' . $request->address . '%');
-            })
-            ->whereRaw("JSON_EXTRACT(filter_status, '$.address') = true");
+            });
         }
 
         // プロフィールが存在するユーザーのみを取得
         $query->whereHas('profile');
 
         // 自分自身を除外
-        $query->where('id', '!=', $request->user_id);
+        $query->where('id', '!=', $request->user_id)->where('search_show_status', true);
 
         if ($request->filled('is_invited_friend_users')) {
             $requestingUser = User::find($request->user_id);

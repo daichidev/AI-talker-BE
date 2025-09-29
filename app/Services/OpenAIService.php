@@ -425,13 +425,21 @@ class OpenAIService
             }
             
             // プロフィール情報の有無に関わらず、公開設定に従ってフレンド情報を組み立て
-            // 常に公開（OFFにできない）
-            $friendInfo .= "名前: " . (($friendProfileData->name ?? null) !== null ? $friendProfileData->name : $friendAnketoData['name']) . ", ";
-            $friendInfo .= "性別: " . (($friendProfileData->gender ?? null) !== null ? $friendProfileData->gender : $friendAnketoData['gender']) . ", ";
-            $friendInfo .= "生年月日: " . (($friendProfileData->birthdate ?? null) !== null ? $friendProfileData->birthdate : $friendAnketoData['birthdate']) . ", ";
-            $friendInfo .= "住所: " . (($friendProfileData->address ?? null) !== null ? $friendProfileData->address : $friendAnketoData['address']) . ", ";
+            // すべての項目が公開設定に従う
+            if (!empty($friendFilter['name'])) {
+                $friendInfo .= "名前: " . (($friendProfileData->name ?? null) !== null ? $friendProfileData->name : $friendAnketoData['name']) . ", ";
+            }
+            if (!empty($friendFilter['gender'])) {
+                $friendInfo .= "性別: " . (($friendProfileData->gender ?? null) !== null ? $friendProfileData->gender : $friendAnketoData['gender']) . ", ";
+            }
+            if (!empty($friendFilter['birthdate'])) {
+                $friendInfo .= "生年月日: " . (($friendProfileData->birthdate ?? null) !== null ? $friendProfileData->birthdate : $friendAnketoData['birthdate']) . ", ";
+            }
+            if (!empty($friendFilter['address'])) {
+                $friendInfo .= "住所: " . (($friendProfileData->address ?? null) !== null ? $friendProfileData->address : $friendAnketoData['address']) . ", ";
+            }
 
-            // それ以外は公開設定がONのときのみ追加
+            // その他の項目も公開設定がONのときのみ追加
             if (!empty($friendFilter['bot_nickname'])) {
                 $friendInfo .= "AI名: " . ($friendProfileData->bot_nickname ?? '') . ", ";
             }

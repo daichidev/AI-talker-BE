@@ -1,0 +1,29 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class MainUsersTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('users')->insert([
+            'name' => null,
+            'email' => 'test123456@gmail.com',
+            'email_verified_at' => null,
+            'password' => Hash::make('test123456'), // Use real password or same hash
+            'device_id' => '1',
+            'fcm_device_token' => '2',
+            'face_photo' => 'face_id_photos/test.jpg',
+            'anketo_status' => 0,
+            'remember_token' => null,
+            'role'=>'user',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+}
