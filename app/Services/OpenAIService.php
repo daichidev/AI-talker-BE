@@ -24,7 +24,30 @@ class OpenAIService
         $this->client = new Client();
         $this->apiKey = Config::get('app.open_api_key');
     }
-
+    private function formatPersonalityLines(array $map, string $heading = '【性格診断の参考情報】'): string
+    {
+        // 受け取る map は ['MBTI' => 'ISTJ', ...] の形を想定
+        $labels = [
+            'MBTI'      => 'MBTI',
+            'RIASEC'    => 'RIASEC',
+            'Enneagram' => 'エニアグラム',
+            'DISC'      => 'DISC理論',
+            'Socionics' => 'ソシオニクス',
+        ];
+    
+        $lines = [];
+        foreach ($labels as $key => $label) {
+            $val = Arr::get($map, $key);
+            if (is_string($val) && trim($val) !== '') {
+                $lines[] = "{$label}: {$val}";
+            }
+        }
+    
+        if (empty($lines)) {
+            return ''; // 何もなければ丸ごと非表示
+        }
+        return $heading . "\n" . implode("  \n", $lines) . "\n";
+    }
     public function chat($userId, $tableName, $message)
     {
         try {
@@ -165,12 +188,7 @@ class OpenAIService
             【あなたの性格・特徴】
             " . (!empty($big5Personality) ? $big5Personality : $fortuneTellingPersonality) . "
 
-            【性格診断の参考情報】
-            MBTI: " . $personalities['MBTI'] . "  
-            RIASEC: " . $personalities['RIASEC'] . "  
-            エニアグラム: " . $personalities['Enneagram'] . "  
-            DISC理論: " . $personalities['DISC'] . "  
-            ソシオニクス: " . $personalities['Socionics'] . "
+            ".$this->formatPersonalityLines($personalities)."
 
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 あなたは私を".$userAnketoData['user_nickname']."と呼んでください。
             あなたの役割は、私が過去に話したことを思い出させたり、私自身の経験を基に新しい視点を提供することです。  
@@ -520,22 +538,14 @@ class OpenAIService
 
             【私の性格・特徴】
             " . (!empty($userBig5Personality) ? $userBig5Personality : $userFortuneTellingPersonality) . "
-            【私の性格診断の参考情報】
-            MBTI: " . $personalities['MBTI'] . "  
-            RIASEC: " . $personalities['RIASEC'] . "  
-            エニアグラム: " . $personalities['Enneagram'] . "  
-            DISC理論: " . $personalities['DISC'] . "  
-            ソシオニクス: " . $personalities['Socionics'] . "
+
+            ".$this->formatPersonalityLines($personalities, "【私の性格診断の参考情報】")."
+
             【あなたの性格・特徴】
             " . (!empty($friendBig5Personality) ? $friendBig5Personality : $friendFortuneTellingPersonality) . "
             【あなたのキャラクターの性格・特徴】
             " . $friendPersonalityDescription . "
-            【あなたの性格診断の参考情報】
-            MBTI: " . $f_personalities['MBTI'] . "  
-            RIASEC: " . $f_personalities['RIASEC'] . "  
-            エニアグラム: " . $f_personalities['Enneagram'] . "  
-            DISC理論: " . $f_personalities['DISC'] . "  
-            ソシオニクス: " . $f_personalities['Socionics'] . "
+            ".$this->formatPersonalityLines($personalities, "【あなたの性格診断の参考情報】 ")."
 
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 
 
