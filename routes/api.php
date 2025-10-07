@@ -11,7 +11,7 @@ use App\Http\Controllers\PersonalityJudgmentController;
 use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\Image\GeminiImageController;
 use App\Http\Controllers\Image\DeepImageController;
-
+use App\Http\Controllers\PersonalityAssessmentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -81,3 +81,5 @@ Route::get('/get-announcements', [AnnouncementController::class, 'getAnnouncemen
 
 // mbti questions
 Route::get('/get-mbti-questions', [PersonalityJudgmentController::class, 'fetchMBTIQuestions']);
+
+Route::apiResource('personality-assessments', PersonalityAssessmentController::class);
