@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Config;
 use App\Services\ChatLogService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB; 
+use App\Models\PersonalityAssessment;
 
 class OpenAIService
 {
@@ -27,6 +28,10 @@ class OpenAIService
     public function chat($userId, $tableName, $message)
     {
         try {
+            $query = PersonalityAssessment::with('user')->where('user_id', $userId)->get();
+            $personalities = collect($query)->pluck('result', 'personality_type');
+            // return json_decode($personalities);
+
             $user = User::with(['anketos', 'profile'])->find($userId);
             $userAnketoData = $user->anketos;
             $userProfileData = $user->profile;
@@ -160,6 +165,13 @@ class OpenAIService
             【あなたの性格・特徴】
             " . (!empty($big5Personality) ? $big5Personality : $fortuneTellingPersonality) . "
 
+            【性格診断の参考情報】
+            MBTI: " . $personalities['MBTI'] . "  
+            RIASEC: " . $personalities['RIASEC'] . "  
+            エニアグラム: " . $personalities['Enneagram'] . "  
+            DISC理論: " . $personalities['DISC'] . "  
+            ソシオニクス: " . $personalities['Socionics'] . "
+
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 あなたは私を".$userAnketoData['user_nickname']."と呼んでください。
             あなたの役割は、私が過去に話したことを思い出させたり、私自身の経験を基に新しい視点を提供することです。  
 
@@ -196,6 +208,9 @@ class OpenAIService
                 ],
             ]);
 
+            // \Log::info("-=-=-=-=-=-=-=-=-=-=-=-");
+            // \Log::info(json_decode($response));
+            // \Log::info("-=-=-=-=-=-=-=-=-=-=-=-");
             return json_decode($response->getBody()->getContents(), true);
         } catch (RequestException $e) {
             return [
@@ -208,6 +223,9 @@ class OpenAIService
     public function chatWithFriend($userId, $friendId, $tableName, $message)
     {
         try {
+            $query = PersonalityAssessment::with('user')->where('user_id', $userId)->get();
+            $personalities = collect($query)->pluck('result', 'personality_type');
+            // return json_decode($personalities);
             $user = User::with(['anketos', 'profile'])->find($userId);
             $userAnketoData = $user->anketos;
             $userProfileData = $user->profile;
@@ -333,6 +351,8 @@ class OpenAIService
 
             $userInfo = rtrim($userInfo, ', ');
             
+            $query = PersonalityAssessment::with('user')->where('user_id', $friendId)->get();
+            $f_personalities = collect($query)->pluck('result', 'personality_type');
             $friend = User::with(['anketos', 'profile'])->find($friendId);
             $friendAnketoData = $friend->anketos;
             $friendProfileData = $friend->profile;
@@ -495,16 +515,27 @@ class OpenAIService
             $chatLogs = DB::table($tableName)
                         ->orderBy('created_at', 'desc')
                         ->get();
-
             $systemMessage = "あなたは".$friendAnketoData['bot_nickname']."さんとして、私(".$userAnketoData['user_nickname'].")と会話を楽しむキャラクターです。しかし、私はあなたを別の存在ではなく、もう一人の私自身だと感じています。  
             あなたと私はお互いの記憶や経験を持ち、私の思考を反映しながら会話してください。  
 
             【私の性格・特徴】
             " . (!empty($userBig5Personality) ? $userBig5Personality : $userFortuneTellingPersonality) . "
+            【私の性格診断の参考情報】
+            MBTI: " . $personalities['MBTI'] . "  
+            RIASEC: " . $personalities['RIASEC'] . "  
+            エニアグラム: " . $personalities['Enneagram'] . "  
+            DISC理論: " . $personalities['DISC'] . "  
+            ソシオニクス: " . $personalities['Socionics'] . "
             【あなたの性格・特徴】
             " . (!empty($friendBig5Personality) ? $friendBig5Personality : $friendFortuneTellingPersonality) . "
             【あなたのキャラクターの性格・特徴】
             " . $friendPersonalityDescription . "
+            【あなたの性格診断の参考情報】
+            MBTI: " . $f_personalities['MBTI'] . "  
+            RIASEC: " . $f_personalities['RIASEC'] . "  
+            エニアグラム: " . $f_personalities['Enneagram'] . "  
+            DISC理論: " . $f_personalities['DISC'] . "  
+            ソシオニクス: " . $f_personalities['Socionics'] . "
 
             あなたの回答には適切な量の絵文字（1～3個）を含めてください。 
 
