@@ -51,9 +51,10 @@ class OpenAIService
     public function chat($userId, $tableName, $message)
     {
         try {
-            $query = PersonalityAssessment::with('user')->where('user_id', $userId)->get();
-            $personalities = collect($query)->pluck('result', 'personality_type');
-            // return json_decode($personalities);
+            $personalities = PersonalityAssessment::where('user_id', $userId)
+                ->get(['personality_type', 'result'])
+                ->pluck('result', 'personality_type')
+                ->toArray();
 
             $user = User::with(['anketos', 'profile'])->find($userId);
             $userAnketoData = $user->anketos;
@@ -241,9 +242,10 @@ class OpenAIService
     public function chatWithFriend($userId, $friendId, $tableName, $message)
     {
         try {
-            $query = PersonalityAssessment::with('user')->where('user_id', $userId)->get();
-            $personalities = collect($query)->pluck('result', 'personality_type');
-            // return json_decode($personalities);
+            $personalities = PersonalityAssessment::where('user_id', $userId)
+                ->get(['personality_type', 'result'])
+                ->pluck('result', 'personality_type')
+                ->toArray();
             $user = User::with(['anketos', 'profile'])->find($userId);
             $userAnketoData = $user->anketos;
             $userProfileData = $user->profile;
@@ -368,9 +370,10 @@ class OpenAIService
             }
 
             $userInfo = rtrim($userInfo, ', ');
-            
-            $query = PersonalityAssessment::with('user')->where('user_id', $friendId)->get();
-            $f_personalities = collect($query)->pluck('result', 'personality_type');
+            $f_personalities = PersonalityAssessment::where('user_id', $friendId)
+                ->get(['personality_type', 'result'])
+                ->pluck('result', 'personality_type')
+                ->toArray();
             $friend = User::with(['anketos', 'profile'])->find($friendId);
             $friendAnketoData = $friend->anketos;
             $friendProfileData = $friend->profile;
