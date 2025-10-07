@@ -13,6 +13,7 @@ use App\Services\ChatLogService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB; 
 use App\Models\PersonalityAssessment;
+use Illuminate\Support\Arr;
 
 class OpenAIService
 {
@@ -42,7 +43,7 @@ class OpenAIService
                 $lines[] = "{$label}: {$val}";
             }
         }
-    
+
         if (empty($lines)) {
             return ''; // 何もなければ丸ごと非表示
         }
