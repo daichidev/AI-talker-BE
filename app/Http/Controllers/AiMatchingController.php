@@ -103,26 +103,7 @@ class AiMatchingController extends Controller
                     'users' => [],
                 ]);
             }
-        } else {
-            $requestingUser = User::find($request->user_id);
-
-            if ($requestingUser) {
-                $friendUserIds = json_decode($requestingUser->friend_users, true) ?? [];
-                $invitedFriendUserIds = json_decode($requestingUser->invited_friend_users, true) ?? [];
-
-                // 重複を排除した除外対象（友だち + 招待されているユーザー）
-                $excludeIds = array_values(array_unique(array_merge($friendUserIds, $invitedFriendUserIds)));
-
-                if (!empty($excludeIds)) {
-                    $query->whereNotIn('id', $excludeIds);
-                }
-            } else {
-                return response()->json([
-                    'users' => [],
-                ]);
-            }
         }
-
         $syncroController = app(SyncroController::class);
 
         $users = $query->get()->map(function ($user) use ($request, $syncroController) {
@@ -167,6 +148,7 @@ class AiMatchingController extends Controller
 
         return response()->json([
             'users' => $users,
+            'friend_users' => $invitedFriendUser->friend_users,
             'invite_friend_users' => $invitedFriendUser?->invite_friend_users,
         ]);
     }
