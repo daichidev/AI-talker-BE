@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; 
 use App\Services\ChatLogService;
 use App\Services\FriendChatLogService;
+use App\Services\NSFWDetectionService;
 
 use App\Services\OpenAIService;
 use App\Services\GeminiService;
@@ -16,11 +17,13 @@ class ChatbotController extends Controller
 {
     protected $openAIService;
     protected $geminiService;
+    protected $nsfwDetectionService;
 
-    public function __construct(OpenAIService $openAIService, GeminiService $geminiService)
+    public function __construct(OpenAIService $openAIService, GeminiService $geminiService, NSFWDetectionService $nsfwDetectionService)
     {
         $this->openAIService = $openAIService;
         $this->geminiService = $geminiService;
+        $this->nsfwDetectionService = $nsfwDetectionService;
     }
 
     public function chat(Request $request)
@@ -30,18 +33,25 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Check if the message is NSFW
+        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+
         $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
 
         $responseData = $this->openAIService->chat($request->user_id, $tableName, $request->message);
         
-         DB::table($tableName)->insert([
+        // Check if the response is also NSFW
+        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+        
+        DB::table($tableName)->insert([
             'question' => $request->message,
-            'answer' => $responseData['choices'][0]['message']['content'],
+            'answer' => $responseContent,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => $responseData['choices'][0]['message']['content']
+            'message' => $responseContent,
+            'is_nsfw' => $isNSFW
         ]);
     }
 
@@ -53,23 +63,30 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Check if the message is NSFW
+        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+
         $tableName = app(FriendChatLogService::class)->ensureUserTableExists($request->user_id, $request->friend_user_id);
 
         $responseData = $this->openAIService->chatWithFriend($request->user_id, $request->friend_user_id, $tableName, $request->message);
+
+        // Check if the response is also NSFW
+        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
 
         $now = Carbon::now();
         
         DB::table($tableName)->insert([
             'question' => $request->message,
-            'answer' => $responseData['choices'][0]['message']['content'],
+            'answer' => $responseContent,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => $responseData['choices'][0]['message']['content'],
-            'time' => $now->format('Y-m-d H:i:s')
+            'message' => $responseContent,
+            'time' => $now->format('Y-m-d H:i:s'),
+            'is_nsfw' => $isNSFW
         ]);
     }
 
@@ -80,20 +97,27 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Check if the message is NSFW
+        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+
         $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
 
-        $responseData = $this->geminiService->chat($request->user_id, $request->message);
+        $responseData = $this->geminiService->chat($request->user_id, $request->message);     
+
+        // Check if the response is also NSFW
+        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
 
          DB::table($tableName)->insert([
             'question' => $request->message,
-            'answer' => $responseData['candidates'][0]['content']['parts'][0]['text'],
+            'answer' => $responseContent,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => $responseData['candidates'][0]['content']['parts'][0]['text']
+            'message' => $responseContent,
+            'is_nsfw' => $isNSFW
         ]);
     }
 }
