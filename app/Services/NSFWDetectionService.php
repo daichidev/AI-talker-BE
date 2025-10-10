@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 
 class NSFWDetectionService
 {
@@ -12,7 +13,7 @@ class NSFWDetectionService
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.api_key');
+        $this->apiKey = Config::get('app.open_api_key');
         $this->apiUrl = 'https://api.openai.com/v1/moderations';
     }
 
