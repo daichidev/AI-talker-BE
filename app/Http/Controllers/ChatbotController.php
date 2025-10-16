@@ -55,6 +55,34 @@ class ChatbotController extends Controller
         ]);
     }
 
+    public function chatVenice(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'message' => 'required|string',
+        ]);
+
+        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+
+        $responseData = $this->openAIService->chatVenice($request->message, $request->user_id, $tableName);
+        
+        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+
+        \Log::info("-------------------------");
+        \Log::info($responseData);
+        \Log::info("-------------------------");
+        
+        // DB::table($tableName)->insert([
+        //     'question' => $request->message,
+        //     'answer' => $responseContent,
+        // ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $responseContent
+        ]);
+    }
+
     public function chatWithFriend(Request $request)
     {
         $request->validate([

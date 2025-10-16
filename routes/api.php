@@ -49,6 +49,7 @@ Route::get('/personality-test/{id}', [UserController::class, 'getPersonalityTest
 Route::post('/handle-invite', [UserController::class, 'handleInvite']);
 
 Route::post('/chat', [ChatbotController::class, 'chat']);
+Route::post('/chat-venice', [ChatbotController::class, 'chatVenice']);
 Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
