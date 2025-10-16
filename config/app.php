@@ -230,6 +230,7 @@ return [
     ],
 
     'open_api_key' => env('OPENAI_API_KEY'),
+    'venice_api_key' => env('VENICE_API_KEY'),
     'gemini_api_key' => env('GEMINI_API_KEY'),
 
     'deep_image_api_key' => env('DEEP_IMAGE_API_KEY'),
