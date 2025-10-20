@@ -704,4 +704,48 @@ class UserController extends Controller
     
         return response()->json(['success' => true, 'message' => '招待を受け入れました。']);
     }
+
+    public function useTrialBoostMode(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if ($user->is_trial_used) {
+            return response()->json([
+                'success' => false,
+                'message' => '既に無料トライアルのブーストモードを使用しています。'
+            ]);
+        }
+
+        $user->boost_mode = 10;
+        $user->is_trial_used = true;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => '無料トライアルのブーストモードを使用しました。',
+            'new_boost_mode' => $user->boost_mode
+        ]);
+    }
+
+    public function purchaseBoostMode(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'boost_count' => 'required|integer|min:1'
+        ]);
+
+        $user = User::find($request->user_id);
+        $user->boost_mode = $user->boost_mode + $request->boost_count;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ブーストモードを購入しました。',
+            'new_boost_mode' => $user->boost_mode
+        ]);
+    }
 }

@@ -23,6 +23,8 @@ class CreateUsersTable extends Migration
             $table->string('fcm_device_token')->unique();
             $table->string('face_photo');
             $table->integer('anketo_status')->default(0);
+            $table->integer('boost_mode')->default(0);
+            $table->boolean('is_trial_used')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

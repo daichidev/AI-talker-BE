@@ -84,3 +84,6 @@ Route::get('/get-announcements', [AnnouncementController::class, 'getAnnouncemen
 Route::get('/get-mbti-questions', [PersonalityJudgmentController::class, 'fetchMBTIQuestions']);
 
 Route::apiResource('personality-assessments', PersonalityAssessmentController::class);
+
+Route::post('/purchase-boost', [UserController::class, 'purchaseBoostMode']);
+Route::post('/use-trial-boost', [UserController::class, 'useTrialBoostMode']);

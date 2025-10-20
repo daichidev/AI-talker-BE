@@ -11,6 +11,8 @@ use App\Services\NSFWDetectionService;
 use App\Services\OpenAIService;
 use App\Services\GeminiService;
 
+use App\Models\User;
+
 use Carbon\Carbon;
 
 class ChatbotController extends Controller
@@ -35,24 +37,47 @@ class ChatbotController extends Controller
 
         // Check if the message is NSFW
         $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+        $requestingUser = User::find($request->user_id);
+        if ($isNSFW && $requestingUser->boost_mode > 0) {
+            $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+            $responseData = $this->openAIService->chatVenice($request->message, $request->user_id, $tableName);
+            $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+            \Log::info("-------------------------");
+            \Log::info($responseData);
+            \Log::info("-------------------------");
+            DB::table($tableName)->insert([
+                'question' => $request->message,
+                'answer' => $responseContent,
+                'is_nsfw' => false
+            ]);
+            $requestingUser->boost_mode = $requestingUser->boost_mode - 1;
+            $requestingUser->save();
+            return response()->json([
+                'success' => true,
+                'message' => $responseContent,
+                'is_nsfw' => false
+            ]);
+        } else {
+            $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
 
-        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+            $responseData = $this->openAIService->chat($request->user_id, $tableName, $request->message);
+            
+            // Check if the response is also NSFW
+            $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+            
+            DB::table($tableName)->insert([
+                'question' => $request->message,
+                'answer' => $responseContent,
+                'is_nsfw' => $isNSFW
+            ]);
 
-        $responseData = $this->openAIService->chat($request->user_id, $tableName, $request->message);
-        
-        // Check if the response is also NSFW
-        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
-        
-        DB::table($tableName)->insert([
-            'question' => $request->message,
-            'answer' => $responseContent,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => $responseContent,
-            'is_nsfw' => $isNSFW
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => $responseContent,
+                'is_trial_used' => $requestingUser->is_trial_used,
+                'is_nsfw' => $isNSFW
+            ]);
+        }
     }
 
     public function chatVenice(Request $request)
