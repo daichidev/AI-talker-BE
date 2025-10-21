@@ -42,6 +42,7 @@ class ChatbotController extends Controller
             $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
             $responseData = $this->openAIService->chatVenice($request->message, $request->user_id, $tableName);
             $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+            
             \Log::info("-------------------------");
             \Log::info($responseData);
             \Log::info("-------------------------");
@@ -65,6 +66,16 @@ class ChatbotController extends Controller
             // Check if the response is also NSFW
             $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
             
+            if ($responseContent === 'false' && $requestingUser->boost_mode > 0) {
+                $isNSFW = false;
+                $responseData = $this->openAIService->chatVenice($request->message, $request->user_id, $tableName);
+                $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
+                $requestingUser->boost_mode = $requestingUser->boost_mode - 1;
+                $requestingUser->save();
+            } else if ($responseContent === 'false' && $requestingUser->boost_mode <= 0) {
+                $isNSFW = true;
+                $responseContent = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+            }
             DB::table($tableName)->insert([
                 'question' => $request->message,
                 'answer' => $responseContent,
@@ -75,7 +86,7 @@ class ChatbotController extends Controller
                 'success' => true,
                 'message' => $responseContent,
                 'is_trial_used' => $requestingUser->is_trial_used,
-                'is_nsfw' => $isNSFW
+                'is_nsfw' => ($isNSFW && $responseContent !== 'false') ? true : false
             ]);
         }
     }
