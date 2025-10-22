@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Services\ChatLogService;
 use App\Services\FriendChatLogService;
 use App\Services\NSFWDetectionService;
@@ -147,6 +148,7 @@ class ChatbotController extends Controller
             $isNSFW = (int) $isNSFWRequest;
         }
 
+        \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
         $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $now);
 
         return response()->json([
@@ -214,6 +216,9 @@ class ChatbotController extends Controller
      */
     private function insertLog(string $tableName, string $question, string $answer, bool $isNSFW, Carbon $now): void
     {
+        if (!Schema::hasColumn($tableName, 'is_nsfw')) {
+            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
+        }
         DB::table($tableName)->insert([
             'question'   => $question,
             'answer'     => $answer,
