@@ -45,6 +45,9 @@ class ChatbotController extends Controller
 
         $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(ChatLogService::class)->ensureUserTableExists($userId);
+        if (!Schema::hasColumn($tableName, 'is_nsfw')) {
+            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
+        }
         $now = Carbon::now();
 
         // 1) NSFW要求 + ブーストあり → Venice
@@ -113,6 +116,9 @@ class ChatbotController extends Controller
         $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(FriendChatLogService::class)->ensureUserTableExists($userId, $friendId); // ← 友達用を常に使用
         $now = Carbon::now();
+        if (!Schema::hasColumn($tableName, 'is_nsfw')) {
+            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
+        }
 
         // 1) NSFW要求 + ブーストあり → Venice Friend
         if ($isNSFWRequest && $user->boost_mode > 0) {
@@ -216,9 +222,6 @@ class ChatbotController extends Controller
      */
     private function insertLog(string $tableName, string $question, string $answer, bool $isNSFW, Carbon $now): void
     {
-        if (!Schema::hasColumn($tableName, 'is_nsfw')) {
-            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
-        }
         DB::table($tableName)->insert([
             'question'   => $question,
             'answer'     => $answer,
