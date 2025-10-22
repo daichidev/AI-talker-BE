@@ -1,30 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 use App\Services\ChatLogService;
 use App\Services\FriendChatLogService;
 use App\Services\NSFWDetectionService;
-
 use App\Services\OpenAIService;
 use App\Services\GeminiService;
-
+use App\Models\User;
 use Carbon\Carbon;
 
 class ChatbotController extends Controller
 {
-    protected $openAIService;
-    protected $geminiService;
-    protected $nsfwDetectionService;
+    public function __construct(
+        private OpenAIService $openAIService,
+        private GeminiService $geminiService,
+        private NSFWDetectionService $nsfwDetectionService
+    ) {}
 
-    public function __construct(OpenAIService $openAIService, GeminiService $geminiService, NSFWDetectionService $nsfwDetectionService)
-    {
-        $this->openAIService = $openAIService;
-        $this->geminiService = $geminiService;
-        $this->nsfwDetectionService = $nsfwDetectionService;
-    }
+    /* =========================
+     * Public endpoints
+     * ========================= */
 
     public function chat(Request $request)
     {
@@ -33,88 +33,128 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Check if the message is NSFW
-        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+        $userId  = (int) $request->input('user_id');
+        $message = (string) $request->input('message');
 
-        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+        /** @var User|null $user */
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
 
-        $responseData = $this->openAIService->chat($request->user_id, $tableName, $request->message);
-        
-        // Check if the response is also NSFW
-        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
-        
-        DB::table($tableName)->insert([
-            'question' => $request->message,
-            'answer' => $responseContent,
-        ]);
+        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        $tableName = app(ChatLogService::class)->ensureUserTableExists($userId);
+        $now = Carbon::now();
+
+        // 1) NSFW要求 + ブーストあり → Venice
+        if ($isNSFWRequest && $user->boost_mode > 0) {
+            $data = $this->openAIService->chatVenice($message, $userId, $tableName);
+            $content = $this->extractContent($data);
+
+            $this->insertLog($tableName, $message, $content, false, $now);
+            $this->consumeBoost($user);
+
+            return response()->json([
+                'success' => true,
+                'message' => $content,
+                'is_nsfw' => false,
+            ]);
+        }
+
+        // 2) 通常 → OpenAI
+        $data = $this->openAIService->chat($userId, $tableName, $message);
+        $content = $this->extractContent($data);
+
+        // OpenAI から「false」→ NSFW疑い
+        if ($content === 'false') {
+            if ($user->boost_mode > 0) {
+                // Venice にフォールバック
+                $data = $this->openAIService->chatVenice($message, $userId, $tableName);
+                $content = $this->extractContent($data);
+                $this->consumeBoost($user);
+                $isNSFW = 0;
+            } else {
+                $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+                $isNSFW = 1;
+            }
+        } else {
+            $isNSFW = (int) $isNSFWRequest;
+        }
+
+        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $now);
 
         return response()->json([
-            'success' => true,
-            'message' => $responseContent,
-            'is_nsfw' => $isNSFW
-        ]);
-    }
-
-    public function chatVenice(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|integer',
-            'message' => 'required|string',
-        ]);
-
-        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
-
-        $responseData = $this->openAIService->chatVenice($request->message, $request->user_id, $tableName);
-        
-        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
-
-        \Log::info("-------------------------");
-        \Log::info($responseData);
-        \Log::info("-------------------------");
-        
-        // DB::table($tableName)->insert([
-        //     'question' => $request->message,
-        //     'answer' => $responseContent,
-        // ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => $responseContent
+            'success'       => true,
+            'message'       => $content,
+            'is_trial_used' => (bool) $user->is_trial_used,
+            'is_nsfw'       => (bool) $isNSFW,
         ]);
     }
 
     public function chatWithFriend(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
+            'user_id'        => 'required|integer',
             'friend_user_id' => 'required|integer',
-            'message' => 'required|string',
+            'message'        => 'required|string',
         ]);
 
-        // Check if the message is NSFW
-        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+        $userId   = (int) $request->input('user_id');
+        $friendId = (int) $request->input('friend_user_id');
+        $message  = (string) $request->input('message');
 
-        $tableName = app(FriendChatLogService::class)->ensureUserTableExists($request->user_id, $request->friend_user_id);
+        /** @var User|null $user */
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
 
-        $responseData = $this->openAIService->chatWithFriend($request->user_id, $request->friend_user_id, $tableName, $request->message);
-
-        // Check if the response is also NSFW
-        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
-
+        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        $tableName = app(FriendChatLogService::class)->ensureUserTableExists($userId, $friendId); // ← 友達用を常に使用
         $now = Carbon::now();
-        
-        DB::table($tableName)->insert([
-            'question' => $request->message,
-            'answer' => $responseContent,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+
+        // 1) NSFW要求 + ブーストあり → Venice Friend
+        if ($isNSFWRequest && $user->boost_mode > 0) {
+            $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
+            $content = $this->extractContent($data);
+
+            $this->insertLog($tableName, $message, $content, false, $now);
+            $this->consumeBoost($user);
+
+            return response()->json([
+                'success' => true,
+                'message' => $content,
+                'time'    => $now->format('Y-m-d H:i:s'),
+                'is_nsfw' => false,
+            ]);
+        }
+
+        // 2) 通常 → OpenAI Friend
+        $data = $this->openAIService->chatWithFriend($userId, $friendId, $tableName, $message);
+        $content = $this->extractContent($data);
+
+        if ($content === 'false') {
+            if ($user->boost_mode > 0) {
+                $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
+                $content = $this->extractContent($data);
+                $this->consumeBoost($user);
+                $isNSFW = 0;
+            } else {
+                $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+                $isNSFW = 1;
+            }
+        } else {
+            $isNSFW = (int) $isNSFWRequest;
+        }
+
+        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $now);
 
         return response()->json([
             'success' => true,
-            'message' => $responseContent,
-            'time' => $now->format('Y-m-d H:i:s'),
-            'is_nsfw' => $isNSFW
+            'message' => $content,
+            'time'    => $now->format('Y-m-d H:i:s'),
+            'is_trial_used' => (bool) $user->is_trial_used,
+            'is_nsfw' => (bool) $isNSFW,
         ]);
     }
 
@@ -125,27 +165,70 @@ class ChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Check if the message is NSFW
-        $isNSFW = $this->nsfwDetectionService->detectNSFW($request->message);
+        $userId  = (int) $request->input('user_id');
+        $message = (string) $request->input('message');
 
-        $tableName = app(ChatLogService::class)->ensureUserTableExists($request->user_id);
+        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        $tableName = app(ChatLogService::class)->ensureUserTableExists($userId);
+        $now = Carbon::now();
 
-        $responseData = $this->geminiService->chat($request->user_id, $request->message);     
+        $data = $this->geminiService->chat($userId, $message);
+        $content = $this->extractContent($data);
 
-        // Check if the response is also NSFW
-        $responseContent = $responseData['choices'][0]['message']['content'] ?? '';
-
-         DB::table($tableName)->insert([
-            'question' => $request->message,
-            'answer' => $responseContent,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
+        $this->insertLog($tableName, $message, $content, $isNSFWRequest, $now);
 
         return response()->json([
             'success' => true,
-            'message' => $responseContent,
-            'is_nsfw' => $isNSFW
+            'message' => $content,
+            'is_nsfw' => $isNSFWRequest,
         ]);
+    }
+
+    /* =========================
+     * Helpers
+     * ========================= */
+
+    /**
+     * LLMレスポンスから content を安全に取り出す
+     */
+    private function extractContent(array $response): string
+    {
+        // 失敗時はdetailやmessageを返す
+        $content = $response['choices'][0]['message']['content'] ?? null;
+        if (is_string($content) && $content !== '') {
+            return $content;
+        }
+
+        if (!empty($response['error'])) {
+            $fallback = $response['detail'] ?? $response['message'] ?? null;
+            if (is_string($fallback) && $fallback !== '') {
+                return "エラーが発生しました：{$fallback}";
+            }
+        }
+
+        return 'すみません、うまく答えが作れませんでした。もう一度質問してください。';
+    }
+
+    /**
+     * チャットログを保存
+     */
+    private function insertLog(string $tableName, string $question, string $answer, bool $isNSFW, Carbon $now): void
+    {
+        DB::table($tableName)->insert([
+            'question'   => $question,
+            'answer'     => $answer,
+            'is_nsfw'    => $isNSFW,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    /**
+     * ブーストを1消費（下限0）
+     */
+    private function consumeBoost(User $user): void
+    {
+        $user->boost_mode = max(0, (int)$user->boost_mode - 1);
+        $user->save();
     }
 }

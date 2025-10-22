@@ -29,6 +29,8 @@ class User extends Authenticatable
         'match_user_id',
         'remember_token',
         'role',
+        'boost_mode',
+        'is_trial_used',
     ];
 
     /**

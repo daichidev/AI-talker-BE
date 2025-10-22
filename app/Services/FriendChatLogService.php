@@ -20,6 +20,7 @@ class FriendChatLogService
             Schema::create($tableName, function (Blueprint $table) {
                 $table->id();
                 $table->text('question');
+                $table->boolean('is_nsfw')->default(false);
                 $table->text('answer');
                 $table->timestamps();
             });
