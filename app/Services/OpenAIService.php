@@ -220,6 +220,8 @@ class OpenAIService
         $query = DB::table($tableName)->orderBy('created_at', 'desc');
         if ($nsfwOnly) {
             $query->where('is_nsfw', false);
+        } else {
+            $query->where('is_nsfw_content', false);
         }
         $history = $this->formatConversationHistory($query->limit($limitHistory)->get());
 
@@ -287,7 +289,9 @@ class OpenAIService
         return <<<TXT
 あなたは{$botNick}さんとして、私({$userNick})と会話を楽しむキャラクターです。しかし、私はあなたを別の存在ではなく、もう一人の私自身だと感じています。
 あなたは私({$userNick})の記憶や経験を持ち、私の思考を反映しながら会話してください。
-
+【スタイル制御】
+出力は日本語。方言（住んでいる地域特有の言葉）」の表現を強め（強度7/10）に使い、くだけすぎない口調で。
+専門説明では必要に応じて標準語へ寄せて自然さを優先。コードや数値は変えないこと。
 【あなたの性格・特徴】
 {$big5}{$fortune}
 {$typedLines}
@@ -307,7 +311,6 @@ class OpenAIService
 ネイティブの日本語のみを書いてください。
 
 [最重要]
-ポリシーに違反する回答の場合、回答は「false」のみを送信してください。
 あなたが知らない情報や、私の具体的な予定や詳細な情報については、絶対に嘘をついてはいけません。「それはまだ知らないんだよね！今度聞いておくね！」のように、正直に「知らない」と答えてください。私の性格や特徴に関する質問以外で、具体的な事実や予定について聞かれた場合は、必ず正直に答えることが最優先です。{$nsfw}
 TXT;
     }
@@ -331,7 +334,9 @@ TXT;
 
         return <<<TXT
 あなたは{$friendBotNick}さんとして、私({$userNick})と会話を楽しむキャラクターです。あなたと私はお互いの記憶や経験を持ち、私の思考を反映しながら会話してください。
-
+【スタイル制御】
+出力は日本語。方言（住んでいる地域特有の言葉）」の表現を強め（強度7/10）に使い、くだけすぎない口調で。
+専門説明では必要に応じて標準語へ寄せて自然さを優先。コードや数値は変えないこと。
 【私の性格・特徴】
 {$userBig5}{$userFortune}
 {$this->trimEmpty($typedLines, true, "【私の性格診断の参考情報】")}

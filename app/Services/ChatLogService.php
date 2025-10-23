@@ -22,6 +22,7 @@ class ChatLogService
                 $table->text('question');
                 $table->text('answer');
                 $table->boolean('is_nsfw')->default(false);
+                $table->boolean('is_nsfw_content')->default(false);
                 $table->timestamps();
             });
         }

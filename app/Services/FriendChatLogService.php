@@ -21,6 +21,7 @@ class FriendChatLogService
                 $table->id();
                 $table->text('question');
                 $table->boolean('is_nsfw')->default(false);
+                $table->boolean('is_nsfw_content')->default(false);
                 $table->text('answer');
                 $table->timestamps();
             });

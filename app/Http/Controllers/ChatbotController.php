@@ -42,11 +42,14 @@ class ChatbotController extends Controller
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
-
+        $isVenice = false;
         $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(ChatLogService::class)->ensureUserTableExists($userId);
         if (!Schema::hasColumn($tableName, 'is_nsfw')) {
             DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
+        }
+        if (!Schema::hasColumn($tableName, 'is_nsfw_content')) {
+            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw_content BOOLEAN DEFAULT FALSE");
         }
         $now = Carbon::now();
 
@@ -55,7 +58,7 @@ class ChatbotController extends Controller
             $data = $this->openAIService->chatVenice($message, $userId, $tableName);
             $content = $this->extractContent($data);
 
-            $this->insertLog($tableName, $message, $content, false, $now);
+            $this->insertLog($tableName, $message, $content, false, true, $now);
             $this->consumeBoost($user);
 
             return response()->json([
@@ -77,6 +80,7 @@ class ChatbotController extends Controller
                 $content = $this->extractContent($data);
                 $this->consumeBoost($user);
                 $isNSFW = 0;
+                $isVenice = true;
             } else {
                 $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
                 $isNSFW = 1;
@@ -85,7 +89,7 @@ class ChatbotController extends Controller
             $isNSFW = (int) $isNSFWRequest;
         }
 
-        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $now);
+        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
 
         return response()->json([
             'success'       => true,
@@ -106,7 +110,7 @@ class ChatbotController extends Controller
         $userId   = (int) $request->input('user_id');
         $friendId = (int) $request->input('friend_user_id');
         $message  = (string) $request->input('message');
-
+        $isVenice = false;
         /** @var User|null $user */
         $user = User::find($userId);
         if (!$user) {
@@ -119,13 +123,16 @@ class ChatbotController extends Controller
         if (!Schema::hasColumn($tableName, 'is_nsfw')) {
             DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
         }
+        if (!Schema::hasColumn($tableName, 'is_nsfw_content')) {
+            DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw_content BOOLEAN DEFAULT FALSE");
+        }
 
         // 1) NSFW要求 + ブーストあり → Venice Friend
         if ($isNSFWRequest && $user->boost_mode > 0) {
             $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
             $content = $this->extractContent($data);
 
-            $this->insertLog($tableName, $message, $content, false, $now);
+            $this->insertLog($tableName, $message, $content, false, true, $now);
             $this->consumeBoost($user);
 
             return response()->json([
@@ -142,6 +149,7 @@ class ChatbotController extends Controller
 
         if ($content === 'false') {
             if ($user->boost_mode > 0) {
+                $isVenice = true;
                 $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
                 $content = $this->extractContent($data);
                 $this->consumeBoost($user);
@@ -155,7 +163,7 @@ class ChatbotController extends Controller
         }
 
         \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
-        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $now);
+        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
 
         return response()->json([
             'success' => true,
@@ -220,12 +228,13 @@ class ChatbotController extends Controller
     /**
      * チャットログを保存
      */
-    private function insertLog(string $tableName, string $question, string $answer, bool $isNSFW, Carbon $now): void
+    private function insertLog(string $tableName, string $question, string $answer, bool $isNSFW, bool $isNSFWContent, Carbon $now): void
     {
         DB::table($tableName)->insert([
             'question'   => $question,
             'answer'     => $answer,
             'is_nsfw'    => $isNSFW,
+            'is_nsfw_content'    => $isNSFWContent,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
