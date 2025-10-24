@@ -23,6 +23,7 @@ class AiMatchingController extends Controller
         $request->validate([
             'user_id' => 'required|integer',
             'name' => 'nullable|string',
+            'aiName' => 'nullable|string',
             'min_age' => 'nullable|integer',
             'max_age' => 'nullable|integer',
             'gender' => 'nullable|boolean',
@@ -36,7 +37,14 @@ class AiMatchingController extends Controller
         // 名前ィルター
         if ($request->filled('name')) {
             $query->whereHas('profile', function ($profileQuery) use ($request) {
-                $profileQuery->where('bot_nickname', 'LIKE', '%' . $request->name . '%');
+                $profileQuery->where('name', 'LIKE', '%' . $request->name . '%');
+            });
+        }
+
+        // AI名前フィルター
+        if ($request->filled('aiName')) {
+            $query->whereHas('profile', function ($profileQuery) use ($request) {
+                $profileQuery->where('bot_nickname', 'LIKE', '%' . $request->aiName . '%');
             });
         }
 
