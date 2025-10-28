@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('search_show_status')->default(true)->after('filter_status');
+            $table->boolean('search_show_status')->default(false)->after('filter_status');
         });
     }
 
