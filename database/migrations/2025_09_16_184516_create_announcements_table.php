@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->enum('status', ['draft','published','archived'])->default('published');
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->integer('created_by');
             $table->string('image_url', 500)->nullable();
             $table->boolean('send_push')->default(false);
             $table->timestamps();
