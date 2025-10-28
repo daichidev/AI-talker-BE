@@ -21,7 +21,7 @@ class ProfileController extends Controller
         if (!$profile) {
             return response()->json([
                 'success' => false,
-                'search_show_status' => false,
+                'search_show_status' => 0,
                 'data' => 'Profile not found'
             ]);
         }
