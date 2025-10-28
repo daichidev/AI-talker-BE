@@ -151,7 +151,9 @@ class UserController extends Controller
             'password' => 'required'
         ]);
         $user = User::where('email', $request->email)->first();
-
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['success' => false, 'message' => '登録されたユーザーがいません。']);
+        }
         $today = Carbon::today();
         $firstLoginToday = $user->first_login_datetime_on_today ? Carbon::parse($user->first_login_datetime_on_today)->isSameDay($today) : false;
         
