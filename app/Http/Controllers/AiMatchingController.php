@@ -139,6 +139,7 @@ class AiMatchingController extends Controller
             return [
                 'id' => $user->id,
                 'name' => $profile['bot_nickname'] ?? '',
+                'comment' => $profile['comment'] ?? '',
                 'avatar' => $avatar?->avatar_link,
                 'last_message' => $chatLogs->count() > 0 ? $chatLogs->first()->answer : null,
                 'time' => $timeDisplay,
