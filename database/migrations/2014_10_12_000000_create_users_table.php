@@ -25,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->integer('anketo_status')->default(0);
             $table->integer('boost_mode')->default(0);
             $table->boolean('is_trial_used')->default(false);
+            $table->string('comment')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

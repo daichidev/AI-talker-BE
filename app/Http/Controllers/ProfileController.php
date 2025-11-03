@@ -57,6 +57,7 @@ class ProfileController extends Controller
             'dream' => 'nullable|string',
             'animal_fortune_telling_result' => 'nullable|string',
             'description' => 'nullable|string',
+            'comment' => 'nullable|string',
             'search_show_status' => 'nullable'
         ]);
 
