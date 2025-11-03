@@ -35,6 +35,7 @@ return new class extends Migration
             $table->text('dream')->nullable();
             $table->text('animal_fortune_telling_result')->nullable();
             $table->text('description')->nullable();
+            $table->string('comment')->nullable();
 
             $table->timestamps();
         });

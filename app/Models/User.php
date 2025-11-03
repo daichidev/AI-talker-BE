@@ -31,7 +31,6 @@ class User extends Authenticatable
         'role',
         'boost_mode',
         'is_trial_used',
-        'comment',
     ];
 
     /**

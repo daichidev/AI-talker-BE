@@ -30,7 +30,8 @@ class Profile extends Model
         'special_skills',
         'dream',
         'animal_fortune_telling_result',
-        'description'
+        'description',
+        'comment',
     ];
 
     public function user()
