@@ -17,16 +17,15 @@ class ProfileController extends Controller
     public function show($userId)
     {
         $profile = Profile::where('user_id', $userId)->first();
+        $user = User::find($userId);
 
         if (!$profile) {
             return response()->json([
                 'success' => false,
-                'search_show_status' => 0,
+                'search_show_status' => $user->search_show_status,
                 'data' => 'Profile not found'
             ]);
         }
-
-        $user = User::find($userId);
         return response()->json([
             'success' => true,
             'data' => $profile,
