@@ -36,6 +36,7 @@ return new class extends Migration
             $table->text('animal_fortune_telling_result')->nullable();
             $table->text('description')->nullable();
             $table->string('comment')->nullable();
+            $table->string('dialect')->nullable();
 
             $table->timestamps();
         });

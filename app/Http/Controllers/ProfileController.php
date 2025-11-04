@@ -58,6 +58,7 @@ class ProfileController extends Controller
             'animal_fortune_telling_result' => 'nullable|string',
             'description' => 'nullable|string',
             'comment' => 'nullable|string',
+            'dialect' => 'nullable|string',
             'search_show_status' => 'nullable'
         ]);
 
