@@ -215,7 +215,7 @@ class OpenAIService
             ->get(['personality_type', 'result'])
             ->pluck('result', 'personality_type')
             ->toArray();
-        $parlance = "\n[AIの性格と話す方法は以下の性格を模倣し、会話することになります。]\n" . ($prof['description'] ? $prof['description'] : $ank['animal_fortune_telling']);
+        $parlance = "\n「AIの性格と話す方法」->" . ($prof['description'] ? $prof['description'] : $ank['animal_fortune_telling']);
         $big5    = $this->formatBig5($ptest?->mean_values_array);
         $fortune = $this->formatAnimalFortune(
             $ank['animal_fortune_telling'] ?? null,
@@ -272,7 +272,7 @@ class OpenAIService
             ($friendFilter['animal_fortune_telling_result'] ?? false) ? ($ank['animal_fortune_telling_characteristics'] ?? null) : null,
             requireName: (bool) ($friendFilter['animal_fortune_telling_result'] ?? false)
         );
-        $parlance = "\n[AIの性格と話す方法は以下の性格を模倣し、会話することになります。]\n" . ($prof['description'] ? $prof['description'] : $ank['animal_fortune_telling']);
+        $parlance = "\n「AIの性格と話す方法」->" . ($prof['description'] ? $prof['description'] : $ank['animal_fortune_telling']);
 
         $friendInfo = $this->formatFriendInfoByFilter($ank, $prof, $friendFilter);
         $friendDesc = ($friendFilter['description'] ?? false) ? (string) ($prof->description ?? '') : '';
