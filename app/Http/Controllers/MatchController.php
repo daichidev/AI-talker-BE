@@ -305,6 +305,10 @@ class MatchController extends Controller
             $tokens = $raw['enneagram'];
         }
         return [
+            'id' => $raw['id'] ?? null,
+            'name' => $raw['name'] ?? null,
+            'gender' => $raw['gender'] ?? null,
+            'avatar' => $raw['avatar'] ?? null,
             'mbti' => isset($raw['MBTI']) ? strtoupper((string)$raw['MBTI']) : (isset($raw['mbti']) ? strtoupper((string)$raw['mbti']) : null),
             'enneagram' => $tokens ? self::enneagramNameToNum($tokens[0]) : (isset($raw['enneagram']) && is_numeric($raw['enneagram']) ? (int)$raw['enneagram'] : null),
             'disc' => isset($raw['disc']) && is_array($raw['disc']) ? self::discVectorToLetter($raw['disc']) : (isset($raw['disc']) ? $raw['disc'] : null),
@@ -686,10 +690,10 @@ class MatchController extends Controller
             $B = self::normalizeUser((array)$p);
             $res = self::matchTwo($you, $B);
             $out[] = [
-                'profile' => $B,
+                'age' => $B,
                 'score' => $res['score'],
-                'breakdown' => $res['breakdown'],
-                'reasons' => $res['reasons'],
+                // 'breakdown' => $res['breakdown'],
+                // 'reasons' => $res['reasons'],
             ];
         }
 
