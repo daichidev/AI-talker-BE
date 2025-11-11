@@ -575,7 +575,7 @@ class MatchController extends Controller
             ->pluck('result', 'personality_type')
             ->groupBy('user_id')
             ->toArray();
-        return $userIds;
+        return $users;
         $candidates = [];
 
         foreach ($users as $u) {
