@@ -694,7 +694,11 @@ class MatchController extends Controller
             $B = self::normalizeUser((array)$p);
             $res = self::matchTwo($you, $B);
             $out[] = [
-                'age' => $B,
+                'age' => $B['age'],
+                'gender' => $B['gender'],
+                'name' => $B['name'],
+                'avatar' => $B['avatar'],
+                'id' => $B['id'], 
                 'score' => $res['score'],
                 // 'breakdown' => $res['breakdown'],
                 // 'reasons' => $res['reasons'],
@@ -702,6 +706,6 @@ class MatchController extends Controller
         }
 
         usort($out, fn($a, $b) => $b['score'] <=> $a['score']);
-        return response()->json(['you' => $you, 'results' => $out]);
+        return response()->json(['results' => $out]);
     }
 }
