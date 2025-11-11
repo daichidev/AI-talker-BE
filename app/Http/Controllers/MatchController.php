@@ -547,7 +547,7 @@ class MatchController extends Controller
     function getCandidateProfiles(int $userId, int $limit = 50, array $filters = []): array
     {
         // 取得クエリ（必要に応じて where 条件を追加）
-        $query = User::with(['anketos', 'profile', 'personalityTest', 'personalityAssessments'])
+        $query = User::with(['anketos', 'profile', 'personalityTest'])
             ->where('id', '!=', $userId);
         // 例: 性別フィルタ（profile.gender or anketo.gender）
         if (!empty($filters['gender'])) {
