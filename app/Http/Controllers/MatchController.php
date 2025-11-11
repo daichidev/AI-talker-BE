@@ -564,8 +564,8 @@ class MatchController extends Controller
         }
 
         $users = $query
-            ->inRandomOrder()  // ランダムなら
-            ->limit($limit)
+            // ->inRandomOrder()  // ランダムなら
+            // ->limit($limit)
             ->get();
 
         $userIds = $users->pluck('id')->toArray();
