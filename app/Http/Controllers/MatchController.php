@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class MatchController extends Controller
 {
@@ -453,7 +454,7 @@ class MatchController extends Controller
         ]);
         $userId = $req->user_id;
         $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
-        $personality_assessments = User::join('personality_assessments', 'users.id', '=', 'personality_assessments.user_id')
+        $personality_assessments = DB::table('users')->join('personality_assessments', 'users.id', '=', 'personality_assessments.user_id')
             ->select('personality_assessments.user_id, personality_assessments.personality_type, personality_assessments.result')
             ->find($userId);
         $user_data = [
