@@ -89,11 +89,7 @@ class ProfileController extends Controller
         $user = User::find($userId);
         $user->search_show_status = $validated['search_show_status'];
 
-        return response()->json([
-            'success' => true,
-            'data' => $validated['address']
-        ]);
-        if ($validated['address']) {
+        if (array_key_exists('address', $validated)) {
             $location = $this->geocodeNominatim($validated['address']);
             $user->location = $location;
         }
