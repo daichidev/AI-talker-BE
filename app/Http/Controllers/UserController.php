@@ -215,12 +215,35 @@ class UserController extends Controller
         $location = $this->geocodeNominatim($user->profile->address ?? $user->anketos->address);
         $user->location = $location;
         $user->save();
+        $this->updateLocations();
         return response()->json([
             'success' => true,
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
         ]);
+    }
+    public function updateLocations()
+    {
+        $users = User::with(['profile', 'anketos'])->get();
+
+        foreach ($users as $user) {
+            $address = $user->profile->address ?? $user->anketos->address ?? null;
+
+            if (!$address) {
+                continue;
+            }
+
+            $coords = $this->geocodeNominatim($address);
+
+            if (!$coords) {
+                continue;
+            }
+
+            // ✅ Save lat/lng into profile table (recommended)
+            $user->location = $coords;
+            $user->save();
+        }
     }
 
     public function storeAnketo(Request $request) {
