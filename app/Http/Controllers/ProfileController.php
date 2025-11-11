@@ -97,7 +97,6 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => true,
-            'location' => $location,
             'data' => $profile
         ]);
     }
