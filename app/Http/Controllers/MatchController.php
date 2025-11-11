@@ -552,7 +552,7 @@ class MatchController extends Controller
     function getCandidateProfiles(int $userId, array $filters = []): array
     {
         // 取得クエリ（必要に応じて where 条件を追加）
-        $query = User::with(['anketos', 'profile', 'personalityTest'])
+        $query = User::with(['anketos', 'profile', 'personalityTest', 'avatars'])
             ->where('id', '!=', $userId);
         // 例: 性別フィルタ（profile.gender or anketo.gender）
         if (!empty($filters['gender'])) {
@@ -614,7 +614,8 @@ class MatchController extends Controller
                 // スコアリング側で使い回しやすいよう、IDなども載せておくと便利
                 'id'    => $u->id,
                 'name'  => $u->name ?? null,
-
+                'avatar' => $u->avatars->avatar_link ?? null,
+                'gender' => $u->profile->gender ?? ($u->anketos->gender ?? null),
                 'animal' => $u->anketos->animal_fortune_telling ?? null,
                 'job'    => $u->anketos->job ?? ($u->profile->job ?? null),
                 'hobbies' => $hobbies,
@@ -661,13 +662,16 @@ class MatchController extends Controller
             'user_id' => 'required|integer',
         ]);
         $userId = $req->user_id;
-        $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
+        $user = User::with(['anketos', 'profile', 'personalityTest', 'avatars'])->find($userId);
 
         $personalities = PersonalityAssessment::where('user_id', $userId)
             ->get(['personality_type', 'result'])
             ->pluck('result', 'personality_type')
             ->toArray();
         $youRaw = [
+            'id' => $user->id,
+            'name' => $user->name ?? null,
+            'avatar' => $user->avatars->avatar_link ?? null,
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
             'hobbies' => explode(', ', $user->profile->hobby ?? $user->anketos->hobby) ?? [],
