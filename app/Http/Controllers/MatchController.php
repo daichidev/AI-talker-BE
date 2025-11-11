@@ -618,7 +618,7 @@ class MatchController extends Controller
 
                 // living_place はそのまま文字列でもOK（距離スコアはlat/lngがあれば有効）
                 // もし住所→座標変換が必要なら、別途ジオコーディングして {lat,lng} を入れてください。
-                'living_place' => $this->geocodeNominatim($u->profile->address ?? ($u->anketos->address ?? null)) ?? [],
+                'living_place' => $this->geocodeNominatim($u->profile->address ?? $u->anketos->address) ?? [],
                 'blood'  => $u->profile->blood_type ?? ($u->anketos->blood_type ?? null),
 
                 // パーソナリティ
