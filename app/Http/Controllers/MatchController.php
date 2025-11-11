@@ -573,7 +573,8 @@ class MatchController extends Controller
         $assessmentsByUser = PersonalityAssessment::whereIn('user_id', $userIds)
             ->get(['user_id','personality_type','result'])
             ->pluck('result', 'personality_type')
-            ->groupBy('user_id');
+            ->groupBy('user_id')
+            ->toArray();
         return $assessmentsByUser;
         $candidates = [];
 
