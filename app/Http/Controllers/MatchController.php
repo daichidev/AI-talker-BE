@@ -453,7 +453,15 @@ class MatchController extends Controller
         ]);
         $userId = $req->user_id;
         $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
-        return response()->json(['user'=>$user]);
+        $user_data = [
+            'animal' => $user->anketos->animal_fortune_telling ?? null,
+            'job' => $user->anketos->job ?? $user->profile->job ?? null,
+            'hobbies' => explode(',', $user->profile->hobbies ?? $user->anketos->hobbies) ?? [],
+            'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
+            'living_place' => $user->profile->address ?? $user->anketos->address ?? null,
+            'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
+        ];
+        return response()->json(['user'=>$user_data]);
 
         $youRaw = (array) $req->input('you', []);
         $candsRaw = (array) $req->input('candidates', []);
