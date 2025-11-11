@@ -465,7 +465,12 @@ class MatchController extends Controller
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
             'living_place' => $user->profile->address ?? $user->anketos->address ?? null,
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
-            'mbti' => $personalities ?? null,
+            'MBTI' => $personalities['MBTI'] ?? null,
+            'enneagram' => $personalities['Enneagram'] ?? null,
+            'disc' => json_decode($personalities['DISC'], true) ?? null,
+            'RIASEC' => json_decode($personalities['RIASEC'], true) ?? null,
+            'socionics' => $personalities['Socionics'] ?? null,
+            'big5' => json_decode($user->personalityTest->mean_values_array, true) ?? null,
         ];
         return response()->json(['user'=>$user_data]);
 
