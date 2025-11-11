@@ -568,20 +568,15 @@ class MatchController extends Controller
             // ->limit($limit)
             ->get();
 
-        $userIds = $users->pluck('id')->toArray();
-        $assessmentsByUser = PersonalityAssessment::whereIn('user_id', $userIds)
-            ->get(['user_id','personality_type','result'])
-            ->pluck('result', 'personality_type')
-            ->groupBy('user_id');
-        var_dump($assessmentsByUser);
-        return $userIds;
         $candidates = [];
 
         foreach ($users as $u) {
             // パーソナリティ結果（タイプ => result の連想配列）
             // モデルに relation: personalityAssessments がある前提
-            $personalities = $assessmentsByUser[$u->id];
-
+            $personalities = PersonalityAssessment::where('user_id', $u->id)
+                ->get(['personality_type', 'result'])
+                ->pluck('result', 'personality_type')
+                ->toArray();
             // DISC / RIASEC は文字列JSON or 配列の両対応
             $discRaw   = $personalities['DISC']   ?? null;
             $riasecRaw = $personalities['RIASEC'] ?? null;
