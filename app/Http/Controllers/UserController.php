@@ -144,12 +144,32 @@ class UserController extends Controller
         $user->save();
     }
 
+    function geocodeNominatim(string $address): ?array
+    {
+        $response = Http::withHeaders([
+            'User-Agent' => 'MYAI'
+        ])->get('https://nominatim.openstreetmap.org/search', [
+            'q' => $address,
+            'format' => 'json',
+            'limit' => 1
+        ]);
+
+        if ($response->failed() || empty($response[0])) {
+            return null;
+        }
+
+        return [
+            'lat' => (float) $response[0]['lat'],
+            'lng' => (float) $response[0]['lon']
+        ];
+    }
     public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
         $user = User::where('email', $request->email)->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['success' => false, 'message' => '登録されたユーザーがいません。']);
@@ -192,12 +212,13 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-
+        $location = $this->geocodeNominatim($user->profile->address ?? $user->anketos->address);
         return response()->json([
             'success' => true,
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
+            'location' => $location,
         ]);
     }
 
