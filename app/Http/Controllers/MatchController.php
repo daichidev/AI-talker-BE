@@ -680,10 +680,10 @@ class MatchController extends Controller
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
             'MBTI' => $personalities['MBTI'] ?? null,
             'enneagram' => $personalities['Enneagram'] ?? null,
-            'disc' => json_decode($personalities['DISC'], true) ?? null,
-            'RIASEC' => json_decode($personalities['RIASEC'], true) ?? null,
+            'disc' => isset($personalities['DISC']) ? json_decode($personalities['DISC'], true) : null,
+            'RIASEC' => isset($personalities['RIASEC']) ? json_decode($personalities['RIASEC'], true) : null,
             'socionics' => $personalities['Socionics'] ?? null,
-            'big5' => json_decode($user->personalityTest->mean_values_array, true) ?? null,
+            'big5' => isset($user->personalityTest->mean_values_array) ? json_decode($user->personalityTest->mean_values_array, true) : null,
             'gender' => $user->profile->gender ?? $user->anketos->gender ?? null,
         ];
         $candsRaw = $this->getCandidateProfiles($userId, ['gender' => $youRaw['gender'] == '男性' ? '女性' : '男性']);
