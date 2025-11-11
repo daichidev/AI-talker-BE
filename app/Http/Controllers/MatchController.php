@@ -618,7 +618,7 @@ class MatchController extends Controller
 
                 // living_place はそのまま文字列でもOK（距離スコアはlat/lngがあれば有効）
                 // もし住所→座標変換が必要なら、別途ジオコーディングして {lat,lng} を入れてください。
-                'living_place' => ($u->profile->address ?? $u->anketos->address) ? $this->geocodeNominatim($u->profile->address ?? $u->anketos->address) : [],
+                'living_place' => $u->location ? json_decode($u->location, true) : [],
                 'blood'  => $u->profile->blood_type ?? ($u->anketos->blood_type ?? null),
 
                 // パーソナリティ
@@ -668,7 +668,7 @@ class MatchController extends Controller
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
             'hobbies' => explode(', ', $user->profile->hobby ?? $user->anketos->hobby) ?? [],
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
-            'living_place' => ($user->profile->address ?? $user->anketos->address) ? $this->geocodeNominatim($user->profile->address ?? $user->anketos->address) : [],
+            'living_place' => $user->location ? json_decode($user->location, true) : [],
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
             'MBTI' => $personalities['MBTI'] ?? null,
             'enneagram' => $personalities['Enneagram'] ?? null,
@@ -695,24 +695,5 @@ class MatchController extends Controller
 
         usort($out, fn($a, $b) => $b['score'] <=> $a['score']);
         return response()->json(['you' => $you, 'results' => $out]);
-    }
-    function geocodeNominatim(string $address): ?array
-    {
-        $response = Http::withHeaders([
-            'User-Agent' => 'YourAppName'
-        ])->get('https://nominatim.openstreetmap.org/search', [
-            'q' => $address,
-            'format' => 'json',
-            'limit' => 1
-        ]);
-
-        if ($response->failed() || empty($response[0])) {
-            return null;
-        }
-
-        return [
-            'lat' => (float) $response[0]['lat'],
-            'lng' => (float) $response[0]['lon']
-        ];
     }
 }
