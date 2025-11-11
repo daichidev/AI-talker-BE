@@ -453,6 +453,7 @@ class MatchController extends Controller
         ]);
         $userId = $req->user_id;
         $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
+        $user = User::with(['personality_assessments'])->find($userId);
         $user_data = [
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
@@ -460,6 +461,7 @@ class MatchController extends Controller
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
             'living_place' => $user->profile->address ?? $user->anketos->address ?? null,
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
+            'mbti' => $user->personality_assessments ?? null,
         ];
         return response()->json(['user'=>$user_data]);
 
