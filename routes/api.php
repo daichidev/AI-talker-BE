@@ -12,6 +12,7 @@ use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\Image\GeminiImageController;
 use App\Http\Controllers\Image\DeepImageController;
 use App\Http\Controllers\PersonalityAssessmentController;
+use App\Http\Controllers\MatchController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -66,6 +67,8 @@ Route::post('/remove-point/{userId}', [SyncroController::class, 'removePoint']);
 // 検索機能
 Route::post('/matching/get-users', [AiMatchingController::class, 'getUsers']);
 Route::post('/matching/delete-friend', [AiMatchingController::class, 'deleteFriend']);
+
+Route::post('/matching/get-date-users', [MatchController::class, 'rank']);
 
 Route::post('/matching/select-friend', [AiMatchingController::class, 'selectFriend']);
 Route::post('/matching/chat-with-friend', [ChatbotController::class, 'chatWithFriend']);
