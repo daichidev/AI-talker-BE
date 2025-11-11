@@ -213,12 +213,13 @@ class UserController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
         $location = $this->geocodeNominatim($user->profile->address ?? $user->anketos->address);
+        $user->location = $location;
+        $user->save();
         return response()->json([
             'success' => true,
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
-            'location' => $location,
         ]);
     }
 
