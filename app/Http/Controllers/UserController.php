@@ -144,25 +144,6 @@ class UserController extends Controller
         $user->save();
     }
 
-    function geocodeNominatim(string $address): ?array
-    {
-        $response = Http::withHeaders([
-            'User-Agent' => 'MYAI'
-        ])->get('https://nominatim.openstreetmap.org/search', [
-            'q' => $address,
-            'format' => 'json',
-            'limit' => 1
-        ]);
-
-        if ($response->failed() || empty($response[0])) {
-            return null;
-        }
-
-        return [
-            'lat' => (float) $response[0]['lat'],
-            'lng' => (float) $response[0]['lon']
-        ];
-    }
     public function login(Request $request)
     {
         $request->validate([
@@ -212,38 +193,12 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $location = $this->geocodeNominatim($user->profile->address ?? $user->anketos->address);
-        $user->location = $location;
-        $user->save();
-        $this->updateLocations();
         return response()->json([
             'success' => true,
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
         ]);
-    }
-    public function updateLocations()
-    {
-        $users = User::with(['profile', 'anketos'])->get();
-
-        foreach ($users as $user) {
-            $address = $user->profile->address ?? $user->anketos->address ?? null;
-
-            if (!$address) {
-                continue;
-            }
-
-            $coords = $this->geocodeNominatim($address);
-
-            if (!$coords) {
-                continue;
-            }
-
-            // ✅ Save lat/lng into profile table (recommended)
-            $user->location = $coords;
-            $user->save();
-        }
     }
 
     public function storeAnketo(Request $request) {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Profile;
 use App\Models\Syncro;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
@@ -65,7 +66,7 @@ class ProfileController extends Controller
         if (isset($validated['birthdate'])) {
             // Convert date from YYYY-MM-DD to YYYY.M.D format
             $formattedDate = Carbon::parse($validated['birthdate'])->format('Y.n.j');
-            
+
             $userController = new UserController();
             $birthdate_data = $userController->getAnimalSign($formattedDate);
             $validated['animal_fortune_telling_result'] = $birthdate_data['animal_fortune_telling_result'];
@@ -76,7 +77,7 @@ class ProfileController extends Controller
             $validated
         );
 
-        $nonNullFields = array_filter($validated, function($value) {
+        $nonNullFields = array_filter($validated, function ($value) {
             return $value !== null;
         });
         $count = count($nonNullFields);
@@ -87,11 +88,34 @@ class ProfileController extends Controller
 
         $user = User::find($userId);
         $user->search_show_status = $validated['search_show_status'];
+        if ($validated['address']) {
+            $location = $this->geocodeNominatim($validated['address']);
+            $user->location = $location;
+        }
         $user->save();
 
         return response()->json([
             'success' => true,
             'data' => $profile
         ]);
+    }
+    function geocodeNominatim(string $address): ?array
+    {
+        $response = Http::withHeaders([
+            'User-Agent' => 'MYAI'
+        ])->get('https://nominatim.openstreetmap.org/search', [
+            'q' => $address,
+            'format' => 'json',
+            'limit' => 1
+        ]);
+
+        if ($response->failed() || empty($response[0])) {
+            return null;
+        }
+
+        return [
+            'lat' => (float) $response[0]['lat'],
+            'lng' => (float) $response[0]['lon']
+        ];
     }
 }
