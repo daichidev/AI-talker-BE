@@ -456,7 +456,7 @@ class MatchController extends Controller
         $user_data = [
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
-            'hobbies' => explode(', ', $user->profile->hobbies ?? $user->anketos->hobbies) ?? [],
+            'hobbies' => explode(', ', $user->profile->hobby ?? $user->anketos->hobby) ?? [],
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
             'living_place' => $user->profile->address ?? $user->anketos->address ?? null,
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
