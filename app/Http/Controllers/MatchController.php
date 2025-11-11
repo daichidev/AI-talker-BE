@@ -544,7 +544,7 @@ class MatchController extends Controller
      * @param  array $filters       // 任意の絞り込み（例: ['gender' => 'female'] など）
      * @return array                // candidates配列（各要素が $user_data と同型）
      */
-    function getCandidateProfiles(int $userId, int $limit = 50, array $filters = []): array
+    function getCandidateProfiles(int $userId, array $filters = []): array
     {
         // 取得クエリ（必要に応じて where 条件を追加）
         $query = User::with(['anketos', 'profile', 'personalityTest'])
@@ -663,7 +663,7 @@ class MatchController extends Controller
             ->get(['personality_type', 'result'])
             ->pluck('result', 'personality_type')
             ->toArray();
-        $user_data = [
+        $youRaw = [
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
             'hobbies' => explode(', ', $user->profile->hobby ?? $user->anketos->hobby) ?? [],
@@ -676,12 +676,9 @@ class MatchController extends Controller
             'RIASEC' => json_decode($personalities['RIASEC'], true) ?? null,
             'socionics' => $personalities['Socionics'] ?? null,
             'big5' => json_decode($user->personalityTest->mean_values_array, true) ?? null,
-            'candidates' => $this->getCandidateProfiles($userId, 10),
+            'gender' => $user->profile->gender ?? $user->anketos->gender ?? null,
         ];
-        return response()->json(['user' => $user_data]);
-
-        $youRaw = (array) $req->input('you', []);
-        $candsRaw = (array) $req->input('candidates', []);
+        $candsRaw = $this->getCandidateProfiles($userId, ['gender' => $youRaw['gender'] == '男性' ? '女性' : '男性']);
 
         $you = self::normalizeUser($youRaw);
         $out = [];
