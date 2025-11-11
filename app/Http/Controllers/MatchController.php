@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\PersonalityAssessment;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MatchController extends Controller
 {
@@ -697,6 +697,7 @@ class MatchController extends Controller
         foreach ($candsRaw as $p) {
             $B = self::normalizeUser((array)$p);
             $res = self::matchTwo($you, $B);
+            Log::info('matchTwo', ['youAge' => $you['age'], 'Bage' => $B['age'], 'score' => $res['score']]);
             $out[] = [
                 'age' => $B['age'],
                 'gender' => $B['gender'],
