@@ -613,7 +613,7 @@ class MatchController extends Controller
             $candidates[] = [
                 // スコアリング側で使い回しやすいよう、IDなども載せておくと便利
                 'id'    => $u->id,
-                'name'  => $u->name ?? null,
+                'name'  => $u->profile->name ?? null,
                 'avatar' => $u->avatars->first()->avatar_link ?? null,
                 'gender' => $u->profile->gender ?? ($u->anketos->gender ?? null),
                 'animal' => $u->anketos->animal_fortune_telling ?? null,
@@ -670,7 +670,7 @@ class MatchController extends Controller
             ->toArray();
         $youRaw = [
             'id' => $user->id,
-            'name' => $user->name ?? null,
+            'name' => $user->profile->name ?? null,
             'avatar' => $user->avatars->first()->avatar_link ?? null,
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
