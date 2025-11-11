@@ -568,8 +568,7 @@ class MatchController extends Controller
             ->limit($limit)
             ->get();
 
-        $userIds = $users->pluck('id');
-        var_dump($userIds);
+        $userIds = $users->pluck('id')->toArray();
         $assessmentsByUser = PersonalityAssessment::whereIn('user_id', $userIds)
             ->get(['user_id','personality_type','result'])
             ->pluck('result', 'personality_type')
