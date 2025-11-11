@@ -569,13 +569,13 @@ class MatchController extends Controller
             ->get();
 
         $userIds = $users->pluck('id');
-
+        var_dump($userIds);
         $assessmentsByUser = PersonalityAssessment::whereIn('user_id', $userIds)
             ->get(['user_id','personality_type','result'])
             ->pluck('result', 'personality_type')
             ->groupBy('user_id')
             ->toArray();
-        return $users;
+        return $assessmentsByUser;
         $candidates = [];
 
         foreach ($users as $u) {
