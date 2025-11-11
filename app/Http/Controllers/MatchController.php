@@ -549,7 +549,6 @@ class MatchController extends Controller
         // 取得クエリ（必要に応じて where 条件を追加）
         $query = User::with(['anketos', 'profile', 'personalityTest', 'personalityAssessments'])
             ->where('id', '!=', $userId);
-
         // 例: 性別フィルタ（profile.gender or anketo.gender）
         if (!empty($filters['gender'])) {
             $gender = $filters['gender'];
@@ -569,12 +568,17 @@ class MatchController extends Controller
             ->limit($limit)
             ->get();
 
+        $userIds = $users->pluck('id');
+
+        $assessmentsByUser = PersonalityAssessment::whereIn('user_id', $userIds)
+            ->get(['user_id','personality_type','result'])
+            ->groupBy('user_id');
         $candidates = [];
 
         foreach ($users as $u) {
             // パーソナリティ結果（タイプ => result の連想配列）
             // モデルに relation: personalityAssessments がある前提
-            $personalities = $u->personalityAssessments
+            $personalities = $assessmentsByUser[$u->id]
                 ->pluck('result', 'personality_type')
                 ->toArray();
 
