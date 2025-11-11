@@ -475,10 +475,14 @@ class MatchController extends Controller
     private static function scoreAge($a, $b): int
     {
         if (!is_numeric($a) || !is_numeric($b)) return 0;
+
         $d = abs((int)$a - (int)$b);
-        $sim = 1 / (1 + exp(($d - 2) / 2));
+
+        $sim = 1 / (1 + exp(($d - 5) / 2));
+
         return (int) round(self::pct($sim));
     }
+
 
     private static function scoreLocation(?array $A, ?array $B): int
     {
@@ -698,7 +702,7 @@ class MatchController extends Controller
                 'gender' => $B['gender'],
                 'name' => $B['name'],
                 'avatar' => $B['avatar'],
-                'id' => $B['id'], 
+                'id' => $B['id'],
                 'score' => $res['score'],
                 // 'breakdown' => $res['breakdown'],
                 // 'reasons' => $res['reasons'],
