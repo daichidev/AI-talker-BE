@@ -618,7 +618,7 @@ class MatchController extends Controller
 
                 // living_place はそのまま文字列でもOK（距離スコアはlat/lngがあれば有効）
                 // もし住所→座標変換が必要なら、別途ジオコーディングして {lat,lng} を入れてください。
-                'living_place' => $this->geocodeNominatim($u->profile->address ?? $u->anketos->address) ?? [],
+                'living_place' => ($u->profile->address ?? $u->anketos->address) ? $this->geocodeNominatim($u->profile->address ?? $u->anketos->address) : [],
                 'blood'  => $u->profile->blood_type ?? ($u->anketos->blood_type ?? null),
 
                 // パーソナリティ
@@ -668,7 +668,7 @@ class MatchController extends Controller
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
             'hobbies' => explode(', ', $user->profile->hobby ?? $user->anketos->hobby) ?? [],
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
-            'living_place' => $this->geocodeNominatim($user->profile->address ?? $user->anketos->address) ?? [],
+            'living_place' => ($user->profile->address ?? $user->anketos->address) ? $this->geocodeNominatim($user->profile->address ?? $user->anketos->address) : [],
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
             'MBTI' => $personalities['MBTI'] ?? null,
             'enneagram' => $personalities['Enneagram'] ?? null,
