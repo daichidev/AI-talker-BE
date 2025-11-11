@@ -456,7 +456,8 @@ class MatchController extends Controller
         $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
         $personality_assessments = DB::table('personality_assessments')
             ->select('personality_assessments.user_id, personality_assessments.personality_type, personality_assessments.result')
-            ->find($userId);
+            ->where('user_id', $userId)
+            ->get();
         $user_data = [
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
