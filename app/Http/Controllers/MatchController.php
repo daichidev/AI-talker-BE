@@ -573,6 +573,7 @@ class MatchController extends Controller
             ->get(['user_id','personality_type','result'])
             ->pluck('result', 'personality_type')
             ->groupBy('user_id');
+        var_dump($assessmentsByUser);
         return $assessmentsByUser;
         $candidates = [];
 
