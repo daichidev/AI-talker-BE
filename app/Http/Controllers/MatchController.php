@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Profile;
+use App\Models\PersonalityAssessment;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 class MatchController extends Controller
 {
@@ -454,10 +453,11 @@ class MatchController extends Controller
         ]);
         $userId = $req->user_id;
         $user = User::with(['anketos', 'profile', 'personalityTest'])->find($userId);
-        $personality_assessments = DB::table('personality_assessments')
-            ->select('user_id, personality_type, result')
-            ->where('user_id', $userId)
-            ->get();
+
+        $personalities = PersonalityAssessment::where('user_id', $userId)
+            ->get(['personality_type', 'result'])
+            ->pluck('result', 'personality_type')
+            ->toArray();
         $user_data = [
             'animal' => $user->anketos->animal_fortune_telling ?? null,
             'job' => $user->anketos->job ?? $user->profile->job ?? null,
@@ -465,7 +465,7 @@ class MatchController extends Controller
             'age' => $user->profile->birthdate ? date('Y') - date('Y', strtotime($user->profile->birthdate)) : ($user->anketos->birthdate ? date('Y') - date('Y', strtotime($user->anketos->birthdate)) : null),
             'living_place' => $user->profile->address ?? $user->anketos->address ?? null,
             'blood' => $user->profile->blood_type ?? $user->anketos->blood_type ?? null,
-            'mbti' => $personality_assessments ?? null,
+            'mbti' => $personalities ?? null,
         ];
         return response()->json(['user'=>$user_data]);
 
