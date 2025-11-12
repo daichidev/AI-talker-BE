@@ -698,7 +698,6 @@ class MatchController extends Controller
         foreach ($candsRaw as $p) {
             $B = self::normalizeUser((array)$p);
             $res = self::matchTwo($you, $B);
-            Log::info('matchTwo', ['youAge' => $you['age'], 'Bage' => $B['age'], 'score' => $res['score'], 'reason' => $res['reasons']]);
             $out[] = [
                 'age' => $B['age'],
                 'gender' => $B['gender'],
@@ -706,6 +705,7 @@ class MatchController extends Controller
                 'avatar' => $B['avatar'],
                 'id' => $B['id'],
                 'score' => $res['score'],
+                'comment' => $B['comment'],
                 // 'breakdown' => $res['breakdown'],
                 // 'reasons' => $res['reasons'],
             ];
