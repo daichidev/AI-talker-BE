@@ -618,6 +618,7 @@ class MatchController extends Controller
                 // スコアリング側で使い回しやすいよう、IDなども載せておくと便利
                 'id'    => $u->id,
                 'name'  => $u->profile->name ?? null,
+                'comment'  => $u->profile->comment ?? null,
                 'avatar' => $u->avatars->first()->avatar_link ?? null,
                 'gender' => $u->profile->gender ?? ($u->anketos->gender ?? null),
                 'animal' => $u->anketos->animal_fortune_telling ?? null,
