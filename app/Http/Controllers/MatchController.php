@@ -323,6 +323,7 @@ class MatchController extends Controller
             'job' => $raw['job'] ?? null,
             'gender' => $raw['gender'] ?? null,
             'birthplace' => $raw['birthplace'] ?? null,
+            'comment' => $raw['comment'] ?? null,
         ];
     }
 
