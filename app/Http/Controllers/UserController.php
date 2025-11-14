@@ -750,4 +750,22 @@ class UserController extends Controller
             'new_boost_mode' => $user->boost_mode
         ]);
     }
+
+    public function subscribeLiveChat(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+        $user->subscribe_live_chat_date = now();
+        $user->is_live_chat_subscribed = true;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ライブチャットにサブスクライブしました。',
+            'subscribe_live_chat_date' => $user->subscribe_live_chat_date
+        ]);
+    }
 }

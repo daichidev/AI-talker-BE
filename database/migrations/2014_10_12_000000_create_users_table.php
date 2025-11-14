@@ -26,6 +26,8 @@ class CreateUsersTable extends Migration
             $table->integer('boost_mode')->default(0);
             $table->boolean('is_trial_used')->default(false);
             $table->string('location')->nullable();
+            $table->boolean('is_live_chat_subscribed')->default(false);
+            $table->dateTime('subscribe_live_chat_date')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
