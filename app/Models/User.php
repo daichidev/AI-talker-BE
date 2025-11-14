@@ -32,6 +32,7 @@ class User extends Authenticatable
         'boost_mode',
         'is_trial_used',
         'location',
+        'subscribe_live_chat_date',
     ];
 
     /**

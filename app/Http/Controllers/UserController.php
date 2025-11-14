@@ -758,7 +758,7 @@ class UserController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        $user->subscribe_live_chat_date = now();
+        $user->subscribe_live_chat_date = Carbon::today();
         $user->save();
 
         return response()->json([
