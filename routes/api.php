@@ -92,3 +92,4 @@ Route::post('/purchase-boost', [UserController::class, 'purchaseBoostMode']);
 Route::post('/use-trial-boost', [UserController::class, 'useTrialBoostMode']);
 
 Route::post('/subscribe-live-chat', [UserController::class, 'subscribeLiveChat']);
+Route::post('/get-subscription-date', [UserController::class, 'getSubscriptionDate']);

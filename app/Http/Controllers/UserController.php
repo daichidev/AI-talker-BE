@@ -767,4 +767,18 @@ class UserController extends Controller
             'subscribe_live_chat_date' => $user->subscribe_live_chat_date
         ]);
     }
+
+    public function getSubscriptionDate(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        return response()->json([
+            'success' => true,
+            'subscribe_live_chat_date' => $user->subscribe_live_chat_date
+        ]);
+    }
 }
