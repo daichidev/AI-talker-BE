@@ -615,7 +615,12 @@ class MatchController extends Controller
             // hobbies: 「, 」区切り or 「,」区切り両対応 & トリム
             $hobbyStr = $u->profile->hobby ?? $u->anketos->hobby ?? '';
             $hobbies = array_values(array_filter(array_map('trim', preg_split('/\s*,\s*/u', $hobbyStr ?? ''))));
-
+            $subscriptionDate = $u->subscribe_live_chat_date;
+            if ($subscriptionDate) {
+                $oneMonthLater = new \DateTime($subscriptionDate);
+                $oneMonthLater->modify('+1 month');
+            }
+            
             $candidates[] = [
                 // スコアリング側で使い回しやすいよう、IDなども載せておくと便利
                 'id'    => $u->id,
@@ -627,6 +632,7 @@ class MatchController extends Controller
                 'job'    => $u->anketos->job ?? ($u->profile->job ?? null),
                 'hobbies' => $hobbies,
                 'age'    => $age,
+                'is_live_chat_subscribed' => $subscriptionDate ? ($oneMonthLater >= new \DateTime()) : false,
 
                 // living_place はそのまま文字列でもOK（距離スコアはlat/lngがあれば有効）
                 // もし住所→座標変換が必要なら、別途ジオコーディングして {lat,lng} を入れてください。
@@ -713,7 +719,12 @@ class MatchController extends Controller
             ];
         }
 
-        usort($out, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($out, function($a, $b) {
+            if ($a['is_live_chat_subscribed'] !== $b['is_live_chat_subscribed']) {
+                return $b['is_live_chat_subscribed'] ? -1 : 1;
+            }
+            return $b['score'] <=> $a['score'];
+        });
         return response()->json(['results' => $out]);
     }
 }
