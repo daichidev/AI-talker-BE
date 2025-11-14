@@ -714,6 +714,7 @@ class MatchController extends Controller
                 'id' => $B['id'],
                 'score' => $res['score'],
                 'comment' => $B['comment'],
+                'is_live_chat_subscribed' => $B['is_live_chat_subscribed'],
                 // 'breakdown' => $res['breakdown'],
                 // 'reasons' => $res['reasons'],
             ];
