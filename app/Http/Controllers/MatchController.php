@@ -324,6 +324,7 @@ class MatchController extends Controller
             'gender' => $raw['gender'] ?? null,
             'birthplace' => $raw['birthplace'] ?? null,
             'comment' => $raw['comment'] ?? null,
+            'is_live_chat_subscribed' => $raw['is_live_chat_subscribed'] ?? false,
         ];
     }
 
