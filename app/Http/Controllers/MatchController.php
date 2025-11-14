@@ -723,7 +723,7 @@ class MatchController extends Controller
 
         usort($out, function($a, $b) {
             if ($a['is_live_chat_subscribed'] !== $b['is_live_chat_subscribed']) {
-                return $b['is_live_chat_subscribed'] ? -1 : 1;
+                return $b['is_live_chat_subscribed'] ? 1 : -1;
             }
             return $b['score'] <=> $a['score'];
         });
