@@ -558,7 +558,8 @@ class MatchController extends Controller
     {
         // 取得クエリ（必要に応じて where 条件を追加）
         $query = User::with(['anketos', 'profile', 'personalityTest', 'avatars'])
-            ->where('id', '!=', $userId);
+            ->where('id', '!=', $userId)
+            ->where('search_show_status', true);
         // 例: 性別フィルタ（profile.gender or anketo.gender）
         if (!empty($filters['gender'])) {
             $gender = $filters['gender'];
