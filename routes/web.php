@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminUserController;
 use App\Http\Controllers\admin\AdminReportController;
 use App\Http\Controllers\admin\AnnouncementController;
+use App\Http\Controllers\admin\GeojsonController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -41,6 +42,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/announcement/{id}', [AnnouncementController::class, 'update'])->name('admin.announcement.update');
     Route::delete('/admin/announcement/{id}', [AnnouncementController::class, 'destroy'])->name('admin.announcement.destroy');
     Route::POST('/admin/send-announcements', [AnnouncementController::class, 'sendPushNotification']);
+
+    Route::get('/admin/geojson/import', [GeojsonController::class, 'show'])
+    ->name('admin.geojson.import.show');      // 画面表示
+
+    Route::post('/admin/geojson/import', [GeojsonController::class, 'run'])
+    ->name('admin.geojson.import.run');       // ボタンクリックで実行
 });
 
 // アカウント削除リクエスト用のルート

@@ -13,6 +13,7 @@ use App\Http\Controllers\Image\GeminiImageController;
 use App\Http\Controllers\Image\DeepImageController;
 use App\Http\Controllers\PersonalityAssessmentController;
 use App\Http\Controllers\MatchController;
+use App\Http\Controllers\admin\GeojsonController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -93,3 +94,6 @@ Route::post('/use-trial-boost', [UserController::class, 'useTrialBoostMode']);
 
 Route::post('/subscribe-live-chat', [UserController::class, 'subscribeLiveChat']);
 Route::post('/get-subscription-date', [UserController::class, 'getSubscriptionDate']);
+
+// disaster facilities
+Route::post('/get-nearby-disaster-facilities', [GeojsonController::class, 'getNearbyDisasterFacilities']);

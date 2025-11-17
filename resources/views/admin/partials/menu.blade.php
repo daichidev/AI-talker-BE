@@ -13,6 +13,10 @@
                class="{{ request()->routeIs('admin.announcement.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
                お知らせ
             </a>
+            <a href="{{ route('admin.geojson.import.show') }}"
+               class="{{ request()->routeIs('admin.geojson.import.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
+               避難所・指定避難所データ インポート
+            </a>
         </div>
     </div>
 </div>
