@@ -208,7 +208,7 @@ class UserController extends Controller
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
-            'bonusMessage' => 'ログインボーナス50pt獲得！'
+            'bonus' => 50,
         ]);
     }
 
@@ -264,7 +264,7 @@ class UserController extends Controller
                 'next_question_text' => "職業を教えてください！"
             ]);
         }
-        $bonusMessage = '';
+        $bonus = 0;
         if ($questionKey == 'birthdate') {
             if (!preg_match('/^\d{4}\.\d{1,2}\.\d{1,2}$/', $request->content)) {
                 return response()->json([
@@ -278,7 +278,7 @@ class UserController extends Controller
 
             $syncro = Syncro::where('user_id', $request->user_id)->first();
             if (!$syncro->done_animal_fortune) {
-                $bonusMessage = '動物占いボーナス\n10pt獲得！';
+                $bonus = 10;
             }
             $syncro->done_animal_fortune = true;
             $syncro->save();
@@ -342,7 +342,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
-                'bonusMessage' => $bonusMessage,
+                'bonus' => $bonus,
                 'next_question_text' => "色々教えてくれてありがとう！私が " . ($profileData->name ?? $anketoData['name'])  . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . ($profileData->name ?? $anketoData['name'])  . " の分身に成長するよ。" . ($profileData->name ?? $anketoData['name'])  . " の事を理解してるAIになるので悩みとか色々相談してね"
             ]);
         }
@@ -499,17 +499,17 @@ class UserController extends Controller
         $personalityTest->personality_answers_array = json_encode($request->personality_answers);
         $personalityTest->mean_values_array = json_encode([$averageExtraversion, $averageAgreeableness, $averageConscientiousness, $averageNeuroticism, $averageOpenness]);
         $personalityTest->save();
-        $bonusMessage = '';
+        $bonus = 0;
         $syncro = Syncro::where('user_id', $request->user_id)->first();
         if (!$syncro->done_big5_analysis) {
-            $bonusMessage = '性格診断ボーナス\n10pt獲得！';
+            $bonus = 10;
         }
         $syncro->done_big5_analysis = true;
         $syncro->save();
 
         return response()->json([
             'success' => true,
-            'bonusMessage' => $bonusMessage,
+            'bonus' => $bonus,
             'personality_test' => $personalityTest,
             'message' => '性格診断の結果を保存しました。',
         ]);

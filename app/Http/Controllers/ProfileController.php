@@ -97,7 +97,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => true,
-            'bonusMessage' => 'プロファイルアップデートボーナス\n' . $newPoint . '獲得！',
+            'bonus' => $newPoint,
             'data' => $profile
         ]);
     }
