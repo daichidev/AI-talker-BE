@@ -20,17 +20,26 @@ use Illuminate\Support\Facades\Hash;
 use App\Services\ChatLogService;
 use App\Services\FriendChatLogService;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class UserController extends Controller
 {
     protected $questions = [
-        'name', 'birthdate', 'gender', 'user_nickname', 'bot_nickname', 'hometown', 'address',
-        'blood_type', 'job', 'hobby'
+        'name',
+        'birthdate',
+        'gender',
+        'user_nickname',
+        'bot_nickname',
+        'hometown',
+        'address',
+        'blood_type',
+        'job',
+        'hobby'
     ];
 
-    public function storeFaceID(Request $request) {
+    public function storeFaceID(Request $request)
+    {
         $request->validate([
             'deviceId' => 'required|string',
             'fcmDeviceToken' => 'required|string',
@@ -49,7 +58,7 @@ class UserController extends Controller
                 'message' => 'このメールアドレスは既に使用中です。'
             ]);
         }
-        
+
         // デバイスIDが既にデータベースに存在するか確認
         $existingUser = User::where('device_id', $request->deviceId)->first();
         if ($existingUser) {
@@ -78,8 +87,8 @@ class UserController extends Controller
 
         if (isset($responseData['image_url'])) {
             $avatarPath = $responseData['image_url'];
-            
-             // device IDと写真のパスをデータベースに保存
+
+            // device IDと写真のパスをデータベースに保存
             $user = new User();
             $user->fcm_device_token = $request->fcmDeviceToken;
             $user->device_id = $request->deviceId;
@@ -89,21 +98,21 @@ class UserController extends Controller
             $user->password = bcrypt($request->userPassword); // Hash the password
             $user->first_login_datetime_on_today = Carbon::now();
             $user->save();
-    
+
             $avatar = new Avatar();
             $avatar->avatar_link = $avatarPath;
             $avatar->user_id = $user->id;
             $avatar->save();
-            
+
             $syncro = new Syncro();
             $syncro->user_id = $user->id;
             $syncro->score_login = 1;
             $syncro->save();
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'userId' => $user->id,
-                'avatarPath' => $avatarPath  
+                'avatarPath' => $avatarPath
             ]);
         } else {
             return response()->json(['success' => false, 'message' => '画像の処理に失敗しました。'], 500);
@@ -120,11 +129,11 @@ class UserController extends Controller
 
         $today = Carbon::today();
         $firstLoginToday = $user->first_login_datetime_on_today ? Carbon::parse($user->first_login_datetime_on_today)->isSameDay($today) : false;
-        
+
         if (!$firstLoginToday) {
             $user->first_login_datetime_on_today = Carbon::now();
             $user->save();
-            
+
             $syncro = Syncro::firstOrCreate(
                 ['user_id' => $user->id],
                 ['score_login' => 0]
@@ -132,13 +141,14 @@ class UserController extends Controller
             $syncro->score_login += 1;
             $syncro->save();
         }
-    
+
         $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
 
         return $this->authenticateUser(['device_id' => $request->deviceId]);
     }
 
-    public function updateFCMDeviceToken($id, $token) {
+    public function updateFCMDeviceToken($id, $token)
+    {
         $user = User::find($id);
         $user->fcm_device_token = $token;
         $user->save();
@@ -157,11 +167,11 @@ class UserController extends Controller
         }
         $today = Carbon::today();
         $firstLoginToday = $user->first_login_datetime_on_today ? Carbon::parse($user->first_login_datetime_on_today)->isSameDay($today) : false;
-        
+
         if (!$firstLoginToday) {
             $user->first_login_datetime_on_today = Carbon::now();
             $user->save();
-            
+
             $syncro = Syncro::firstOrCreate(
                 ['user_id' => $user->id],
                 ['score_login' => 0]
@@ -169,7 +179,7 @@ class UserController extends Controller
             $syncro->score_login += 1;
             $syncro->save();
         }
-        
+
         $this->updateFCMDeviceToken($user->id, $request->fcm_device_token);
         return $this->authenticateUser(['email' => $request->email, 'password' => $request->password]);
     }
@@ -180,7 +190,7 @@ class UserController extends Controller
             $user = User::with('latestAvatar')->where('device_id', $credentials['device_id'])->first();
         } elseif (isset($credentials['email'])) {
             $user = User::with('latestAvatar')->where('email', $credentials['email'])->first();
-            
+
             if (!$user || !Hash::check($credentials['password'], $user->password)) {
                 return response()->json(['success' => false, 'message' => '登録されたユーザーがいません。']);
             }
@@ -198,10 +208,12 @@ class UserController extends Controller
             'token' => $token,
             'user' => $user,
             'messages' => $this->getChatLogs($user->id),
+            'bonusMessage' => 'ログインボーナス50pt獲得！'
         ]);
     }
 
-    public function storeAnketo(Request $request) {
+    public function storeAnketo(Request $request)
+    {
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'question_key' => 'required',
@@ -252,8 +264,8 @@ class UserController extends Controller
                 'next_question_text' => "職業を教えてください！"
             ]);
         }
-
-        if ($questionKey == 'birthdate') {          
+        $bonusMessage = '';
+        if ($questionKey == 'birthdate') {
             if (!preg_match('/^\d{4}\.\d{1,2}\.\d{1,2}$/', $request->content)) {
                 return response()->json([
                     'success' => true,
@@ -265,6 +277,9 @@ class UserController extends Controller
             $birthdate_data = $this->getAnimalSign($request->content);
 
             $syncro = Syncro::where('user_id', $request->user_id)->first();
+            if (!$syncro->done_animal_fortune) {
+                $bonusMessage = '動物占いボーナス\n10pt獲得！';
+            }
             $syncro->done_animal_fortune = true;
             $syncro->save();
         }
@@ -282,18 +297,18 @@ class UserController extends Controller
                 ['user_id' => $request->user_id],
                 ['animal_fortune_telling_characteristics' => $birthdate_data['animal_fortune_telling_characteristics']]
             );
-            
+
             Profile::updateOrCreate(
                 ['user_id' => $request->user_id],
                 ['animal_fortune_telling_result' => $birthdate_data['animal_fortune_telling_result']]
             );
         }
-        
+
         Anketo::updateOrCreate(
             ['user_id' => $request->user_id],
             [$questionKey => $request->content]
         );
-        
+
         if ($questionKey === 'job') {
             $profile = Profile::where('user_id', $request->user_id)->first();
             $isJobNull = is_null($profile?->job);
@@ -322,11 +337,12 @@ class UserController extends Controller
             $profileData = $nowUser->profile;
             $animal_fortune_telling_result = Anketo::select('animal_fortune_telling_characteristics')
                 ->where('user_id', '=', $request->user_id)
-                ->first(); 
+                ->first();
 
             return response()->json([
                 'success' => true,
                 'anketo_status' => $user->anketo_status,
+                'bonusMessage' => $bonusMessage,
                 'next_question_text' => "色々教えてくれてありがとう！私が " . ($profileData->name ?? $anketoData['name'])  . " の分身のAIです。今の性格は【" . ($animal_fortune_telling_result ? $animal_fortune_telling_result->animal_fortune_telling_characteristics : '不明') . "】です。\n合ってますか？\nさらにプロフィールを記入したり、性格判断をして、会話を重ねるともっと " . ($profileData->name ?? $anketoData['name'])  . " の分身に成長するよ。" . ($profileData->name ?? $anketoData['name'])  . " の事を理解してるAIになるので悩みとか色々相談してね"
             ]);
         }
@@ -336,11 +352,11 @@ class UserController extends Controller
         $questionData = json_decode($questionResponse->getContent(), true);
 
         if ($questionKey == 'birthdate') {
-            $next_question_text = $birthdate_data['animal_fortune_telling_result']."/".$birthdate_data['animal_fortune_telling_characteristics']."/".$questionData['question_text'];
+            $next_question_text = $birthdate_data['animal_fortune_telling_result'] . "/" . $birthdate_data['animal_fortune_telling_characteristics'] . "/" . $questionData['question_text'];
         } else {
             $next_question_text = $questionData['question_text'];
         }
-        
+
         if ($questionData['success']) {
             return response()->json([
                 'success' => true,
@@ -374,14 +390,14 @@ class UserController extends Controller
     private function getChatLogs($userId)
     {
         $tableName = app(ChatLogService::class)->getTableName($userId);
-    
+
         if (!Schema::hasTable($tableName)) {
             return collect();
         }
 
         $chatLogs = DB::table($tableName)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $chatLogs->flatMap(function ($chatLog) {
             return [
@@ -409,7 +425,7 @@ class UserController extends Controller
         } else {
             // 1. 年月に該当する数値テーブルを用意
             $unmeisuTable = config('fortune_telling.unmeisuTable');
-            
+
             // 2. テーブルから該当の数値を取得
             $convertMonth = (int)$month;
             $baseNumber = $unmeisuTable[$year][$convertMonth] ?? null;
@@ -481,15 +497,19 @@ class UserController extends Controller
             $personalityTest->user_id = $request->user_id;
         }
         $personalityTest->personality_answers_array = json_encode($request->personality_answers);
-        $personalityTest->mean_values_array = json_encode([ $averageExtraversion, $averageAgreeableness, $averageConscientiousness, $averageNeuroticism, $averageOpenness ]);
+        $personalityTest->mean_values_array = json_encode([$averageExtraversion, $averageAgreeableness, $averageConscientiousness, $averageNeuroticism, $averageOpenness]);
         $personalityTest->save();
-
+        $bonusMessage = '';
         $syncro = Syncro::where('user_id', $request->user_id)->first();
+        if (!$syncro->done_big5_analysis) {
+            $bonusMessage = '性格診断ボーナス\n10pt獲得！';
+        }
         $syncro->done_big5_analysis = true;
         $syncro->save();
 
         return response()->json([
             'success' => true,
+            'bonusMessage' => $bonusMessage,
             'personality_test' => $personalityTest,
             'message' => '性格診断の結果を保存しました。',
         ]);
@@ -528,7 +548,8 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'レポートを保存しました。']);
     }
 
-    public function resetAvatar(Request $request) {
+    public function resetAvatar(Request $request)
+    {
         $request->validate([
             'userId' => 'required|integer',
             'photo' => 'required|image|mimes:jpeg,png,jpg',
@@ -555,7 +576,7 @@ class UserController extends Controller
 
         if (isset($responseData['image_url'])) {
             $avatarPath = $responseData['image_url'];
-           
+
             $user = User::find($request->userId);
             $user->face_photo = $photoPath;
             $user->save();
@@ -565,8 +586,8 @@ class UserController extends Controller
             $avatar->save();
 
             return response()->json([
-                'success' => true, 
-                'avatarPath' => $avatarPath  
+                'success' => true,
+                'avatarPath' => $avatarPath
             ]);
         } else {
             return response()->json(['success' => false, 'message' => '画像の処理に失敗しました。'], 500);
@@ -594,7 +615,7 @@ class UserController extends Controller
 
         // Find user by email
         $user = User::where('email', $request->email)->first();
-        
+
         if (!$user) {
             return redirect()->back()->with('error', '指定されたメールアドレスのアカウントが見つかりません。');
         }
@@ -614,10 +635,10 @@ class UserController extends Controller
 
             // Delete friend chat logs tables where this user is involved
             $friendChatLogService = app(FriendChatLogService::class);
-            
+
             // Get all friend IDs from the user's friend list
             $friendIds = json_decode($user->friend_users, true) ?: [];
-            
+
             // Drop friend chat tables where this user is the primary user
             $droppedFriendTables = [];
             foreach ($friendIds as $friendId) {
@@ -625,7 +646,7 @@ class UserController extends Controller
                     $droppedFriendTables[] = "chat_logs_{$user->id}_{$friendId}";
                 }
             }
-            
+
             // Drop friend chat tables where this user is the friend
             $droppedInverseTables = $friendChatLogService->dropAllTablesForUser($user->id);
 
@@ -655,40 +676,43 @@ class UserController extends Controller
         }
     }
 
-    public function handleInvite(Request $request){
+    public function handleInvite(Request $request)
+    {
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'friend_id' => 'required|integer'
         ]);
-    
+
         // 両方のユーザーを取得
         $user = User::find($request->user_id);
         $friend = User::find($request->friend_id);
-        
+
         // 既にフレンドかどうかをチェック（双方向チェック）
         $user_friends = json_decode($user->friend_users, true) ?: [];
         $friend_friends = json_decode($friend->friend_users, true) ?: [];
-        
+
         // 既にフレンドかどうかをチェック
-        if (in_array((int)$request->friend_id, $user_friends) && 
-            in_array((int)$request->user_id, $friend_friends)) {
+        if (
+            in_array((int)$request->friend_id, $user_friends) &&
+            in_array((int)$request->user_id, $friend_friends)
+        ) {
             return response()->json(['success' => false, 'message' => '既にフレンドです。']);
         }
-        
+
         // ユーザーのフレンドリストにfriend_idがまだない場合は追加
         if (!in_array((int)$request->friend_id, $user_friends)) {
             $user_friends[] = (int)$request->friend_id;
             $user->friend_users = json_encode(array_values($user_friends));
             $user->save();
         }
-        
+
         // フレンドのフレンドリストにuser_idがまだない場合は追加
         if (!in_array((int)$request->user_id, $friend_friends)) {
             $friend_friends[] = (int)$request->user_id;
             $friend->friend_users = json_encode(array_values($friend_friends));
             $friend->save();
         }
-        
+
         // 同期スコアを更新
         $syncro = Syncro::firstOrCreate(
             ['user_id' => $request->user_id],
@@ -696,14 +720,14 @@ class UserController extends Controller
         );
         $syncro->score_friend_invite_sent += 1;
         $syncro->save();
-    
+
         $syncro = Syncro::firstOrCreate(
             ['user_id' => $request->friend_id],
             ['score_friend_invite_received' => 0]
         );
         $syncro->score_friend_invite_received += 1;
         $syncro->save();
-    
+
         return response()->json(['success' => true, 'message' => '招待を受け入れました。']);
     }
 
