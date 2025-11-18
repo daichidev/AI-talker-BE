@@ -52,7 +52,7 @@ class OpenAIService
 
             $res = $this->postChat(
                 baseUrl: 'https://api.openai.com/v1/chat/completions',
-                model:   'o4-mini',
+                model:   'gpt-5-nano',
                 apiKey:  $this->openAiKey,
                 messages: $payload
             );
