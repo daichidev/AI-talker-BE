@@ -120,4 +120,18 @@ class ProfileController extends Controller
             'lng' => (float) $response[0]['lon']
         ];
     }
+    public function getBloodType($userId)
+    {
+        $profile = Profile::where('user_id', $userId)->first();
+        if (!$profile) {
+            return response()->json([
+                'success' => false,
+                'data' => 'Profile not found'
+            ]);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $profile->blood_type
+        ]);
+    }
 }
