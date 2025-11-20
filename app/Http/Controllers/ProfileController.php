@@ -120,7 +120,7 @@ class ProfileController extends Controller
             'lng' => (float) $response[0]['lon']
         ];
     }
-    public function getBloodType($userId)
+    public function getBloodTypeNBDay($userId)
     {
         $profile = Profile::where('user_id', $userId)->first();
         if (!$profile) {
@@ -131,7 +131,8 @@ class ProfileController extends Controller
         }
         return response()->json([
             'success' => true,
-            'data' => $profile->blood_type
+            'blood_type' => $profile->blood_type,
+            'birthdate' => $profile->birthdate
         ]);
     }
 }

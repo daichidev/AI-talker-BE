@@ -55,7 +55,7 @@ Route::post('/chat-venice', [ChatbotController::class, 'chatVenice']);
 Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
-Route::get('/profile/{userId}/blood-type', [ProfileController::class, 'getBloodType']);
+Route::get('/profile/{userId}/blood-type-bday', [ProfileController::class, 'getBloodTypeNBDay']);
 Route::post('/profile/{userId}', [ProfileController::class, 'update']);
 
 Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
