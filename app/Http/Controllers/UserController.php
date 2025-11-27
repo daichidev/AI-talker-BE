@@ -401,8 +401,8 @@ class UserController extends Controller
 
         return $chatLogs->flatMap(function ($chatLog) {
             return [
-                ['text' => $chatLog->question, 'sender' => 'user', 'isNsfw' => $chatLog->is_nsfw_content],
-                ['text' => $chatLog->answer, 'sender' => 'bot', 'isNsfw' => $chatLog->is_nsfw_content],
+                ['text' => $chatLog->question, 'sender' => 'user', 'isNsfw' => (bool) $chatLog->is_nsfw_content],
+                ['text' => $chatLog->answer, 'sender' => 'bot', 'isNsfw' => (bool) $chatLog->is_nsfw_content],
             ];
         });
     }

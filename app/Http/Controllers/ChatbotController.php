@@ -96,6 +96,7 @@ class ChatbotController extends Controller
             'message'       => $content,
             'is_trial_used' => (bool) $user->is_trial_used,
             'is_nsfw'       => (bool) $isNSFW,
+            'isNsfw'        => (bool) $isVenice,
         ]);
     }
 
