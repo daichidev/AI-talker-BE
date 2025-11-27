@@ -141,6 +141,7 @@ class ChatbotController extends Controller
                 'message' => $content,
                 'time'    => $now->format('Y-m-d H:i:s'),
                 'is_nsfw' => false,
+                'isNsfw'  => true,
             ]);
         }
 
@@ -172,6 +173,7 @@ class ChatbotController extends Controller
             'time'    => $now->format('Y-m-d H:i:s'),
             'is_trial_used' => (bool) $user->is_trial_used,
             'is_nsfw' => (bool) $isNSFW,
+            'isNsfw'  => (bool) $isVenice,
         ]);
     }
 
