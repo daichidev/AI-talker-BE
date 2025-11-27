@@ -64,7 +64,7 @@ class ChatbotController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $content,
-                'isNsfw'        => true,
+                'isNsfw'  => true, 
                 'is_nsfw' => false,
             ]);
         }
