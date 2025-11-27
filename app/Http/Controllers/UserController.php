@@ -396,7 +396,7 @@ class UserController extends Controller
         }
 
         $chatLogs = DB::table($tableName)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return $chatLogs->flatMap(function ($chatLog) {
