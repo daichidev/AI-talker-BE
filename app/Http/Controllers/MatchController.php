@@ -682,9 +682,6 @@ class MatchController extends Controller
             ->get(['personality_type', 'result'])
             ->pluck('result', 'personality_type')
             ->toArray();
-        if (!$user->profile && !$user->anketos && !$user->profile->gender && !$user->anketos->gender) {
-            return response()->json(['results' => []]);
-        }
         $youRaw = [
             'id' => $user->id,
             'name' => $user->profile->name ?? null,
@@ -703,6 +700,9 @@ class MatchController extends Controller
             'big5' => isset($user->personalityTest->mean_values_array) ? json_decode($user->personalityTest->mean_values_array, true) : null,
             'gender' => $user->profile->gender ?? $user->anketos->gender ?? null,
         ];
+        if ($youRaw['gender'] == null) {
+            return response()->json(['results' => []]);
+        }
         $candsRaw = $this->getCandidateProfiles($userId, ['gender' => $youRaw['gender'] == '男性' ? '女性' : '男性']);
 
         $you = self::normalizeUser($youRaw);
