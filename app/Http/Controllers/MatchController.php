@@ -682,6 +682,9 @@ class MatchController extends Controller
             ->get(['personality_type', 'result'])
             ->pluck('result', 'personality_type')
             ->toArray();
+        if (!$user->profile->gender ?? !$user->anketos->gender) {
+            return response()->json(['results' => []]);
+        }
         $youRaw = [
             'id' => $user->id,
             'name' => $user->profile->name ?? null,
