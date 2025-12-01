@@ -23,7 +23,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get("guide", [BlogController::class, 'index']);
+Route::get("guide", [BlogController::class, 'guide']);
+Route::get("blog", [BlogController::class, 'blog']);
 
 // Admin routes
 Route::get('/admin/login', [AdminUserController::class, 'showLogin'])->name('admin.login');
