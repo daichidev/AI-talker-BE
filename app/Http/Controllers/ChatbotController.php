@@ -107,19 +107,21 @@ class ChatbotController extends Controller
             'user_id'        => 'required|integer',
             'friend_user_id' => 'required|integer',
             'message'        => 'required|string',
+            'is_boost'       => 'required|boolean',
         ]);
 
         $userId   = (int) $request->input('user_id');
         $friendId = (int) $request->input('friend_user_id');
         $message  = (string) $request->input('message');
-        $isVenice = false;
+        $isBoost  = (bool) $request->input('is_boost');
+        $isVenice = $isBoost;
         /** @var User|null $user */
         $user = User::find($userId);
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
-        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        // $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(FriendChatLogService::class)->ensureUserTableExists($userId, $friendId); // ← 友達用を常に使用
         $now = Carbon::now();
         if (!Schema::hasColumn($tableName, 'is_nsfw')) {
@@ -130,7 +132,7 @@ class ChatbotController extends Controller
         }
 
         // 1) NSFW要求 + ブーストあり → Venice Friend
-        if ($isNSFWRequest && $user->boost_mode > 0) {
+        if ($isBoost && $user->boost_mode > 0) {
             $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
             $content = $this->extractContent($data);
 
@@ -150,30 +152,30 @@ class ChatbotController extends Controller
         $data = $this->openAIService->chatWithFriend($userId, $friendId, $tableName, $message);
         $content = $this->extractContent($data);
 
-        if ($content === 'false') {
-            if ($user->boost_mode > 0) {
-                $isVenice = true;
-                $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
-                $content = $this->extractContent($data);
-                $this->consumeBoost($user);
-                $isNSFW = 0;
-            } else {
-                $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
-                $isNSFW = 1;
-            }
-        } else {
-            $isNSFW = (int) $isNSFWRequest;
-        }
+        // if ($content === 'false') {
+        //     if ($user->boost_mode > 0) {
+        //         $isVenice = true;
+        //         $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
+        //         $content = $this->extractContent($data);
+        //         $this->consumeBoost($user);
+        //         $isNSFW = 0;
+        //     } else {
+        //         $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+        //         $isNSFW = 1;
+        //     }
+        // } else {
+        //     $isNSFW = (int) $isNSFWRequest;
+        // }
 
         // \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
-        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
+        $this->insertLog($tableName, $message, $content, (bool) $isBoost, $isVenice, $now);
 
         return response()->json([
             'success' => true,
             'message' => $content,
             'time'    => $now->format('Y-m-d H:i:s'),
             'is_trial_used' => (bool) $user->is_trial_used,
-            'is_nsfw' => (bool) $isNSFW,
+            'is_nsfw' => (bool) $isBoost,
             'isNsfw'  => (bool) $isVenice,
         ]);
     }
