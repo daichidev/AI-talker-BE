@@ -262,7 +262,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/1.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/1.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -283,7 +283,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/3.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/3.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -316,7 +316,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/4.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/4.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -336,7 +336,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/5.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/5.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -345,7 +345,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/6.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/6.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/7.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/7.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -388,7 +388,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/8.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/8.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -413,7 +413,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/11.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/11.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -442,7 +442,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/4.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/4.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -463,7 +463,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/10.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/10.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
@@ -487,7 +487,7 @@
                                 <div class="screen-frame">
                                     <div class="screen-inner">
                                         <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                        <img src="{{ URL::to('/') }}/guide/2.jpg" alt="My AI アプリ画面" />
+                                        <img src="{{ asset('') }}/AI-talker-BE/public/guide/2.jpg" alt="My AI アプリ画面" />
                                         <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                                     </div>
                                 </div>
