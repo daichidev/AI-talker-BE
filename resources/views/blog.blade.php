@@ -78,11 +78,159 @@
             color: #111827;
         }
 
+        .store-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .store-btn {
+            /* flex: 1 1 220px; */
+            min-width: 0;
+            text-decoration: none;
+            /* border-radius: 999px; */
+            /* padding: 9px 12px; */
+            /* border: 1px solid rgba(15, 23, 42, 0.08); */
+            /* background: #ffffff; */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: box-shadow 0.15s ease, transform 0.15s ease,
+                background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .store-btn:hover {
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+            transform: translateY(-1px);
+            /* background: #fef2f2; */
+        }
+
+        /* 共通アイコン */
+        .store-icon {
+            /* width: 300px; */
+            height: 89px;
+            /* border-radius: 999px; */
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+
+        /* Apple ロゴ */
+        .store-icon-apple {
+            /* background: #111827; */
+            color: #ffffff;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* Google Play ロゴ枠 */
+        .store-icon-google {
+            background: #ffffff;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+        }
+
+        .store-icon-google svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        /* テキスト部分 */
+        .store-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .store-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .store-sub {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        /* 片方だけ色味を変えるならここで */
+        .store-apple {
+            border-color: rgba(17, 24, 39, 0.18);
+        }
+
+        .store-google {
+            border-color: rgba(205, 92, 92, 0.6);
+            background: rgba(205, 92, 92, 0.03);
+        }
+
         .subtitle {
             color: var(--text-sub);
             font-size: 14px;
             white-space: pre-wrap;
         }
+
+        /* ▼ スクリーン画像エリア */
+        .hero-visual {
+            margin: 16px 0 8px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .screen-wrapper {
+            max-width: 260px;
+            width: 100%;
+        }
+
+        .screen-frame {
+            position: relative;
+            border-radius: 32px;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            margin: 0 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+        }
+
+        .screen-frame::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            border-radius: 999px;
+            background: #e5e7eb;
+        }
+
+        .screen-inner {
+            margin-top: 14px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #e5e7eb;
+            aspect-ratio: 9 / 19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 12px;
+            text-align: center;
+            /* padding: 8px; */
+        }
+
+        /* 実際のスクリーンショットを入れる場合は、この img を使う想定 */
+        .screen-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .screen-label {
+            pointer-events: none;
+        }
+
+        /* ▲ スクリーン画像エリア */
 
         .card {
             margin-top: 20px;
@@ -208,6 +356,7 @@
                     My AIを手に取っていただき、本当にありがとうございます。
                     このページでは、「My AIとは何か？」そして「これからどんな未来を目指しているのか？」をお伝えします。
                 </p>
+
             </header>
 
             <section class="grid">
@@ -277,6 +426,28 @@
             <section class="card">
                 <span class="badge">友達のAIと話せる</span>
                 <h2>『友達のAIと話せるようになりました！』</h2>
+                <!-- ▼ スクリーン画像ダミー -->
+                <div class="hero-visual">
+                    <div class="screen-wrapper">
+                        <div class="screen-frame">
+                            <div class="screen-inner">
+                                <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                <img src="{{ URL::to('/') }}/guide/9.jpg" alt="My AI アプリ画面" />
+                                <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-wrapper">
+                        <div class="screen-frame">
+                            <div class="screen-inner">
+                                <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                <img src="{{ URL::to('/') }}/guide/11.jpg" alt="My AI アプリ画面" />
+                                <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ▲ スクリーン画像ダミー -->
                 <p>
                     自分の悩みを相談したり、相手が好感を持つような会話のシミュレーションもできます。<br />
                     恋愛シミュレーションなんかもOK。相手本人には、どんな話をしたかはわかりません。
@@ -335,6 +506,28 @@
                 <p class="cta-strong">
                     まずは「My AI」をダウンロードして、あなただけのAIの分身との生活を始めてみませんか？
                 </p>
+                    <!-- ▼ ストアリンクボタン（アイコン付き） -->
+                    <div class="store-links">
+                        <!-- App Store -->
+                        <a
+                            class="store-btn store-apple"
+                            href="https://apps.apple.com/jp/app/6741506555"
+                            target="_blank"
+                            rel="noopener noreferrer">
+                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ URL::to('/') }}/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" />
+                        </a>
+
+                        <!-- Google Play -->
+                        <a
+                            class="store-btn store-google"
+                            href="https://play.google.com/store/apps/details?id=com.ai_talker_client"
+                            target="_blank"
+                            rel="noopener noreferrer">
+                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ URL::to('/') }}/GetItOnGooglePlay_Badge_Web_color_Japanese.svg" />
+                        </a>
+                    </div>
+                    <!-- ▲ ストアリンクボタン（アイコン付き） -->
+
                 <p style="margin-top: 6px; font-size: 13px; color: #4b5563;">
                     毎日のちょっとした相談から、大事な決断の前の整理まで。<br />
                     あなたのAIが、そっと隣に寄り添います。

@@ -166,6 +166,70 @@
             color: var(--text-sub);
             margin-top: 8px;
         }
+
+        /* ▼ スクリーン画像エリア */
+        .hero-visual {
+            margin: 16px 0 8px;
+            display: flex;
+            justify-content: center;
+            margin-left: auto;
+        }
+
+        .screen-wrapper {
+            max-width: 260px;
+            width: 100%;
+        }
+
+        .screen-frame {
+            position: relative;
+            border-radius: 32px;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            margin: 0 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+        }
+
+        .screen-frame::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            border-radius: 999px;
+            background: #e5e7eb;
+        }
+
+        .screen-inner {
+            margin-top: 14px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #e5e7eb;
+            aspect-ratio: 9 / 19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 12px;
+            text-align: center;
+            /* padding: 8px; */
+        }
+
+        /* 実際のスクリーンショットを入れる場合は、この img を使う想定 */
+        .screen-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .screen-label {
+            pointer-events: none;
+        }
+
+        /* ▲ スクリーン画像エリア */
     </style>
 </head>
 
@@ -192,6 +256,19 @@
                             <div class="step-title">AIの画像を選ぶ</div>
                             <div>自分のAIの画像を<span class="emphasis">3つの中から選択</span>し、生成してください。（後から変更できます）</div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/1.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -200,6 +277,19 @@
                             <div class="step-title">AIの質問に沿ってプロフィール入力</div>
                             <div>AIからの質問に答えながら、プロフィールを入力してください。（後で変更できます）</div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/3.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -220,6 +310,19 @@
                             <div class="step-title">プロフィール入力</div>
                             <div>あなた自身のプロフィールを入力してください。（自分のAIに反映されます）</div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/4.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -227,6 +330,37 @@
                         <div>
                             <div class="step-title">性格判断（BIG5 / MBTI）</div>
                             <div>性格判断BIG5とMBTIを入力してください。（結果が自分のAIに反映されます）</div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/5.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/6.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/7.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                         </div>
                     </li>
 
@@ -248,6 +382,19 @@
                                 <span class="small">※友達検索からの登録はポイントが付きません。</span>
                             </div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/8.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -260,6 +407,19 @@
                                 ・相手本人には、どんな会話をしたかはわかりません。
                             </div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/11.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -276,6 +436,19 @@
                             <div class="step-title">友達検索</div>
                             <div>友達検索から他のユーザーを探し、友達になって話すこともできます。（ポイント消費 1往復10P）</div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/4.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -284,6 +457,19 @@
                             <div class="step-title">占い・性格判断で育成</div>
                             <div>占いや性格判断をいろいろ試して、どんどん自分のAIを育ててください。（一部ポイント消費）</div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/10.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
 
                     <li class="step-item">
@@ -295,6 +481,19 @@
                                 <span class="small">🚫 テスト運営中（サブスク）</span>
                             </div>
                         </div>
+                        <!-- ▼ スクリーン画像ダミー -->
+                        <div class="hero-visual">
+                            <div class="screen-wrapper">
+                                <div class="screen-frame">
+                                    <div class="screen-inner">
+                                        <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
+                                        <img src="{{ URL::to('/') }}/guide/2.jpg" alt="My AI アプリ画面" />
+                                        <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ▲ スクリーン画像ダミー -->
                     </li>
                 </ol>
             </section>
@@ -372,4 +571,5 @@
         </main>
     </div>
 </body>
+
 </html>
