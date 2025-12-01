@@ -43,7 +43,7 @@ class ChatbotController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
         $isVenice = false;
-        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        // $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(ChatLogService::class)->ensureUserTableExists($userId);
         if (!Schema::hasColumn($tableName, 'is_nsfw')) {
             DB::statement("ALTER TABLE ".$tableName." ADD COLUMN is_nsfw BOOLEAN DEFAULT FALSE");
@@ -54,49 +54,49 @@ class ChatbotController extends Controller
         $now = Carbon::now();
 
         // 1) NSFW要求 + ブーストあり → Venice
-        if ($isNSFWRequest && $user->boost_mode > 0) {
-            $data = $this->openAIService->chatVenice($message, $userId, $tableName);
-            $content = $this->extractContent($data);
+        // if ($isNSFWRequest && $user->boost_mode > 0) {
+        //     $data = $this->openAIService->chatVenice($message, $userId, $tableName);
+        //     $content = $this->extractContent($data);
 
-            $this->insertLog($tableName, $message, $content, false, true, $now);
-            $this->consumeBoost($user);
+        //     $this->insertLog($tableName, $message, $content, false, true, $now);
+        //     $this->consumeBoost($user);
 
-            return response()->json([
-                'success' => true,
-                'message' => $content,
-                'isNsfw'  => true, 
-                'is_nsfw' => false,
-            ]);
-        }
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => $content,
+        //         'isNsfw'  => true, 
+        //         'is_nsfw' => false,
+        //     ]);
+        // }
 
         // 2) 通常 → OpenAI
         $data = $this->openAIService->chat($userId, $tableName, $message);
         $content = $this->extractContent($data);
 
         // OpenAI から「false」→ NSFW疑い
-        if ($content === 'false') {
-            if ($user->boost_mode > 0) {
-                // Venice にフォールバック
-                $data = $this->openAIService->chatVenice($message, $userId, $tableName);
-                $content = $this->extractContent($data);
-                $this->consumeBoost($user);
-                $isNSFW = 0;
-                $isVenice = true;
-            } else {
-                $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
-                $isNSFW = 1;
-            }
-        } else {
-            $isNSFW = (int) $isNSFWRequest;
-        }
+        // if ($content === 'false') {
+        //     if ($user->boost_mode > 0) {
+        //         // Venice にフォールバック
+        //         $data = $this->openAIService->chatVenice($message, $userId, $tableName);
+        //         $content = $this->extractContent($data);
+        //         $this->consumeBoost($user);
+        //         $isNSFW = 0;
+        //         $isVenice = true;
+        //     } else {
+        //         $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+        //         $isNSFW = 1;
+        //     }
+        // } else {
+        //     $isNSFW = (int) $isNSFWRequest;
+        // }
 
-        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
+        $this->insertLog($tableName, $message, $content, (bool) false, $isVenice, $now);
 
         return response()->json([
             'success'       => true,
             'message'       => $content,
             'is_trial_used' => (bool) $user->is_trial_used,
-            'is_nsfw'       => (bool) $isNSFW,
+            'is_nsfw'       => (bool) false,
             'isNsfw'        => (bool) $isVenice,
         ]);
     }
@@ -165,7 +165,7 @@ class ChatbotController extends Controller
             $isNSFW = (int) $isNSFWRequest;
         }
 
-        \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
+        // \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
         $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
 
         return response()->json([
@@ -195,7 +195,7 @@ class ChatbotController extends Controller
         $data = $this->geminiService->chat($userId, $message);
         $content = $this->extractContent($data);
 
-        $this->insertLog($tableName, $message, $content, $isNSFWRequest, $now);
+        $this->insertLog($tableName, $message, $content, false, $isNSFWRequest, $now);
 
         return response()->json([
             'success' => true,
