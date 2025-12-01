@@ -432,7 +432,7 @@
                         <div class="screen-frame">
                             <div class="screen-inner">
                                 <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                <img src="{{ URL::to('/') }}/guide/9.jpg" alt="My AI アプリ画面" />
+                                <img src="{{ asset('/') }}guide/9.jpg" alt="My AI アプリ画面" />
                                 <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                             </div>
                         </div>
@@ -441,7 +441,7 @@
                         <div class="screen-frame">
                             <div class="screen-inner">
                                 <!-- 実際に使うときは下のコメントアウトを外して src を差し替え -->
-                                <img src="{{ URL::to('/') }}/guide/11.jpg" alt="My AI アプリ画面" />
+                                <img src="{{ asset('/') }}guide/11.jpg" alt="My AI アプリ画面" />
                                 <!-- <span class="screen-label">ここに My AI の<br />スクリーンショットを表示</span> -->
                             </div>
                         </div>
@@ -514,7 +514,7 @@
                             href="https://apps.apple.com/jp/app/6741506555"
                             target="_blank"
                             rel="noopener noreferrer">
-                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ URL::to('/') }}/Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" />
+                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ asset('/') }}Download_on_the_App_Store_Badge_JP_RGB_blk_100317.svg" />
                         </a>
 
                         <!-- Google Play -->
@@ -523,7 +523,7 @@
                             href="https://play.google.com/store/apps/details?id=com.ai_talker_client"
                             target="_blank"
                             rel="noopener noreferrer">
-                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ URL::to('/') }}/GetItOnGooglePlay_Badge_Web_color_Japanese.svg" />
+                            <img class="store-icon store-icon-apple" aria-hidden="true" src="{{ asset('/') }}GetItOnGooglePlay_Badge_Web_color_Japanese.svg" />
                         </a>
                     </div>
                     <!-- ▲ ストアリンクボタン（アイコン付き） -->
