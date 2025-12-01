@@ -121,7 +121,7 @@ class ChatbotController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
-        // $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
+        $isNSFWRequest = (bool) $this->nsfwDetectionService->detectNSFW($message);
         $tableName = app(FriendChatLogService::class)->ensureUserTableExists($userId, $friendId); // ← 友達用を常に使用
         $now = Carbon::now();
         if (!Schema::hasColumn($tableName, 'is_nsfw')) {
@@ -152,30 +152,30 @@ class ChatbotController extends Controller
         $data = $this->openAIService->chatWithFriend($userId, $friendId, $tableName, $message);
         $content = $this->extractContent($data);
 
-        // if ($content === 'false') {
-        //     if ($user->boost_mode > 0) {
-        //         $isVenice = true;
-        //         $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
-        //         $content = $this->extractContent($data);
-        //         $this->consumeBoost($user);
-        //         $isNSFW = 0;
-        //     } else {
-        //         $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
-        //         $isNSFW = 1;
-        //     }
-        // } else {
-        //     $isNSFW = (int) $isNSFWRequest;
-        // }
+        if ($content === 'false') {
+            // if ($user->boost_mode > 0) {
+            //     $isVenice = true;
+            //     $data = $this->openAIService->chatWithVeniceFriend($userId, $friendId, $tableName, $message);
+            //     $content = $this->extractContent($data);
+            //     $this->consumeBoost($user);
+            //     $isNSFW = 0;
+            // } else {
+                $content = "申し訳ありませんが、その内容にはお答えできません。別の質問をお願いします。";
+                $isNSFW = 1;
+            // }
+        } else {
+            $isNSFW = (int) $isNSFWRequest;
+        }
 
         // \Log::info('++++++++++++++++++++++++++++++++++++++', ['content' => $content]);
-        $this->insertLog($tableName, $message, $content, (bool) $isBoost, $isVenice, $now);
+        $this->insertLog($tableName, $message, $content, (bool) $isNSFW, $isVenice, $now);
 
         return response()->json([
             'success' => true,
             'message' => $content,
             'time'    => $now->format('Y-m-d H:i:s'),
             'is_trial_used' => (bool) $user->is_trial_used,
-            'is_nsfw' => (bool) $isBoost,
+            'is_nsfw' => (bool) $isNSFW,
             'isNsfw'  => (bool) $isVenice,
         ]);
     }
