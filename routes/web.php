@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\AdminUserController;
 use App\Http\Controllers\admin\AdminReportController;
 use App\Http\Controllers\admin\AnnouncementController;
 use App\Http\Controllers\admin\GeojsonController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -21,6 +22,8 @@ use App\Http\Controllers\UserController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get("guide", [BlogController::class, 'index']);
 
 // Admin routes
 Route::get('/admin/login', [AdminUserController::class, 'showLogin'])->name('admin.login');
