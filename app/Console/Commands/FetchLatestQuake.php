@@ -52,6 +52,11 @@ class FetchLatestQuake extends Command
 
             $lat = $hypo['latitude'] ?? null;
             $lon = $hypo['longitude'] ?? null;
+            $count = Earthquake::where('external_id', $item['id'])->count();
+            if ($count > 0) {
+                Log::info('Quake already exists: external_id=' . $item['id']);
+                
+            }
 
             // DB に保存（同じ external_id があれば更新）
             $quake = Earthquake::updateOrCreate(

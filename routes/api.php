@@ -79,6 +79,8 @@ Route::post('/matching/invite-friend', [AiMatchingController::class, 'inviteFrie
 Route::post('/matching/match-friend', [AiMatchingController::class, 'matchFriend']);
 Route::post('/matching/reject-friend', [AiMatchingController::class, 'rejectFriend']);
 
+Route::get('/get-boost-count', [UserController::class, 'getBoostCount']);
+
 // GEMINI画像生成
 Route::post('/generate-avatar-gemini', [GeminiImageController::class, 'generateAvatar']);
 

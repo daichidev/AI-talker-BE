@@ -792,6 +792,19 @@ class UserController extends Controller
         ]);
     }
 
+    public function getBoostCount(Request $request) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        return response()->json([
+            'success' => true,
+            'boost_count' => $user->boost_mode
+        ]);
+    }
+
     public function getSubscriptionDate(Request $request)
     {
         $request->validate([
