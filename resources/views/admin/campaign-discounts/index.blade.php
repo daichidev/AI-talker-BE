@@ -101,7 +101,7 @@
                             </td>
                             <td class="px-4 py-3 align-top">
                                 @if($campaign->banner_url)
-                                    <img src="{{ $campaign->banner_url }}"
+                                    <img src="/AI-talker-BE/public{{ $campaign->banner_url }}"
                                          alt="banner"
                                          class="h-12 w-24 rounded-md object-cover ring-1 ring-gray-200">
                                 @else
