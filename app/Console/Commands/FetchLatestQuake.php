@@ -71,7 +71,7 @@ class FetchLatestQuake extends Command
             // Custom data payload (values must be strings for FCM data messages)
             $dataPayload = [
                 'announcement_id' => (string)$item['id'],
-                'type' => "disaster",
+                'type' => "warning",
             ];
             $this->accessTokenService = new GoogleAccessTokenService();
             try {
