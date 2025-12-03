@@ -65,7 +65,7 @@ class FetchLatestQuake extends Command
             // push notification
             $notification = [
                 'title' => '地震情報',
-                'body' => "地震情報が更新されました。\n震度{$maxScaleLabel}、{$tsunamiLabel}、{$mag}マグニチュード、{$depth}km深さ",
+                'body' => "緊急地震速報\n震度{$maxScaleLabel}、発生エリア{$hypo['name']}、津波{$tsunamiLabel}、{$mag}マグニチュード、{$depth}km深さ",
             ];
 
             // Custom data payload (values must be strings for FCM data messages)
