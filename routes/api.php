@@ -14,6 +14,8 @@ use App\Http\Controllers\Image\DeepImageController;
 use App\Http\Controllers\PersonalityAssessmentController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\admin\GeojsonController;
+use App\Http\Controllers\CampaignDiscountApiController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -100,3 +102,6 @@ Route::post('/get-subscription-date', [UserController::class, 'getSubscriptionDa
 
 // disaster facilities
 Route::post('/get-nearby-disaster-facilities', [GeojsonController::class, 'getNearbyDisasterFacilities']);
+
+// discount
+Route::get('/get-discount', [CampaignDiscountApiController::class, 'today']);

@@ -17,6 +17,10 @@
                class="{{ request()->routeIs('admin.geojson.import.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
                避難所・指定避難所データ インポート
             </a>
+            <a href="{{ route('admin.campaign-discounts.index') }}"
+               class="{{ request()->routeIs('admin.campaign-discounts.*') ? 'text-blue-700 font-bold border-b-2 border-blue-700' : 'text-blue-500 hover:text-blue-700' }}">
+               キャンペーン割引
+            </a>
         </div>
     </div>
 </div>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminUserController;
 use App\Http\Controllers\admin\AdminReportController;
 use App\Http\Controllers\admin\AnnouncementController;
+use App\Http\Controllers\Admin\CampaignDiscountController;
 use App\Http\Controllers\admin\GeojsonController;
 use App\Http\Controllers\UserController;
 
@@ -52,6 +53,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::post('/admin/geojson/import', [GeojsonController::class, 'run'])
     ->name('admin.geojson.import.run');       // ボタンクリックで実行
+    Route::resource('/admin/campaign-discounts', CampaignDiscountController::class)->except(['show'])
+    ->names('admin.campaign-discounts');
 });
 
 // アカウント削除リクエスト用のルート
