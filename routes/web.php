@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminUserController;
 use App\Http\Controllers\admin\AdminReportController;
 use App\Http\Controllers\admin\AnnouncementController;
-use App\Http\Controllers\Admin\CampaignDiscountController;
+use App\Http\Controllers\admin\CampaignDiscountController;
 use App\Http\Controllers\admin\GeojsonController;
 use App\Http\Controllers\UserController;
 
