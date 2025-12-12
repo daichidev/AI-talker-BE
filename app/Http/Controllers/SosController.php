@@ -19,10 +19,8 @@ class SosController extends Controller
 
         $path = $request->file('video')->store('sos_videos', 'public');
 
-        $url = Storage::disk('public')->url($path);
-
         return response()->json([
-            'url' => $url,
+            'url' => $path,
         ]);
     }
 
