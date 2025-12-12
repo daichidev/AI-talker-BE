@@ -1,14 +1,12 @@
-@component('mail::message')
-# 🚨 SOS通知
+<x-mail::message>
+# Introduction
 
-{{ $senderName }} さんから緊急メッセージが届きました。
+The body of your message.
 
----
+<x-mail::button :url="''">
+Button Text
+</x-mail::button>
 
-### 📩 メッセージ内容
-{{ $messageText }}
-
----
-
-必要であればご連絡をお願いします。  
-@endcomponent
+Thanks,<br>
+{{ config('app.name') }}
+</x-mail::message>
