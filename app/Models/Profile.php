@@ -32,7 +32,8 @@ class Profile extends Model
         'animal_fortune_telling_result',
         'description',
         'comment',
-        'dialect'
+        'dialect',
+        'sos_recipient'
     ];
 
     public function user()

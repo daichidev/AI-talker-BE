@@ -15,7 +15,7 @@ use App\Http\Controllers\PersonalityAssessmentController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\admin\GeojsonController;
 use App\Http\Controllers\CampaignDiscountApiController;
-
+use App\Http\Controllers\SosController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,6 +59,7 @@ Route::post('/chatWithGemini', [ChatbotController::class, 'chatWithGemini']);
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
 Route::get('/profile/{userId}/blood-type-bday', [ProfileController::class, 'getBloodTypeNBDay']);
 Route::post('/profile/{userId}', [ProfileController::class, 'update']);
+Route::get('/profile/{userId}/users', [ProfileController::class, 'getUsers']);
 
 Route::get('/syncro/{userId}', [SyncroController::class, 'show']);
 
@@ -105,3 +106,6 @@ Route::post('/get-nearby-disaster-facilities', [GeojsonController::class, 'getNe
 
 // discount
 Route::get('/get-discount', [CampaignDiscountApiController::class, 'today']);
+
+Route::post('/sos/upload-video', [SosController::class, 'uploadVideo']);
+Route::post('/sos/send-email', [SosController::class, 'sendEmail']);

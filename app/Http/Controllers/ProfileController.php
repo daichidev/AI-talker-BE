@@ -59,6 +59,7 @@ class ProfileController extends Controller
             'description' => 'nullable|string',
             'comment' => 'nullable|string',
             'dialect' => 'nullable|string',
+            'sos_recipient' => 'nullable|string',
             'search_show_status' => 'nullable'
         ]);
 

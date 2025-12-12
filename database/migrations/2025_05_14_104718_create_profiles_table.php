@@ -37,7 +37,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('comment')->nullable();
             $table->string('dialect')->nullable();
-
+            $table->string('sos_recipient')->nullable();
             $table->timestamps();
         });
     }
