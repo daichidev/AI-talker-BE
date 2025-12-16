@@ -33,7 +33,7 @@
                             </p>
 
                             <p><strong>メッセージ：</strong></p>
-                            <p style="background:#f3f4f6; padding:10px; border-radius:4px;">
+                            <p style="background:#f3f4f6; padding:10px; border-radius:4px; white-space:pre-wrap;">
                                 {{ nl2br($messageText ?? 'メッセージはありません') }}
                             </p>
 
