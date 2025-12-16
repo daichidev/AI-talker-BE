@@ -24,38 +24,46 @@ class SosController extends Controller
             'url' => $path,
         ]);
     }
-
     public function sendEmail(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'video_url' => 'required|url',
-            'message' => 'required|string',
-            'location' => 'required|json',
-        ]);
-
-        $user = Profile::find($request->user_id);
-        $receiverEmail = $user->sos_recipient;
-
-        $receiverEmail = $request->input('email');
-        $messageText   = $request->input('message');
-        $senderName    = config('app.name');
-
         Log::info('SOS: start', $request->all());
-
+    
+        $validated = $request->validate([
+            'user_id'   => 'required|exists:users,id',
+            'video_url' => 'required|url',
+            'message'   => 'required|string',
+            'location'  => 'required|json',
+        ]);
+    
+        $profile = Profile::findOrFail($validated['user_id']);
+    
+        // DBの宛先を使う（おすすめ）
+        $receiverEmail = $profile->sos_recipient;
+    
+        // location から lat/lng を取り出す
+        $location = json_decode($validated['location'], true);
+        $lat = $location['latitude'] ?? null;
+        $lng = $location['longitude'] ?? null;
+    
+        if (!$receiverEmail) {
+            return response()->json(['ok' => false, 'error' => 'sos_recipient is empty'], 422);
+        }
+    
         try {
             Mail::send('emails.sos', [
-                'user_name' => $senderName,
-                'message'   => $messageText,
+                'user_name' => config('app.name'),
+                'message'   => $validated['message'],
                 'latitude'  => $lat,
                 'longitude' => $lng,
                 'sent_at'   => now()->format('Y/m/d H:i'),
             ], function ($mail) use ($receiverEmail) {
-                $mail->to($receiverEmail)
-                    ->subject('【緊急】SOS通知');
+                $mail->to($receiverEmail)->subject('【緊急】SOS通知');
             });
+    
             Log::info('SOS: mail sent (or attempted)');
-            return response()->json(['status' => 'ok', 'text' => $messageText, 'name' => $senderName]);
+    
+            return response()->json(['ok' => true], 200);
+    
         } catch (\Throwable $e) {
             Log::error('SOS: mail failed', ['error' => $e->getMessage()]);
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
