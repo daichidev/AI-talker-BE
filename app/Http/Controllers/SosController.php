@@ -35,7 +35,7 @@ class SosController extends Controller
         $messageText   = $request->input('message');
         $lat           = $request->input('latitude');
         $lng           = $request->input('longitude');
-        $senderName    = config('app.name');
+        $requesterName = $user->name;
         if (empty($receiverEmail)) {
             return response()->json(['ok' => false, 'error' => 'receiver email is empty'], 422);
         }
@@ -44,7 +44,7 @@ class SosController extends Controller
 
         try {
             Mail::send('emails.sos', [
-                'user_name' => $senderName,
+                'requester_name' => $requesterName,
                 'messageText'   => $messageText,
                 'latitude'  => $lat,
                 'longitude' => $lng,
@@ -54,7 +54,7 @@ class SosController extends Controller
                     ->subject('【緊急】SOS通知');
             });
             Log::info('SOS: mail sent (or attempted)');
-            return response()->json(['status' => 'ok', 'text' => $messageText, 'name' => $senderName]);
+            return response()->json(['status' => 'ok']);
         } catch (\Throwable $e) {
             Log::error('SOS: mail failed', ['error' => $e->getMessage()]);
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);

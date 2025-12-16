@@ -24,8 +24,8 @@
 
                             <hr>
 
-                            <p><strong>送信者：</strong><br>
-                                {{ $user_name ?? '不明' }}
+                            <p><strong>SOS要求者：</strong><br>
+                                {{ $requester_name ?? '不明' }}
                             </p>
 
                             <p><strong>送信日時：</strong><br>
@@ -34,7 +34,7 @@
 
                             <p><strong>メッセージ：</strong></p>
                             <p style="background:#f3f4f6; padding:10px; border-radius:4px;">
-                                {{ $messageText ?? 'メッセージはありません' }}
+                                {{ nl2br($messageText ?? 'メッセージはありません') }}
                             </p>
 
                             @if(!empty($latitude) && !empty($longitude))
