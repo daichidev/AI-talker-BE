@@ -44,6 +44,6 @@ class SosController extends Controller
             new SOSSentMail($messageText, $senderName)
         );
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['status' => 'ok', 'text' => $messageText, 'name' => $senderName]);
     }
 }
