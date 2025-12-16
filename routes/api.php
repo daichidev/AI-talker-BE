@@ -108,4 +108,4 @@ Route::post('/get-nearby-disaster-facilities', [GeojsonController::class, 'getNe
 Route::get('/get-discount', [CampaignDiscountApiController::class, 'today']);
 
 Route::post('/sos/upload-video', [SosController::class, 'uploadVideo']);
-Route::post('/sos/send-email', [SosController::class, 'sendEmail']);
+Route::post('/sos-email', [SosController::class, 'sendEmail']);
