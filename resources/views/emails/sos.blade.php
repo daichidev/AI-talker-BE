@@ -34,7 +34,7 @@
 
                             <p><strong>メッセージ：</strong></p>
                             <p style="background:#f3f4f6; padding:10px; border-radius:4px;">
-                                {{ $message ?? 'メッセージはありません' }}
+                                {{ $messageText ?? 'メッセージはありません' }}
                             </p>
 
                             @if(!empty($latitude) && !empty($longitude))

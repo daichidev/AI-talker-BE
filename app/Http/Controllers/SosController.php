@@ -27,26 +27,25 @@ class SosController extends Controller
 
     public function sendEmail(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'video_url' => 'required|url',
-            'message' => 'required|string',
-            'location' => 'required|json',
-        ]);
 
-        $user = Profile::find($request->user_id);
+        Log::info('SOS: start', $request->all());
+        $user = Profile::where('user_id', $request->user_id)->first();
         $receiverEmail = $user->sos_recipient;
 
-        $receiverEmail = $request->input('email');
         $messageText   = $request->input('message');
+        $lat           = $request->input('latitude');
+        $lng           = $request->input('longitude');
         $senderName    = config('app.name');
+        if (empty($receiverEmail)) {
+            return response()->json(['ok' => false, 'error' => 'receiver email is empty'], 422);
+        }
 
         Log::info('SOS: start', $request->all());
 
         try {
             Mail::send('emails.sos', [
                 'user_name' => $senderName,
-                'message'   => $messageText,
+                'messageText'   => $messageText,
                 'latitude'  => $lat,
                 'longitude' => $lng,
                 'sent_at'   => now()->format('Y/m/d H:i'),
