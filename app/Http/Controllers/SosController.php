@@ -40,9 +40,16 @@ class SosController extends Controller
         $messageText   = $request->input('message');
         $senderName    = config('app.name');
 
-        Mail::to($receiverEmail)->send(
-            new SOSSentMail($messageText, $senderName)
-        );
+        Mail::send('emails.sos', [
+            'user_name' => $senderName,
+            'message'   => $messageText,
+            'latitude'  => $lat,
+            'longitude' => $lng,
+            'sent_at'   => now()->format('Y/m/d H:i'),
+        ], function ($mail) use ($receiverEmail) {
+            $mail->to($receiverEmail)
+                 ->subject('【緊急】SOS通知');
+        });
 
         return response()->json(['status' => 'ok', 'text' => $messageText, 'name' => $senderName]);
     }
