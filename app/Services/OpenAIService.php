@@ -41,8 +41,8 @@ class OpenAIService
                 $ctx['typedLines'],
                 $ctx['userNick'],
                 $ctx['botNick'],
-                dialect : $ctx['dialect'],
-                parlance: $ctx['parlance'],
+                dialect : $ctx['dialect'] ?? '',
+                parlance: $ctx['parlance'] ?? '',
             );
             \Log::info('+++++++++++++++++++++++++++++++', ['system' => $system]);
             $payload = [
