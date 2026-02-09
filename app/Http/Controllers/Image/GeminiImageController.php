@@ -48,7 +48,7 @@ class GeminiImageController extends Controller
     {
         $this->client = new Client();
         $this->apiKey = Config::get('app.gemini_api_key');
-        $this->modelId = 'gemini-2.5-flash-image-preview';
+        $this->modelId = 'gemini-2.5-flash-image';
     }
 
     /**
@@ -129,7 +129,7 @@ class GeminiImageController extends Controller
 
             // Make the API request to Gemini
             $response = $this->client->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/{$this->modelId}:generateContent?key={$this->apiKey}",
+                "https://generativelanguage.googleapis.com/v1/models/{$this->modelId}:generateContent?key={$this->apiKey}",
                 [
                     'headers' => [
                         'Content-Type' => 'application/json',

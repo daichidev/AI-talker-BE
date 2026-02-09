@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // 毎分チェック（お好みで変更）
-        $schedule->command('quake:fetch-latest')->everyMinute();
+        $schedule->command('app:today-weather-and-fortune')->everyMinute();
     }
 
     /**
