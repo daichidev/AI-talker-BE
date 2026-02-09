@@ -121,9 +121,6 @@ class GeminiImageController extends Controller
                             ]
                         ]
                     ]
-                ],
-                'generationConfig' => [
-                    'responseModalities' => ['IMAGE']
                 ]
             ];
 
