@@ -82,8 +82,8 @@ class OpenAIService
                 $ctxUser['typedLines'],
                 $ctxUser['userNick'],
                 $ctxFriend['botNick'],
-                dialect : $ctxFriend['dialect'],
-                parlance: $ctxFriend['parlance'],
+                dialect : $ctxFriend['dialect'] ?? '',
+                parlance: $ctxFriend['parlance'] ?? '',
             );
             \Log::info('+++++++++++++++++++++++++++++++', ['system' => $system]);
             $payload = [
@@ -124,8 +124,8 @@ class OpenAIService
                 $ctxUser['userNick'],
                 $ctxFriend['botNick'],
                 nsfwAppendix: true, // 必要に応じてNSFWテンプレを追加,
-                dialect : $ctxFriend['dialect'],
-                parlance: $ctxFriend['parlance'],
+                dialect : $ctxFriend['dialect'] ?? '',
+                parlance: $ctxFriend['parlance'] ?? '',
             );
             \Log::info('+++++++++++++++++++++++++++++++', ['system' => $system]);
             $payload = [
@@ -161,8 +161,8 @@ class OpenAIService
                 $ctx['userNick'],
                 $ctx['botNick'],
                 nsfwAppendix: true,
-                dialect: $ctx['dialect'],
-                parlance: $ctx['parlance'],
+                dialect: $ctx['dialect'] ?? '',
+                parlance: $ctx['parlance'] ?? '',
             );
             \Log::info('+++++++++++++++++++++++++++++++', ['system' => $system]);
             $payload = [
