@@ -121,12 +121,15 @@ class GeminiImageController extends Controller
                             ]
                         ]
                     ]
+                ],
+                'generationConfig' => [
+                    'responseModalities' => ['IMAGE']
                 ]
             ];
 
             // Make the API request to Gemini
             $response = $this->client->post(
-                "https://generativelanguage.googleapis.com/v1/models/{$this->modelId}:generateContent?key={$this->apiKey}",
+                "https://generativelanguage.googleapis.com/v1beta/models/{$this->modelId}:generateContent?key={$this->apiKey}",
                 [
                     'headers' => [
                         'Content-Type' => 'application/json',
