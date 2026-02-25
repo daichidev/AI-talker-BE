@@ -37,7 +37,7 @@ class AdminUserController extends Controller
 
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with('avatars');
         
         if ($request->has('search')) {
             $query->where('email', 'like', '%' . $request->search . '%');

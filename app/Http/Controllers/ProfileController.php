@@ -121,13 +121,24 @@ class ProfileController extends Controller
             'lng' => (float) $response[0]['lon']
         ];
     }
-    public function getBloodTypeNBDay($userId)
+    public function getBloodTypeNBDay(Request $request, $userId)
     {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
         $profile = Profile::where('user_id', $userId)->first();
         if (!$profile) {
             return response()->json([
                 'success' => false,
                 'data' => 'Profile not found'
+            ]);
+        }
+        if ($latitude != 0 && $longitude != 0) {
+            User::where('id', $userId)->update([
+                'location' => json_encode(["lat" => $latitude, "lng" => $longitude])
             ]);
         }
         return response()->json([

@@ -49,7 +49,10 @@
                                 @foreach($users as $user)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            <img src="{{ asset('') }}/storage/{{ $user->face_photo }}" alt="ユーザー画像" class="w-10 h-10 rounded-full">
+                                            <!-- <div class="w-12 h-12 p-2 rounded-full" style="background-image: url('{{ asset('storage/' . $user->face_photo) }}'); background-size: cover; background-position: top center; background-repeat: no-repeat;border-radius: 10px;">
+                                            </div> -->
+                                            <div class="w-12 h-12 p-2 rounded-full" style="background-image: url('{{ asset('storage/processed_images/' . $user->avatars->first()?->avatar_link) }}'); background-size: cover; background-position: top center; background-repeat: no-repeat;border-radius: 10px;">
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {{ $user->name }}
